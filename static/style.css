@@ -1,64 +1,83 @@
+/* Apply box-sizing: border-box to all elements */
 * {
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
+  box-sizing: border-box;
 }
 
-html,
+/* Set default margin and padding to 0 */
 body {
-	height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
+/* Style for container div */
 .container {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
+/* Style for header and footer sections */
 .header,
-.content,
-.status {
-	flex: 1;
-	padding: 20px;
-}
-
 .footer {
-	flex: 1;
-	padding: 20px;
+  padding: 20px;
+  text-align: center;
 }
 
-.header {
-	background-color: #f1f1f1;
-	border-bottom: 1px solid #ddd;
-}
-
+/* Style for content section */
 .content {
-	background-color: #fff;
-	text-align: center;
+  padding: 20px;
+  text-align: center;
 }
 
+/* Style for table */
 table {
-	margin: 0 auto;
-	width: 100%;
-	border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
 
 th,
 td {
-	padding: 8px;
-	text-align: left;
-	border-bottom: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ccc;
 }
 
 th {
-	background-color: #f1f1f1;
+  background-color: #f2f2f2;
 }
 
-tr:hover {
-	background-color: #f5f5f5;
+/* Style for buttons container */
+.buttons-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 
-.footer {
-	background-color: #f1f1f1;
-	border-top: 1px solid #ddd;
+/* Style for buttons */
+.buttons-container button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.buttons-container button:hover {
+  background-color: #3e8e41;
+}
+
+/* Style for h1 */
+h1 {
+  margin-top: 0;
+}
+
+/* Add border to the Connection Time column */
+td:nth-child(5) {
+  border-right: 1px solid #ccc;
+}
+
+.content table tbody tr:hover {
+  background-color: #f2f2f2;
 }
