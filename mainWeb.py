@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
-from scapy.all import ARP, Ether, srp
+
 from dotenv import load_dotenv, dotenv_values
 
 from datetime import datetime
@@ -25,7 +25,8 @@ socketio = SocketIO(app, async_mode='threading', cors_allowed_origins="*",
 
 
 class Endpoints:
-    def __init__(self, client_ip, hostname, logged_user, boot_time, version):
+    def __init__(self, room, client_ip, hostname, logged_user, boot_time, version):
+        self.id = room
         self.boot_time = boot_time
         self.ip_address = client_ip
         self.hostname = hostname
@@ -33,7 +34,7 @@ class Endpoints:
         self.client_version = version
 
     def __repr__(self):
-        return f"Endpoint({self.ip_address}, {self.hostname}, " \
+        return f"Endpoint({self.id}, {self.ip_address}, {self.hostname}, " \
                f"{self.logged_user}, {self.boot_time}, {self.client_version})"
 
 
@@ -57,12 +58,16 @@ def index():
 
 @socketio.on('client_info')
 def handle_client_info(client_info):
-    fresh_endpoint = Endpoints(client_info["ip_address"],
+    client_id = request.sid
+
+    fresh_endpoint = Endpoints(client_id,
+                               client_info["ip_address"],
                                client_info["hostname"],
                                client_info["logged_user"],
                                client_info["boot_time"],
                                client_info['client_version'])
 
+    history[get_date()] = fresh_endpoint
     if fresh_endpoint not in endpoints:
         endpoints.append(fresh_endpoint)
 
@@ -70,7 +75,14 @@ def handle_client_info(client_info):
         if count == 0:
             count += 1
 
-        print(f"#{count} | IP: {endpoint.ip_address} | "
+        print(f"#{count} | ID: {endpoint.id} | IP: {endpoint.ip_address} | "
+              f"Hostname: {endpoint.hostname} | "
+              f"Logged User: {endpoint.logged_user} | "
+              f"Boot Time: {endpoint.boot_time} | "
+              f"Client_Version: {endpoint.client_version}")
+
+    for t, endpoint in history.items():
+        print(f"History\n{t} | IP: {endpoint.ip_address} | "
               f"Hostname: {endpoint.hostname} | "
               f"Logged User: {endpoint.logged_user} | "
               f"Boot Time: {endpoint.boot_time} | "
@@ -90,7 +102,6 @@ def handle_disconnect():
 @socketio.on('message')
 def handle_message(message):
     print('Received message: ' + message)
-    emit('response', 'Server received message: ' + message)
 
 
 def last_boot():
@@ -99,6 +110,13 @@ def last_boot():
     return bt
 
 
+def get_date() -> str:
+    d = datetime.now().replace(microsecond=0)
+    dt = str(d.strftime("%d/%b/%y %H:%M:%S"))
+    return dt
+
+
 if __name__ == '__main__':
     endpoints = []
+    history = {}
     socketio.run(app, allow_unsafe_werkzeug=True)
