@@ -1,12 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 from flask_socketio import SocketIO, emit
-
 from dotenv import load_dotenv, dotenv_values
-
 from datetime import datetime
 import psutil
 import socket
-import getpass
 import os
 
 # Local Modules
@@ -38,6 +35,12 @@ class Endpoints:
                f"{self.logged_user}, {self.boot_time}, {self.client_version})"
 
 
+# serve static files
+@app.route('/static/<path:path>')
+def serve_static(path):
+    return send_from_directory('static', path)
+
+
 @app.route('/')
 def index():
     serving_on = os.getenv('URL')
@@ -45,7 +48,7 @@ def index():
     server_ip = str(socket.gethostbyname(hostname))
     server_port = os.getenv('PORT')
     boot_time = last_boot()
-    connected_stations = len(server.endpoints)
+    connected_stations = len(endpoints)
 
     return render_template('index.html',
                            serving_on=serving_on,
