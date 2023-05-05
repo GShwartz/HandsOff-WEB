@@ -25,15 +25,16 @@ socketio = SocketIO(app, async_mode='threading', cors_allowed_origins="*",
 
 
 class Endpoints:
-    def __init__(self, client_ip, hostname, logged_user, boot_time):
+    def __init__(self, client_ip, hostname, logged_user, boot_time, version):
         self.boot_time = boot_time
-        self.ip = client_ip
+        self.ip_address = client_ip
         self.hostname = hostname
-        self.user = logged_user
+        self.logged_user = logged_user
+        self.client_version = version
 
     def __repr__(self):
-        return f"{self.ip}, {self.hostname}, {self.user}, " \
-               f"{self.boot_time})"
+        return f"Endpoint({self.ip_address}, {self.hostname}, " \
+               f"{self.logged_user}, {self.boot_time}, {self.client_version})"
 
 
 class Server:
@@ -84,22 +85,6 @@ def last_boot():
     return bt
 
 
-@socketio.on('client_info')
-def handle_client_info(client_info):
-    # endpoints.append(client_info)
-    # print('Added client:', client_info)
-
-    fresh_endpoint = Endpoints(client_info["ip_address"],
-                               client_info["hostname"],
-                               client_info["logged_user"],
-                               client_info["boot_time"])
-
-    if fresh_endpoint not in endpoints:
-        endpoints.append(fresh_endpoint)
-
-    print(endpoints)
-
-
 @app.route('/')
 def index():
     serving_on = os.getenv('URL')
@@ -114,18 +99,35 @@ def index():
                            server_ip=server_ip,
                            server_port=server_port,
                            boot_time=boot_time,
-                           connected_stations=connected_stations)
+                           connected_stations=connected_stations,
+                           endpoints=endpoints)
+
+
+@socketio.on('client_info')
+def handle_client_info(client_info):
+    fresh_endpoint = Endpoints(client_info["ip_address"],
+                               client_info["hostname"],
+                               client_info["logged_user"],
+                               client_info["boot_time"],
+                               client_info['client_version'])
+
+    if fresh_endpoint not in endpoints:
+        endpoints.append(fresh_endpoint)
+
+    for count, endpoint in enumerate(endpoints):
+        if count == 0:
+            count += 1
+
+        print(f"#{count} | IP: {endpoint.ip_address} | "
+              f"Hostname: {endpoint.hostname} | "
+              f"Logged User: {endpoint.logged_user} | "
+              f"Boot Time: {endpoint.boot_time} | "
+              f"Client_Version: {endpoint.client_version}")
 
 
 @socketio.on('connect')
 def handle_connect():
     print('Client connected')
-
-
-@socketio.on('username')
-def handle_username(data):
-    username = data['username']
-    print('Received username:', username)
 
 
 @socketio.on('disconnect')
