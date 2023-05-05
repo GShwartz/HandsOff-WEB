@@ -22,17 +22,18 @@ socketio = SocketIO(app, async_mode='threading', cors_allowed_origins="*",
 
 
 class Endpoints:
-    def __init__(self, room, client_ip, hostname, logged_user, boot_time, version):
+    def __init__(self, room, client_ip, hostname, logged_user, boot_time, version, login_time):
         self.id = room
         self.boot_time = boot_time
         self.ip_address = client_ip
         self.hostname = hostname
         self.logged_user = logged_user
         self.client_version = version
+        self.connection_time = login_time
 
     def __repr__(self):
         return f"Endpoint({self.id}, {self.ip_address}, {self.hostname}, " \
-               f"{self.logged_user}, {self.boot_time}, {self.client_version})"
+               f"{self.logged_user}, {self.boot_time}, {self.client_version}, {self.connection_time})"
 
 
 # serve static files
@@ -68,10 +69,19 @@ def handle_client_info(client_info):
                                client_info["hostname"],
                                client_info["logged_user"],
                                client_info["boot_time"],
-                               client_info['client_version'])
+                               client_info['client_version'],
+                               get_date())
 
     history[get_date()] = fresh_endpoint
-    if fresh_endpoint not in endpoints:
+    if len(endpoints) > 0:
+        for endpoint in endpoints:
+            if client_id == endpoint.id:
+                return False
+
+        if endpoint.ip_address not in endpoints:
+            endpoints.append(fresh_endpoint)
+
+    else:
         endpoints.append(fresh_endpoint)
 
     for count, endpoint in enumerate(endpoints):
