@@ -1,30 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>HandsOff</title>
-</head>
-<body>
-    <h1>Server Information</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Serving On</th>
-                <th>Server IP</th>
-                <th>Server Port</th>
-                <th>Boot Time</th>
-                <th>Connected Stations</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>{{ serving_on }}</td>
-                <td>{{ server_ip }}</td>
-                <td>{{ server_port }}</td>
-                <td>{{ boot_time }}</td>
-                <td>{{ connected_stations }}</td>
-            </tr>
-        </tbody>
-    </table>
-</body>
+<html>
+  <head>
+    <title>My Flask App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>Container 1</h1>
+        <dl>
+          <dt>serving_on</dt>
+          <dd>{{ serving_on }}</dd>
+          <dt>server_ip</dt>
+          <dd>{{ server_ip }}</dd>
+          <dt>server_port</dt>
+          <dd>{{ server_port }}</dd>
+          <dt>boot_time</dt>
+          <dd>{{ boot_time }}</dd>
+          <dt>connected_stations</dt>
+          <dd>{{ connected_stations }}</dd>
+        </dl>
+      </header>
+      <main class="content">
+        <h1>Container 2</h1>
+        <ul>
+          {% for endpoint in endpoints %}
+          <li>
+            <h2>{{ endpoint.hostname }}</h2>
+            <dl>
+              <dt>IP Address</dt>
+              <dd>{{ endpoint.ip_address }}</dd>
+              <dt>Logged User</dt>
+              <dd>{{ endpoint.logged_user }}</dd>
+              <dt>Boot Time</dt>
+              <dd>{{ endpoint.boot_time }}</dd>
+            </dl>
+          </li>
+          {% endfor %}
+          {% if not endpoints %}
+          <li>No endpoints found.</li>
+          {% endif %}
+        </ul>
+      </main>
+      <footer class="footer">
+        <h1>Container 3</h1>
+      </footer>
+      <footer class="footer">
+        <h1>Container 4</h1>
+      </footer>
+      <footer class="footer">
+        <h1>Container 5</h1>
+      </footer>
+    </div>
+  </body>
 </html>
