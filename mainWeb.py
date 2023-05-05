@@ -37,54 +37,6 @@ class Endpoints:
                f"{self.logged_user}, {self.boot_time}, {self.client_version})"
 
 
-class Server:
-    def __init__(self):
-        self.hostname = socket.gethostname()
-        self.serverIP = str(socket.gethostbyname(self.hostname))
-        self.port = os.getenv("PORT")
-        self.connHistory = {}
-        self.endpoints = []
-
-    # Get remote MAC address
-    def get_mac_address(self, client_ip):
-        arp = ARP(pdst=client_ip)
-        ether = Ether(dst="ff:ff:ff:ff:ff:ff")
-        packet = ether / arp
-        result = srp(packet, timeout=3, verbose=False)[0]
-        mac_address = result[0][1].hwsrc
-        return mac_address
-
-    # Get remote host name
-    def get_hostname(self, client_ip) -> str:
-        return socket.gethostbyaddr(client_ip)[0]
-
-    # Get remote user
-    def get_user(self) -> str:
-        return request.remote_user
-
-    # Get client version
-    def get_client_version(self) -> str:
-        self.client_version = self.conn.recv(1024).decode()
-        return self.client_version
-
-    # Get boot time
-    def get_boot_time(self) -> str:
-        self.boot_time = self.conn.recv(1024).decode()
-        return self.boot_time
-
-    # Get human readable datetime
-    def get_date(self) -> str:
-        d = datetime.now().replace(microsecond=0)
-        dt = str(d.strftime("%d/%b/%y %H:%M:%S"))
-        return dt
-
-
-def last_boot():
-    last_reboot = psutil.boot_time()
-    bt = datetime.fromtimestamp(last_reboot).strftime('%d/%b/%y %H:%M:%S %p')
-    return bt
-
-
 @app.route('/')
 def index():
     serving_on = os.getenv('URL')
@@ -139,6 +91,12 @@ def handle_disconnect():
 def handle_message(message):
     print('Received message: ' + message)
     emit('response', 'Server received message: ' + message)
+
+
+def last_boot():
+    last_reboot = psutil.boot_time()
+    bt = datetime.fromtimestamp(last_reboot).strftime('%d/%b/%y %H:%M:%S %p')
+    return bt
 
 
 if __name__ == '__main__':
