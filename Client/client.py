@@ -3,6 +3,8 @@ from datetime import datetime
 import socketio
 import socket
 import psutil
+from threading import Thread
+import time
 
 sio = socketio.Client()
 
@@ -25,12 +27,27 @@ def on_connect():
     sio.emit('client_info', {'ip_address': ip_address,
                              'hostname': client_hostname,
                              'logged_user': logged_user,
-                             'boot_time': boot_time
+                             'boot_time': boot_time,
+                             'client_version': version
                              })
 
 
-# Connect to the server
-sio.connect('http://127.0.0.1:5000')
+def keep_alive():
+    while True:
+        sio.send('heartbeat')
+        time.sleep(10)
+
 
 # Wait for events
-sio.wait()
+def main():
+    # Connect to the server
+    sio.connect('http://127.0.0.1:5000')
+
+    while True:
+        heartbeat = Thread(target=keep_alive, name="Keep Alive", daemon=True).start()
+        sio.wait()
+
+
+if __name__ == "__main__":
+    version = "1.00"
+    main()
