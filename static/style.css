@@ -81,3 +81,15 @@ td:nth-child(5) {
 .content table tbody tr:hover {
   background-color: #f2f2f2;
 }
+
+.row-data.selected {
+  background-color: yellow;
+}
+
+.box {
+    background-color: #f2f2f2; /* light grey */
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
