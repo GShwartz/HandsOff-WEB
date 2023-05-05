@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, jsonify
 from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv, dotenv_values
 from datetime import datetime
@@ -58,6 +58,16 @@ def index():
                            boot_time=boot_time,
                            connected_stations=connected_stations,
                            endpoints=endpoints)
+
+
+@app.route('/shell_data', methods=['POST'])
+def save_selected_row_data():
+    selected_row_data = request.get_json()
+    shell_target[selected_row_data['id']] = selected_row_data['ip_address']
+    print(shell_target)
+
+    # Return a response to the frontend, e.g. a success message
+    return jsonify({'message': 'Selected row data received and saved successfully'})
 
 
 @socketio.on('client_info')
@@ -132,4 +142,5 @@ def get_date() -> str:
 if __name__ == '__main__':
     endpoints = []
     history = {}
+    shell_target = {}
     socketio.run(app, allow_unsafe_werkzeug=True)
