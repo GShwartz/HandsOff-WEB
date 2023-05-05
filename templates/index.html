@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HandsOff</title>
+</head>
+<body>
+    <h1>Server Information</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Serving On</th>
+                <th>Server IP</th>
+                <th>Server Port</th>
+                <th>Boot Time</th>
+                <th>Connected Stations</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ serving_on }}</td>
+                <td>{{ server_ip }}</td>
+                <td>{{ server_port }}</td>
+                <td>{{ boot_time }}</td>
+                <td>{{ connected_stations }}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
