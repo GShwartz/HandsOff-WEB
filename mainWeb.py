@@ -63,6 +63,9 @@ def index():
 @app.route('/shell_data', methods=['POST'])
 def save_selected_row_data():
     selected_row_data = request.get_json()
+    if len(shell_target) > 0:
+        shell_target.clear()
+
     shell_target[selected_row_data['id']] = selected_row_data['ip_address']
     print(shell_target)
 
@@ -82,34 +85,28 @@ def handle_client_info(client_info):
                                client_info['client_version'],
                                get_date())
 
+    if endpoint_exists(client_id, client_info['ip_address']):
+        return False
+
+    endpoints.append(fresh_endpoint)
     history[get_date()] = fresh_endpoint
-    if len(endpoints) > 0:
-        for endpoint in endpoints:
-            if client_id == endpoint.id:
-                return False
-
-        if endpoint.ip_address not in endpoints:
-            endpoints.append(fresh_endpoint)
-
-    else:
-        endpoints.append(fresh_endpoint)
 
     for count, endpoint in enumerate(endpoints):
         if count == 0:
             count += 1
 
-        print(f"#{count} | ID: {endpoint.id} | IP: {endpoint.ip_address} | "
-              f"Hostname: {endpoint.hostname} | "
-              f"Logged User: {endpoint.logged_user} | "
-              f"Boot Time: {endpoint.boot_time} | "
-              f"Client_Version: {endpoint.client_version}")
-
-    for t, endpoint in history.items():
-        print(f"History\n{t} | IP: {endpoint.ip_address} | "
-              f"Hostname: {endpoint.hostname} | "
-              f"Logged User: {endpoint.logged_user} | "
-              f"Boot Time: {endpoint.boot_time} | "
-              f"Client_Version: {endpoint.client_version}")
+    #     print(f"#{count} | ID: {endpoint.id} | IP: {endpoint.ip_address} | "
+    #           f"Hostname: {endpoint.hostname} | "
+    #           f"Logged User: {endpoint.logged_user} | "
+    #           f"Boot Time: {endpoint.boot_time} | "
+    #           f"Client_Version: {endpoint.client_version}")
+    #
+    # for t, endpoint in history.items():
+    #     print(f"History\n{t} | IP: {endpoint.ip_address} | "
+    #           f"Hostname: {endpoint.hostname} | "
+    #           f"Logged User: {endpoint.logged_user} | "
+    #           f"Boot Time: {endpoint.boot_time} | "
+    #           f"Client_Version: {endpoint.client_version}")
 
 
 @socketio.on('connect')
@@ -125,6 +122,13 @@ def handle_disconnect():
 @socketio.on('message')
 def handle_message(message):
     print('Received message: ' + message)
+
+
+def endpoint_exists(client_id, ip_address):
+    for endpoint in endpoints:
+        if client_id == endpoint.id or ip_address == endpoint.ip_address:
+            return True
+    return False
 
 
 def last_boot():
