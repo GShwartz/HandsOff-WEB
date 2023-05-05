@@ -78,15 +78,44 @@
 		</div>
 
 		<div class="footer">
-			<h1>Container 3</h1>
+			<div class="box">
+				<h1>Details</h1>
+				<img src="/static/images/handsoff.png" alt="HO">
+    		</div>
 		</div>
 
-		<div class="footer">
-			<h1>Container 4</h1>
-		</div>
+		<div class="content">
+			<h1>Connection History</h1>
+			<table>
+				<thead>
+					<tr>
+						<th>Client ID</th>
+						<th>IP Address</th>
+						<th>Hostname</th>
+						<th>Logged User</th>
+						<th>Boot Time</th>
+						<th>Connection Time</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for endpoint in endpoints %}
+					<tr>
+						<td>{{ endpoint.id }}</td>
+						<td>{{ endpoint.ip_address }}</td>
+						<td>{{ endpoint.hostname }}</td>
+						<td>{{ endpoint.logged_user }}</td>
+						<td>{{ endpoint.boot_time }}</td>
+						<td>{{ endpoint.connection_time }}</td>
 
-		<div class="footer">
-			<h1>Container 5</h1>
+					</tr>
+					 {% endfor %}
+					 {% if not endpoints %}
+					<tr>
+						<td colspan="6">No endpoints found.</td>
+					</tr>
+					{% endif %}
+				</tbody>
+			</table>
 		</div>
 	</div>
 
