@@ -2,20 +2,12 @@ from flask import Flask, render_template, request, url_for, jsonify
 from flask_socketio import SocketIO, emit, join_room
 from dotenv import load_dotenv, dotenv_values
 from datetime import datetime
+import socketio
 import psutil
 import socket
+import base64
 import os
-import socketio
 
-# Local Modules
-from Modules.maintenance import Maintenance
-from Modules.screenshot import Screenshot
-from Modules.logger import init_logger
-from Modules.commands import Commands
-from Modules.sysinfo import Sysinfo
-from Modules.server import Server
-from Modules.about import About
-from Modules.tasks import Tasks
 
 app = Flask(__name__)
 sio = SocketIO(app, async_mode='threading', cors_allowed_origins="*",
@@ -65,14 +57,14 @@ def index():
 
 @app.route('/shell_data', methods=['POST'])
 def shell_data():
+    global shell_target
     selected_row_data = request.get_json()
     if len(shell_target) > 0:
-        shell_target.clear()
-
-    shell_target[selected_row_data['id']] = selected_row_data['ip_address']
-    print(shell_target)
-    room_id = list(shell_target.keys())[0]
-    print(f"Shell to: {room_id} | {selected_row_data['ip_address']}")
+        shell_target = []
+    shell_target = [selected_row_data['id'], selected_row_data['ip_address'], selected_row_data['hostname']]
+    room_id = shell_target[0]
+    hostname = shell_target[2]
+    print(f"Shell to: {room_id} | {selected_row_data['ip_address']} | {hostname}")
 
     # Return a response to the frontend, e.g. a success message
     return jsonify({'message': 'Selected row data received and saved successfully'})
@@ -126,7 +118,7 @@ def handle_message(message):
 def send_message():
     data = request.json.get('data')
     if data == 'screenshot':
-        room_id = list(shell_target.keys())[0]
+        room_id = shell_target[0]
         sio.emit('message', 'screenshot', room=room_id)
         return jsonify({'message': 'Screenshot message sent.'})
 
@@ -161,9 +153,36 @@ def send_message():
         return jsonify({'message': 'Update message sent.'})
 
 
+@sio.on('file_upload')
+def handle_file_upload(data):
+    hostname = list(shell_target.values())[0][selected_row_data['ip_address']]
+    path = fr"c:/HandsOff/{hostname}"
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    # Get the file data from the data dictionary
+    encoded_file_data = data['file_data']
+
+    # Decode the file data from base64
+    file_data = base64.b64decode(encoded_file_data.encode('utf-8'))
+
+    # Save the file to disk
+    filename = data['filename']
+    with open(filename, 'wb') as f:
+        f.write(file_data)
+
+    # Send a response to the client
+    emit('file_uploaded', {'status': 'OK'})
+
+
 @sio.on('disconnect')
 def handle_disconnect():
-    shell_target.clear()
+    global shell_target, endpoints
+    new_endpoints = []
+    for target, endpoint in zip(shell_target, endpoints):
+        if target != endpoint.id:
+            new_endpoints.append(endpoint)
+    endpoints = new_endpoints
     print('Client disconnected')
 
 
@@ -187,7 +206,11 @@ def get_date() -> str:
 
 
 if __name__ == '__main__':
+    hands_off_path = 'c:\\HandsOff'
+    if not os.path.exists(hands_off_path):
+        os.makedirs(hands_off_path)
+
     endpoints = []
     history = {}
-    shell_target = {}
+    shell_target = []
     sio.run(app, allow_unsafe_werkzeug=True)
