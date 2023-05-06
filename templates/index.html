@@ -68,24 +68,87 @@
 			<div class="buttons-container">
 				<button id="screenshot-btn">Screenshot</button>
 				<script>
-					const sendButton = document.querySelector('#screenshot-btn');
-					sendButton.addEventListener('click', () => {
+					const scButton = document.querySelector('#screenshot-btn');
+					scButton.addEventListener('click', () => {
 						const data = 'screenshot';
 						const xhr = new XMLHttpRequest();
-						xhr.open('POST', '/screenshot');
+						xhr.open('POST', '/controller');
 						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 						xhr.send(JSON.stringify({ data: data }));
 					});
-
 				</script>
-				<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
 
-				<button>Anydesk</button>
-				<button>SysInfo</button>
-				<button>Tasks</button>
-				<button>Restart</button>
-				<button>Local Files</button>
-				<button>Update</button>
+				<button id="anydesk-btn">Anydesk</button>
+				<script>
+					const anyButton = document.querySelector('#anydesk-btn');
+					anyButton.addEventListener('click', () => {
+						const data = 'anydesk';
+						const xhr = new XMLHttpRequest();
+						xhr.open('POST', '/controller');
+						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+						xhr.send(JSON.stringify({ data: data }));
+					});
+				</script>
+
+				<button id="sysinfo-btn">Sysinfo</button>
+				<script>
+					const sysButton = document.querySelector('#sysinfo-btn');
+					sysButton.addEventListener('click', () => {
+						const data = 'sysinfo';
+						const xhr = new XMLHttpRequest();
+						xhr.open('POST', '/controller');
+						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+						xhr.send(JSON.stringify({ data: data }));
+					});
+				</script>
+
+				<button id="tasks-btn">Tasks</button>
+				<script>
+					const tasksButton = document.querySelector('#tasks-btn');
+					tasksButton.addEventListener('click', () => {
+						const data = 'tasks';
+						const xhr = new XMLHttpRequest();
+						xhr.open('POST', '/controller');
+						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+						xhr.send(JSON.stringify({ data: data }));
+					});
+				</script>
+
+				<button id="restart-btn">Restart</button>
+				<script>
+					const restartButton = document.querySelector('#restart-btn');
+					restartButton.addEventListener('click', () => {
+						const data = 'restart';
+						const xhr = new XMLHttpRequest();
+						xhr.open('POST', '/controller');
+						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+						xhr.send(JSON.stringify({ data: data }));
+					});
+				</script>
+
+				<button id="local_files-btn">Local Files</button>
+				<script>
+					const localButton = document.querySelector('#local_files-btn');
+					localButton.addEventListener('click', () => {
+						const data = 'local';
+						const xhr = new XMLHttpRequest();
+						xhr.open('POST', '/controller');
+						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+						xhr.send(JSON.stringify({ data: data }));
+					});
+				</script>
+
+				<button id="update-btn">Update</button>
+				<script>
+					const updateButton = document.querySelector('#update-btn');
+					updateButton.addEventListener('click', () => {
+						const data = 'update';
+						const xhr = new XMLHttpRequest();
+						xhr.open('POST', '/controller');
+						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+						xhr.send(JSON.stringify({ data: data }));
+					});
+				</script>
 			</div>
 		</div>
 
@@ -131,42 +194,7 @@
 		</div>
 	</div>
 
-<script>
-	const rows = document.querySelectorAll(".row-data");
-	rows.forEach((row) => {
-    	row.addEventListener("click", () => {
-        rows.forEach((row) => {
-            row.classList.remove("selected");
-        });
-        row.classList.add("selected");
-
-        const selectedRowData = {
-        	id: row.cells[0].innerText,
-            ip_address: row.cells[1].innerText,
-            hostname: row.cells[2].innerText,
-            logged_user: row.cells[3].innerText,
-            boot_time: row.cells[4].innerText,
-            connection_time: row.cells[5].innerText
-        };
-
-        // Send the selected row data to the Flask backend
-        fetch('/shell_data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(selectedRowData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Received response from Flask backend:', data);
-        })
-        .catch(error => {
-            console.error('Error while sending selected row data to Flask backend:', error);
-        });
-    });
-});
-</script>
+<script src="{{ url_for('static', filename='row_data.js') }}"></script>
 
 </body>
 </html>
