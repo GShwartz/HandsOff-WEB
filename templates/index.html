@@ -66,89 +66,14 @@
 
 		<div class="footer">
 			<div class="buttons-container">
-				<button id="screenshot-btn">Screenshot</button>
-				<script>
-					const scButton = document.querySelector('#screenshot-btn');
-					scButton.addEventListener('click', () => {
-						const data = 'screenshot';
-						const xhr = new XMLHttpRequest();
-						xhr.open('POST', '/controller');
-						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-						xhr.send(JSON.stringify({ data: data }));
-					});
-				</script>
-
-				<button id="anydesk-btn">Anydesk</button>
-				<script>
-					const anyButton = document.querySelector('#anydesk-btn');
-					anyButton.addEventListener('click', () => {
-						const data = 'anydesk';
-						const xhr = new XMLHttpRequest();
-						xhr.open('POST', '/controller');
-						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-						xhr.send(JSON.stringify({ data: data }));
-					});
-				</script>
-
-				<button id="sysinfo-btn">Sysinfo</button>
-				<script>
-					const sysButton = document.querySelector('#sysinfo-btn');
-					sysButton.addEventListener('click', () => {
-						const data = 'sysinfo';
-						const xhr = new XMLHttpRequest();
-						xhr.open('POST', '/controller');
-						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-						xhr.send(JSON.stringify({ data: data }));
-					});
-				</script>
-
-				<button id="tasks-btn">Tasks</button>
-				<script>
-					const tasksButton = document.querySelector('#tasks-btn');
-					tasksButton.addEventListener('click', () => {
-						const data = 'tasks';
-						const xhr = new XMLHttpRequest();
-						xhr.open('POST', '/controller');
-						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-						xhr.send(JSON.stringify({ data: data }));
-					});
-				</script>
-
-				<button id="restart-btn">Restart</button>
-				<script>
-					const restartButton = document.querySelector('#restart-btn');
-					restartButton.addEventListener('click', () => {
-						const data = 'restart';
-						const xhr = new XMLHttpRequest();
-						xhr.open('POST', '/controller');
-						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-						xhr.send(JSON.stringify({ data: data }));
-					});
-				</script>
-
-				<button id="local_files-btn">Local Files</button>
-				<script>
-					const localButton = document.querySelector('#local_files-btn');
-					localButton.addEventListener('click', () => {
-						const data = 'local';
-						const xhr = new XMLHttpRequest();
-						xhr.open('POST', '/controller');
-						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-						xhr.send(JSON.stringify({ data: data }));
-					});
-				</script>
-
-				<button id="update-btn">Update</button>
-				<script>
-					const updateButton = document.querySelector('#update-btn');
-					updateButton.addEventListener('click', () => {
-						const data = 'update';
-						const xhr = new XMLHttpRequest();
-						xhr.open('POST', '/controller');
-						xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-						xhr.send(JSON.stringify({ data: data }));
-					});
-				</script>
+			<button class="button" data-action="screenshot">Screenshot</button>
+			<button class="button" data-action="anydesk">Anydesk</button>
+			<button class="button" data-action="sysinfo">Sysinfo</button>
+			<button class="button" data-action="tasks">Tasks</button>
+			<button class="button" data-action="restart">Restart</button>
+			<button class="button" data-action="local">Local Files</button>
+			<button class="button" data-action="update">Update</button>
+			<script src="{{ url_for('static', filename='controller.js') }}"></script>
 			</div>
 		</div>
 
