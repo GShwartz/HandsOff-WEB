@@ -1,23 +1,20 @@
-import getpass
-import os.path
 from datetime import datetime
-import socketio
-import socket
-import psutil
 from threading import Thread
-import time
+import threading
+import socketio
+import requests
 import win32con
 import win32gui
 import win32ui
-import requests
+import getpass
+import os.path
+import socket
+import psutil
+import ctypes
+import base64
+import time
 
 sio = socketio.Client()
-
-
-def last_boot():
-    last_reboot = psutil.boot_time()
-    bt = datetime.fromtimestamp(last_reboot).strftime('%d/%b/%y %H:%M:%S %p')
-    return bt
 
 
 @sio.on('connect')
@@ -40,13 +37,18 @@ def on_connect():
 @sio.on('message')
 def handle_message(message):
     print('Received message: ' + message)
+    if message == 'screenshot':
+        Thread(target=get_screenshot, name="Get Screenshot").start()
 
 
 def get_screenshot():
     client_hostname = socket.gethostname()
     ip_address = socket.gethostbyname(client_hostname)
 
-    file_path = r'c:/HandsOff'
+    file_path = 'c:\\HandsOff-Client'
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
+
     file_name = f'screenshot {ip_address} {get_date()}.jpg'
     filename = os.path.join(file_path, file_name)
 
@@ -74,23 +76,20 @@ def get_screenshot():
     screenshot.SaveBitmapFile(mem_dc, filename)
     mem_dc.DeleteDC()
     win32gui.DeleteObject(screenshot.GetHandle())
+    print(filename)
+    threading.Thread(target=upload_file, args=(filename, )).start()
 
+
+@sio.event
+def upload_file(filename):
     with open(filename, 'rb') as f:
         file_data = f.read()
 
-    headers = {
-        'Content-Type': 'multipart/form-data',
-    }
+        # Encode the file data using base64
+        encoded_file_data = base64.b64encode(file_data).decode('utf-8')
 
-    data = {
-        'file': (filename, file_data, 'image/jpeg'),
-        'file_name': file_name,
-        'file_size': len(file_data),
-        'file_type': 'image/jpeg'
-    }
-
-    response = requests.post('http://localhost:5000/receive-file', headers=headers, data=data)
-    print(response.text)
+        # Send the file data to the server
+        sio.emit('file_upload', {'filename': filename, 'file_data': encoded_file_data})
 
 
 def get_date() -> str:
@@ -99,18 +98,24 @@ def get_date() -> str:
     return dt
 
 
-def keep_alive():
-    sio.send('heartbeat')
-    time.sleep(10)
+def keep_alive(on):
+    if on:
+        sio.send('heartbeat')
+        time.sleep(10)
 
 
-# Wait for events
+def last_boot():
+    last_reboot = psutil.boot_time()
+    bt = datetime.fromtimestamp(last_reboot).strftime('%d/%b/%y %H:%M:%S %p')
+    return bt
+
+
 def main():
     # Connect to the server
     sio.connect('http://127.0.0.1:5000')
 
     while True:
-        heartbeat = Thread(target=keep_alive, name="Keep Alive", daemon=True).start()
+        # heartbeat = Thread(target=keep_alive, args=(True, ), name="Keep Alive", daemon=True).start()
         sio.wait()
 
 
