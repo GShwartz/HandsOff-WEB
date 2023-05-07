@@ -35,7 +35,7 @@
 			<table>
 				<thead>
 					<tr>
-						<th>Client ID</th>
+						<th>Client MAC</th>
 						<th>IP Address</th>
 						<th>Hostname</th>
 						<th>Logged User</th>
@@ -45,11 +45,11 @@
 				</thead>
 				<tbody>
 					{% for endpoint in endpoints %}
-					<tr class="row-data" data-id="{{ endpoint.id }}" data-ip="{{ endpoint.ip_address }}" data-hostname="{{ endpoint.hostname }}" data-user="{{ endpoint.logged_user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
-						<td>{{ endpoint.id }}</td>
-						<td>{{ endpoint.ip_address }}</td>
-						<td>{{ endpoint.hostname }}</td>
-						<td>{{ endpoint.logged_user }}</td>
+					<tr class="row-data" data-id="{{ endpoint.client_mac }}" data-ip="{{ endpoint.ip }}" data-hostname="{{ endpoint.ident }}" data-user="{{ endpoint.user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
+						<td>{{ endpoint.client_mac }}</td>
+						<td>{{ endpoint.ip }}</td>
+						<td>{{ endpoint.ident }}</td>
+						<td>{{ endpoint.user }}</td>
 						<td>{{ endpoint.boot_time }}</td>
 						<td>{{ endpoint.connection_time }}</td>
 
@@ -89,7 +89,7 @@
 			<table>
 				<thead>
 					<tr>
-						<th>Client ID</th>
+						<th>Client MAC</th>
 						<th>IP Address</th>
 						<th>Hostname</th>
 						<th>Logged User</th>
@@ -100,10 +100,10 @@
 				<tbody>
 					{% for endpoint in endpoints %}
 					<tr>
-						<td>{{ endpoint.id }}</td>
-						<td>{{ endpoint.ip_address }}</td>
-						<td>{{ endpoint.hostname }}</td>
-						<td>{{ endpoint.logged_user }}</td>
+						<td>{{ endpoint.client_mac }}</td>
+						<td>{{ endpoint.ip }}</td>
+						<td>{{ endpoint.ident }}</td>
+						<td>{{ endpoint.user }}</td>
 						<td>{{ endpoint.boot_time }}</td>
 						<td>{{ endpoint.connection_time }}</td>
 
