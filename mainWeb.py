@@ -7,6 +7,7 @@ from dotenv import load_dotenv, dotenv_values
 from datetime import datetime
 import PIL.ImageTk
 import PIL.Image
+import subprocess
 import socketio
 import eventlet
 import psutil
@@ -27,7 +28,7 @@ class Screenshot:
         self.endpoint = endpoint
         self.path = path
         self.log_path = log_path
-        self.screenshot_path = fr"{self.path}\{self.endpoint.ident}"
+        self.screenshot_path = os.path.join(self.path, self.endpoint.ident)
         self.logger = init_logger(self.log_path, __name__)
 
     def bytes_to_number(self, b: int) -> int:
@@ -637,6 +638,45 @@ def call_tasks():
         tasks.run()
 
 
+def call_restart():
+    matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
+    if matching_endpoint:
+        logger.info(f'Running restart_command...')
+        logger.debug(f'Displaying confirmation...')
+        sure = input("Are you sure [Y/n]? ")
+        sure = sure.lower() == 'y'
+        logger.debug(f'Confirmation: {sure}.')
+
+        if sure:
+            try:
+                logger.debug(f'Sending restart command to {matching_endpoint.ip}...')
+                matching_endpoint.conn.send('restart'.encode())
+                logger.debug(f'Sleeping for 2.5s...')
+                time.sleep(2.5)
+                print(f"Restart command sent to {matching_endpoint.ip} | {matching_endpoint.ident}")
+                logger.info(f'restart_command completed.')
+                return True
+
+            except (RuntimeError, WindowsError, socket.error) as e:
+                logger.error(f'Connection Error: {e}.')
+                logger.debug(f'Calling server.remove_lost_connection({self.endpoint})...')
+                server.remove_lost_connection(self.endpoint)
+                logger.info(f'restart_command failed.')
+                return False
+
+        else:
+            logger.info(f'Restart canceled.')
+            print("Restart canceled")
+            return False
+
+
+def browse_local_files(ident) -> subprocess:
+    logger.info(f'Running browse_local_files_command...')
+    directory = os.path.join(hands_off_path, ident)
+    logger.debug(fr'Opening {directory}...')
+    return subprocess.Popen(rf"explorer {directory}")
+
+
 @app.route('/controller', methods=['POST'])
 def send_message():
     data = request.json.get('data')
@@ -657,9 +697,13 @@ def send_message():
         return jsonify({'message': 'Tasks message sent.'})
 
     if data == 'restart':
+        call_restart()
         return jsonify({'message': 'Restart message sent.'})
 
     if data == 'local':
+        matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
+        if matching_endpoint:
+            browse_local_files(matching_endpoint.ident)
         return jsonify({'message': 'Local message sent.'})
 
     if data == 'update':
