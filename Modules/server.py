@@ -220,10 +220,6 @@ class Server:
             self.endpoints.remove(endpoint)
 
             # Update statusbar message
-            self.logger.debug(f'Updating statusbar message: '
-                              f'{endpoint.ip} | {endpoint.ident} | {endpoint.user} removed from connected list.')
-            self.app.update_statusbar_messages_thread(
-                msg=f'{endpoint.ip} | {endpoint.ident} | {endpoint.user} removed from connected list.')
             self.logger.info(f'=== End of remove_lost_connection({endpoint}) ===')
             return True
 
