@@ -1,13 +1,11 @@
-import threading
-import time
-import PIL
-from flask import Flask, render_template, request, url_for, jsonify
-from flask_socketio import SocketIO, emit
+from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv, dotenv_values
+from flask_socketio import SocketIO, emit
 from datetime import datetime
 import PIL.ImageTk
-import PIL.Image
 import subprocess
+import threading
+import PIL.Image
 import socketio
 import eventlet
 import psutil
@@ -16,6 +14,8 @@ import socket
 import base64
 import queue
 import glob
+import time
+import PIL
 import os
 
 from Modules.logger import init_logger
@@ -746,7 +746,7 @@ def get_date() -> str:
 if __name__ == '__main__':
     load_dotenv()
     hands_off_path = os.getenv('HANDSOFF_PATH')
-    if not os.path.exists(hands_off_path):
+    if not os.path.exists(str(hands_off_path)):
         os.makedirs(hands_off_path)
 
     log_path = os.path.join(hands_off_path, 'server_log.txt')
