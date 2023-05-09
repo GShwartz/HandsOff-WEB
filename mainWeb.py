@@ -745,8 +745,8 @@ def get_date() -> str:
 
 if __name__ == '__main__':
     load_dotenv()
-    hands_off_path = os.getenv('HANDSOFF_PATH')
-    if not os.path.exists(hands_off_path):
+    hands_off_path = r'c:\HandsOff'
+    if not os.path.exists(str(hands_off_path)):
         os.makedirs(hands_off_path)
 
     log_path = os.path.join(hands_off_path, 'server_log.txt')
@@ -755,7 +755,7 @@ if __name__ == '__main__':
 
     hostname = socket.gethostname()
     server_ip = str(socket.gethostbyname(hostname))
-    server_port = os.getenv('PORT')
+    server_port = 55400
     server = Server(server_ip, server_port, log_path)
     logger = init_logger(log_path, __name__)
 
