@@ -1,6 +1,5 @@
 pip
 wheel
-cryptography
 setuptools
 future
 PySimpleGUI
@@ -13,12 +12,7 @@ Flask
 python-dotenv
 scapy
 eventlet
-termcolor
 pwinput
 pyftpdlib
-pywin32
-cffi
-rsa
-pyasn1
 six
 python-socketio
