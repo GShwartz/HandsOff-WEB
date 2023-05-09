@@ -754,7 +754,8 @@ if __name__ == '__main__':
         pass
 
     hostname = socket.gethostname()
-    server_ip = str(socket.gethostbyname(hostname))
+    server_ip = '0.0.0.0'
+    # server_ip = str(socket.gethostbyname(hostname))
     server_port = 55400
     server = Server(server_ip, server_port, log_path)
     logger = init_logger(log_path, __name__)
