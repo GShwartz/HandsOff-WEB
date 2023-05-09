@@ -21,23 +21,6 @@ from Modules.logger import init_logger
 from Modules.server import Server
 
 
-class Endpoints:
-    def __init__(self, conn, client_mac, ip, ident, user, client_version, boot_time, connection_time):
-        self.boot_time = boot_time
-        self.conn = conn
-        self.client_mac = client_mac
-        self.ip = ip
-        self.ident = ident
-        self.user = user
-        self.client_version = client_version
-        self.connection_time = connection_time
-
-    def __repr__(self):
-        return f"Endpoint({self.conn}, {self.client_mac}, " \
-               f"{self.ip}, {self.ident}, {self.user}, " \
-               f"{self.client_version}, {self.boot_time}, {self.connection_time})"
-
-
 class Screenshot:
     def __init__(self, path, log_path, endpoint):
         self.images = []
@@ -294,6 +277,244 @@ class Sysinfo:
         logger.info(f"Sysinfo completed.")
 
 
+class Tasks:
+    def __init__(self, path, log_path, endpoint):
+        self.endpoint = endpoint
+        self.path = path
+        self.log_path = log_path
+        self.tasks_file_path = os.path.join(self.path, self.endpoint.ident)
+        self.logger = init_logger(self.log_path, __name__)
+
+    def bytes_to_number(self, b: int) -> int:
+        res = 0
+        for i in range(4):
+            res += b[i] << (i * 8)
+        return res
+
+    def display_text(self):
+        logger.info(f"Running display_text...")
+        os.startfile(self.full_file_path)
+
+    def what_task(self) -> str:
+        logger.info(f"Running what_task...")
+        logger.debug(f"Waiting for task name...")
+        taskkill = input("Task to kill: ")
+        logger.debug(f"Task Name: {taskkill}")
+        if taskkill is None:
+            try:
+                logger.debug(f"Sending 'n' to {self.endpoint.ip}...")
+                self.endpoint.conn.send('n'.encode())
+                logger.debug(f"Printing warning ...")
+                print("Task Kill Canceled.")
+                return False
+
+            except (WindowsError, socket.error) as e:
+                logger.debug(f"Error: {e}")
+                logger.debug(f"Calling server.remove_lost_connection({self.endpoint})...")
+                server.remove_lost_connection(self.endpoint)
+                return False
+
+        if not str(taskkill).endswith('.exe'):
+            try:
+                logger.debug(f"Sending 'n' to {self.endpoint.ip}...")
+                self.endpoint.conn.send('n'.encode())
+                logger.debug(f"Printing warning...")
+                print("Task Kill canceled")
+                return False
+
+            except (WindowsError, socket.error) as e:
+                logger.debug(f"Error: {e}")
+                logger.debug(f"Calling app.remove_lost_connection({self.endpoint})...")
+                server.remove_lost_connection(self.endpoint)
+                return False
+
+        return taskkill
+
+    def kill_task(self):
+        logger.debug(f"Running kill_task...")
+        try:
+            logger.debug(f"Sending kill command to {self.endpoint.ip}...")
+            self.endpoint.conn.send('kill'.encode())
+
+        except (WindowsError, socket.error) as e:
+            logger.debug(f"Error: {e}")
+            logger.debug(f"Calling server.remove_lost_connection({self.endpoint})...")
+            server.remove_lost_connection(self.endpoint)
+            return False
+
+        try:
+            logger.debug(f"Sending {self.task_to_kill} to {self.endpoint.ip}...")
+            self.endpoint.conn.send(self.task_to_kill.encode())
+
+        except (WindowsError, socket.error) as e:
+            logger.debug(f"Error: {e}")
+            logger.debug(f"Calling server.remove_lost_connection({self.endpoint})...")
+            server.remove_lost_connection(self.endpoint)
+            return False
+
+        try:
+            logger.debug(f"Waiting for confirmation from {self.endpoint.ip}...")
+            msg = self.endpoint.conn.recv(1024).decode()
+            logger.debug(f"{self.endpoint.ip}: {msg}")
+
+        except (WindowsError, socket.error) as e:
+            logger.debug(f"Error: {e}")
+            logger.debug(f"Calling server.remove_lost_connection({self.endpoint})...")
+            server.remove_lost_connection(self.endpoint)
+            return False
+
+        self.logger.debug(f"Displaying {msg} in popup window...")
+        print(f"{self.endpoint.ip} | {self.endpoint.ident}: ", f"{msg}")
+        return True
+
+    def post_run(self):
+        logger.info(f"Running post_run...")
+        logger.debug(f"Displaying kill task validation...")
+        self.killTask = input(f"Tasks from {self.endpoint.ip} | {self.endpoint.ident}. Kill Task? [Y/n] ")
+        logger.debug(f"Kill task: {self.killTask}")
+        self.killTask = self.killTask.lower() == 'y'
+        if self.killTask:
+            logger.debug(f"Calling what_task({self.filepath})...")
+            self.task_to_kill = self.what_task()
+            if str(self.task_to_kill) == '' or str(self.task_to_kill).startswith(' '):
+                logger.debug(f"task_to_kill: {self.task_to_kill}")
+                return False
+
+            if not self.task_to_kill:
+                self.logger.info(f"post_run completed.")
+                return False
+
+            self.logger.debug(f"Displaying kill confirmation pop-up...")
+            confirmKill = input(f'Are you sure you want to kill {self.task_to_kill} [Y/n]? ')
+            confirmKill = confirmKill.lower() == 'y'
+            logger.debug(f"Kill confirmation: {confirmKill}")
+            if confirmKill:
+                logger.debug(f"Calling kill_task({self.task_to_kill})...")
+                self.kill_task()
+
+            else:
+                try:
+                    logger.debug(f"Sending pass command to {self.endpoint.ip}...")
+                    self.endpoint.conn.send('pass'.encode())
+                    return False
+
+                except (WindowsError, socket.error) as e:
+                    logger.debug(f"Error: {e}")
+                    logger.debug(f"Calling server.remove_lost_connection({self.endpoint})...")
+                    server.remove_lost_connection(self.endpoint)
+                    return False
+
+        else:
+            try:
+                logger.debug(f"Sending 'n' to {self.endpoint.ip}...")
+                self.endpoint.conn.send('n'.encode())
+                logger.info(f"post_run completed.")
+                return True
+
+            except (WindowsError, socket.error) as e:
+                logger.debug(f"Error: {e}")
+                logger.debug(f"Calling server.remove_lost_connection({self.endpoint})...")
+                server.remove_lost_connection(self.endpoint)
+                return False
+
+    def get_file_name(self):
+        logger.info(f"Running get_file_name...")
+        logger.debug(f"Waiting for filename from {self.endpoint.ip}...")
+        self.endpoint.conn.settimeout(10)
+        self.filenameRecv = self.endpoint.conn.recv(1024).decode()
+        self.full_file_path = os.path.join(self.tasks_file_path, self.filenameRecv)
+        self.endpoint.conn.settimeout(None)
+        logger.debug(f"Filename: {self.filenameRecv}")
+
+    def get_file_size(self):
+        logger.info(f"Running get_file_size...")
+        logger.debug(f"Waiting for file size from {self.endpoint.ip}...")
+        self.endpoint.conn.settimeout(10)
+        self.size = self.endpoint.conn.recv(4)
+        self.endpoint.conn.settimeout(None)
+        self.size = self.bytes_to_number(self.size)
+        logger.debug(f"Size: {self.size}")
+
+    def get_file_content(self):
+        logger.info(f"Running get_file_content...")
+
+        current_size = 0
+        buffer = b""
+
+        logger.debug(f"Writing content to {self.full_file_path}...")
+        with open(self.full_file_path, 'wb') as tsk_file:
+            self.endpoint.conn.settimeout(60)
+            while current_size < self.size:
+                data = self.endpoint.conn.recv(1024)
+                if not data:
+                    break
+
+                if len(data) + current_size > self.size:
+                    data = data[:self.size - current_size]
+
+                buffer += data
+                current_size += len(data)
+                tsk_file.write(data)
+            self.endpoint.conn.settimeout(None)
+
+    def confirm(self):
+        logger.info(f"Running confirm...")
+        logger.debug(f"Sending confirmation to {self.endpoint.ip}...")
+        self.endpoint.conn.send(f"Received file: {self.filenameRecv}\n".encode())
+        self.endpoint.conn.settimeout(10)
+        msg = self.endpoint.conn.recv(1024).decode()
+        self.endpoint.conn.settimeout(None)
+        logger.debug(f"{self.endpoint.ip}: {msg}")
+
+    def move(self):
+        logger.info(f"Running move...")
+        src = os.path.abspath(self.filenameRecv)
+        dst = self.tasks_file_path
+
+        logger.debug(f"Moving {src} to {dst}...")
+        try:
+            shutil.move(src, dst)
+
+        except FileExistsError:
+            pass
+
+    def run(self):
+        logger.info(f"Running run...")
+        self.filepath = os.path.join(self.path, self.endpoint.ident)
+        try:
+            os.makedirs(self.filepath)
+
+        except FileExistsError:
+            logger.debug(f"{self.filepath} exists.")
+            pass
+
+        try:
+            logger.debug(f"Sending tasks command to {self.endpoint.ip}...")
+            self.endpoint.conn.send('tasks'.encode())
+
+        except (WindowsError, socket.error) as e:
+            logger.debug(f"Error: {e}")
+            logger.debug(f"Calling server.remove_lost_connection({self.endpoint})")
+            server.remove_lost_connection(self.endpoint)
+            return False
+
+        logger.debug(f"Calling get_file_name...")
+        self.get_file_name()
+        logger.debug(f"Calling get_file_size...")
+        self.get_file_size()
+        logger.debug(f"Calling get_file_content...")
+        self.get_file_content()
+        logger.debug(f"Calling confirm...")
+        self.confirm()
+        # logger.debug(f"Calling move...")
+        # self.move()
+        logger.debug(f"Calling display_text...")
+        self.display_text()
+        logger.debug(f"Calling post_run...")
+        self.post_run()
+        logger.info(f"run completed.")
+
+
 app = Flask(__name__)
 sio = SocketIO(app)
 
@@ -404,6 +625,17 @@ def call_sysinfo():
         sysinfo = Sysinfo(hands_off_path, log_path, matching_endpoint)
         sysinfo.run()
 
+    else:
+        print("No target")
+        return False
+
+
+def call_tasks():
+    matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
+    if matching_endpoint:
+        tasks = Tasks(hands_off_path, log_path, matching_endpoint)
+        tasks.run()
+
 
 @app.route('/controller', methods=['POST'])
 def send_message():
@@ -421,6 +653,7 @@ def send_message():
         return jsonify({'message': 'Sysinfo message sent.'})
 
     if data == 'tasks':
+        call_tasks()
         return jsonify({'message': 'Tasks message sent.'})
 
     if data == 'restart':
@@ -449,7 +682,7 @@ def shell_data():
 
     for endpoint in server.endpoints:
         if endpoint.ip == selected_row_data['ip_address']:
-            print(f"Shell to: {endpoint.conn} | {endpoint.ip} | {endpoint.ident}")
+            # print(f"Shell to: {endpoint.conn} | {endpoint.ip} | {endpoint.ident}")
             shell_target = endpoint.conn
             return jsonify({'message': 'Selected row data received and saved successfully'})
 
