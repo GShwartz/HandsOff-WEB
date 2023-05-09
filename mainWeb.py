@@ -39,15 +39,19 @@ class Endpoints:
 
 
 class Screenshot:
-    def __init__(self, path, log_path, endpoint, endpoint_ident, endpoint_ip):
+    def __init__(self, path, log_path, endpoint):
         self.images = []
         self.endpoint = endpoint
-        self.endpoint_ident = endpoint_ident
-        self.endpoint_ip = endpoint_ip
         self.path = path
         self.log_path = log_path
-        self.screenshot_path = fr"{self.path}\{self.endpoint_ident}"
+        self.screenshot_path = fr"{self.path}\{self.endpoint.ident}"
         self.logger = init_logger(self.log_path, __name__)
+
+    def bytes_to_number(self, b: int) -> int:
+        res = 0
+        for i in range(4):
+            res += b[i] << (i * 8)
+        return res
 
     def make_dir(self):
         try:
@@ -59,27 +63,27 @@ class Screenshot:
 
     def get_file_name(self):
         try:
-            self.filename = self.endpoint.recv(1024)
+            self.filename = self.endpoint.conn.recv(1024)
             self.filename = str(self.filename).strip("b'")
-            self.endpoint.send("Filename OK".encode())
+            self.endpoint.conn.send("Filename OK".encode())
             self.screenshot_file_path = os.path.join(self.screenshot_path, self.filename)
 
         except (ConnectionError, socket.error) as e:
             self.logger.debug(f"Error: {e}")
-            self.logger.debug(f"Calling remove_lost_connection({self.conn})...")
-            # self.server.remove_lost_connection(self.conn)
+            self.logger.debug(f"Calling remove_lost_connection({self.endpoint})...")
+            server.remove_lost_connection(self.endpoint)
             return False
 
     def get_file_size(self):
         try:
-            self.size = self.endpoint.recv(4)
+            self.size = self.endpoint.conn.recv(4)
             # self.endpoint.conn.send("OK".encode())
             self.size = self.bytes_to_number(self.size)
 
         except (ConnectionError, socket.error) as e:
             self.logger.debug(f"Error: {e}")
-            self.logger.debug(f"Calling remove_lost_connection({self.endpoint.conn})...")
-            # self.server.remove_lost_connection(self.endpoint.conn)
+            self.logger.debug(f"Calling remove_lost_connection({self.endpoint})...")
+            server.remove_lost_connection(self.endpoint)
             return False
 
     def get_file_content(self):
@@ -90,7 +94,7 @@ class Screenshot:
             with open(self.screenshot_file_path, 'wb') as file:
                 self.logger.debug(f"Fetching file content...")
                 while current_size < self.size:
-                    data = self.endpoint.recv(1024)
+                    data = self.endpoint.conn.recv(1024)
                     if not data:
                         break
 
@@ -110,19 +114,19 @@ class Screenshot:
         except (WindowsError, socket.error) as e:
             self.logger.debug(f"Error: {e}")
             self.logger.debug(f"Calling remove_lost_connection({self.endpoint})...")
-            # self.server.remove_lost_connection(self.endpoint.conn)
+            server.remove_lost_connection(self.endpoint)
             return False
 
     def confirm(self):
         try:
             self.logger.debug(f"Waiting for answer from client...")
-            self.ans = self.endpoint.recv(1024).decode()
-            self.logger.debug(f"{self.endpoint_ip}: {self.ans}")
+            self.ans = self.endpoint.conn.recv(1024).decode()
+            self.logger.debug(f"{self.endpoint.ip}: {self.ans}")
 
         except (ConnectionError, socket.error) as e:
             self.logger.debug(f"Error: {e}.")
             self.logger.debug(f"Calling app.server.remove_lost_connection({self.endpoint})...")
-            # self.server.remove_lost_connection(self.conn)
+            server.remove_lost_connection(self.endpoint)
             return False
 
     def finish(self):
@@ -149,12 +153,12 @@ class Screenshot:
 
         try:
             self.logger.debug(f"Sending screen command to client...")
-            self.endpoint.send('screen'.encode())
+            self.endpoint.conn.send('screen'.encode())
 
         except (ConnectionError, socket.error) as e:
             self.logger.debug(f"Error: {e}.")
             self.logger.debug(f"Calling remove_lost_connection({self.endpoint}...")
-            # self.app.server.remove_lost_connection(self.endpoint)
+            server.remove_lost_connection(self.endpoint)
             return False
 
         self.logger.debug(f"Calling get_file_name...")
@@ -164,12 +168,6 @@ class Screenshot:
         self.logger.debug(f"Calling get_file_content...")
         self.get_file_content()
         self.finish()
-
-    def bytes_to_number(self, b: int) -> int:
-        res = 0
-        for i in range(4):
-            res += b[i] << (i * 8)
-        return res
 
 
 app = Flask(__name__)
@@ -213,21 +211,78 @@ def index():
     return render_template('index.html', **kwargs)
 
 
-def call_screenshot():
-    for endpoint in server.endpoints:
+def find_matching_endpoint(endpoint_list, shell_target):
+    for endpoint in endpoint_list:
         if endpoint.conn == shell_target:
-            sc = Screenshot(hands_off_path, log_path, endpoint.conn, endpoint.ident, endpoint.ip)
-            sc.run()
+            return endpoint
+    return None
+
+
+def call_screenshot():
+    matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
+    if matching_endpoint:
+        sc = Screenshot(hands_off_path, log_path, matching_endpoint)
+        sc.run()
+
+
+def call_anydesk() -> bool:
+    logger.info(f'Running anydesk_command...')
+    matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
+    if matching_endpoint:
+        try:
+            logger.debug(f'Sending anydesk command to {matching_endpoint.conn}...')
+            matching_endpoint.conn.send('anydesk'.encode())
+
+            logger.debug(f'Waiting for response from {matching_endpoint.ip}......')
+            msg = matching_endpoint.conn.recv(1024).decode()
+            logger.debug(f'Client response: {msg}.')
+            if "OK" not in msg:
+                logger.debug(f'Updating statusbar message...')
+                logger.debug(f'Display popup confirmation for install anydesk...')
+                install_ad = input("Install Anydesk?")
+                install_ad = install_ad == 'yes'
+
+                logger.debug(f'Install anydesk: {install_ad}.')
+                if install_ad:
+                    logger.debug(f'Updating statusbar message...')
+                    logger.debug(f'Sending install command to {matching_endpoint.conn}')
+                    matching_endpoint.conn.send('y'.encode())
+                    while "OK" not in msg:
+                        logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
+                        msg = matching_endpoint.conn.recv(1024).decode()
+                        logger.debug(f'{matching_endpoint.ip}: {msg}...')
+                        print(f'{matching_endpoint.ip}: {msg}...')
+
+                    logger.debug(f'End of OK in msg loop.')
+                    print("Anydesk Running")
+                    logger.info(f'anydesk_command completed.')
+
+                else:
+                    logger.debug(f'Sending cancel command to {matching_endpoint.conn}...')
+                    matching_endpoint.conn.send('n'.encode())
+                    return
+
+            else:
+                print("anydesk running...")
+                logger.info(f'anydesk_command completed.')
+                return True
+
+        except (WindowsError, ConnectionError, socket.error, RuntimeError) as e:
+            logger.error(f'Connection Error: {e}.')
+            logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
+            server.remove_lost_connection(matching_endpoint)
+            return False
 
 
 @app.route('/controller', methods=['POST'])
 def send_message():
     data = request.json.get('data')
     if data == 'screenshot':
-        threading.Thread(target=call_screenshot, daemon=True, name="Call Screenshot").start()
+        call_screenshot()
         return jsonify({'message': 'Screenshot message sent.'})
 
     if data == 'anydesk':
+        call_anydesk()
         return jsonify({'message': 'Anydesk message sent.'})
 
     if data == 'sysinfo':
@@ -246,11 +301,18 @@ def send_message():
         return jsonify({'message': 'Update message sent.'})
 
 
+def is_shell_target(endpoint_list, shell_target):
+    for endpoint in endpoint_list:
+        if endpoint.conn == shell_target:
+            return True
+    return False
+
+
 @app.route('/shell_data', methods=['POST'])
 def shell_data():
     global shell_target
     selected_row_data = request.get_json()
-    if len(shell_target) > 0:
+    if isinstance(shell_target, list):
         shell_target = []
 
     for endpoint in server.endpoints:
