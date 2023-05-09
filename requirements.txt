@@ -16,3 +16,4 @@ pwinput
 pyftpdlib
 six
 python-socketio
+flask-socketio
