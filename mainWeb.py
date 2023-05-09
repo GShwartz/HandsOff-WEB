@@ -6,6 +6,7 @@ import PIL.ImageTk
 import subprocess
 import threading
 import PIL.Image
+import requests
 import socketio
 import eventlet
 import psutil
@@ -538,16 +539,17 @@ def serve_static(path):
 
 @app.route('/')
 def index():
-    serving_on = os.getenv('URL')
+    serving_on = 'handsoff.home.lab'
+    # response = requests.get('https://httpbin.org/ip')
+    # ip_address = response.json()['origin']
     hostname = socket.gethostname()
-    server_ip = str(socket.gethostbyname(hostname))
-    server_port = os.getenv('PORT')
+    # server_ip = ip_address
+    server_port = 55400
     boot_time = last_boot()
     connected_stations = len(server.endpoints)
 
     kwargs = {
         "serving_on": serving_on,
-        "server_ip": server_ip,
         "server_port": server_port,
         "boot_time": boot_time,
         "connected_stations": connected_stations,
@@ -763,4 +765,4 @@ if __name__ == '__main__':
     shell_target = []
 
     server.listener()
-    sio.run(app, host='0.0.0.0', port=8000)
+    sio.run(app, port=8000)
