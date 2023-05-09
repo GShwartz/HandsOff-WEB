@@ -765,4 +765,4 @@ if __name__ == '__main__':
     shell_target = []
 
     server.listener()
-    sio.run(app, port=8000)
+    sio.run(app, host='0.0.0.0', port=8000)
