@@ -746,7 +746,7 @@ def get_date() -> str:
 if __name__ == '__main__':
     load_dotenv()
     hands_off_path = os.getenv('HANDSOFF_PATH')
-    if not os.path.exists(str(hands_off_path)):
+    if not os.path.exists(hands_off_path):
         os.makedirs(hands_off_path)
 
     log_path = os.path.join(hands_off_path, 'server_log.txt')
