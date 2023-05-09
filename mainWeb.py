@@ -170,6 +170,130 @@ class Screenshot:
         self.finish()
 
 
+class Sysinfo:
+    def __init__(self, path, log_path, endpoint):
+        self.endpoint = endpoint
+        self.app_path = path
+        self.log_path = log_path
+        self.path = os.path.join(self.app_path, self.endpoint.ident)
+
+    def bytes_to_number(self, b: int) -> int:
+        res = 0
+        for i in range(4):
+            res += b[i] << (i * 8)
+        return res
+
+    def make_dir(self):
+        try:
+            os.makedirs(self.path)
+
+        except FileExistsError:
+            logger.debug(f"{self.path} exists.")
+            pass
+
+    def get_file_name(self):
+        try:
+            logger.debug(f"Sending si command to {self.endpoint.conn}...")
+            self.endpoint.conn.send('si'.encode())
+            logger.debug(f"Waiting for filename from {self.endpoint.conn}...")
+            self.filename = self.endpoint.conn.recv(1024).decode()
+            logger.debug(f"Sending confirmation to {self.endpoint.conn}...")
+            self.endpoint.conn.send("OK".encode())
+            logger.debug(f"{self.endpoint.ip}: {self.filename}")
+            self.file_path = os.path.join(self.path, self.filename)
+            logger.debug(f"File path: {self.file_path}")
+
+        except (WindowsError, socket.error) as e:
+            logger.debug(f"Connection error: {e}")
+            logger.debug(f"server.remove_lost_connection({self.endpoint})...")
+            server.remove_lost_connection(self.endpoint)
+            return False
+
+    def get_file_size(self):
+        try:
+            logger.debug(f"Waiting for filesize from {self.endpoint.ip}...")
+            self.size = self.endpoint.conn.recv(4)
+            logger.debug(f"Sending confirmation to {self.endpoint.ip}...")
+            self.endpoint.conn.send("OK".encode())
+            self.size = self.bytes_to_number(self.size)
+            logger.debug(f"File size: {self.size}")
+
+        except (WindowsError, socket.error) as e:
+            logger.debug(f"Connection error: {e}")
+            logger.debug(f"server.remove_lost_connection({self.endpoint})...")
+            server.remove_lost_connection(self.endpoint)
+            return False
+
+    def get_file_content(self):
+        current_size = 0
+        buffer = b""
+        try:
+            logger.debug(f"Receiving file content from {self.endpoint.ip}...")
+            with open(self.file_path, 'wb') as tsk_file:
+                while current_size < self.size:
+                    data = self.endpoint.conn.recv(1024)
+                    if not data:
+                        break
+
+                    if len(data) + current_size > self.size:
+                        data = data[:self.size - current_size]
+
+                    buffer += data
+                    current_size += len(data)
+                    tsk_file.write(data)
+
+        except (WindowsError, socket.error) as e:
+            logger.debug(f"Connection error: {e}")
+            logger.debug(f"server.remove_lost_connection({self.endpoint})...")
+            server.remove_lost_connection(self.endpoint)
+            return False
+
+    def confirm(self):
+        try:
+            logger.debug(f"Sending confirmation to {self.endpoint.ip}...")
+            self.endpoint.conn.send(f"Received file: {self.filename}\n".encode())
+
+        except (WindowsError, socket.error) as e:
+            logger.debug(f"Connection error: {e}")
+            logger.debug(f"server.remove_lost_connection({self.endpoint})...")
+            server.remove_lost_connection(self.endpoint)
+            return False
+
+    def file_validation(self):
+        try:
+            logger.debug(f"Running validation on {self.file_path}...")
+            with open(self.file_path, 'r') as file:
+                data = file.read()
+
+            return True
+
+        except Exception as e:
+            logger.debug(f"File validation Error: {e}")
+            return False
+
+    def display_text(self):
+        logger.info(f"Running display_text...")
+        os.startfile(self.file_path)
+
+    def run(self):
+        logger.info(f"Running Sysinfo...")
+        logger.debug(f"Calling make_dir...")
+        self.make_dir()
+        logger.debug(f"Calling get_file_name...")
+        self.get_file_name()
+        logger.debug(f"Calling get_file_size...")
+        self.get_file_size()
+        logger.debug(f"Calling get_file_content...")
+        self.get_file_content()
+        logger.debug(f"Calling confirm...")
+        self.confirm()
+        logger.debug(f"Calling file_validation...")
+        self.file_validation()
+        logger.debug(f"Calling display_text...")
+        self.display_text()
+        logger.info(f"Sysinfo completed.")
+
+
 app = Flask(__name__)
 sio = SocketIO(app)
 
@@ -274,6 +398,13 @@ def call_anydesk() -> bool:
             return False
 
 
+def call_sysinfo():
+    matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
+    if matching_endpoint:
+        sysinfo = Sysinfo(hands_off_path, log_path, matching_endpoint)
+        sysinfo.run()
+
+
 @app.route('/controller', methods=['POST'])
 def send_message():
     data = request.json.get('data')
@@ -286,6 +417,7 @@ def send_message():
         return jsonify({'message': 'Anydesk message sent.'})
 
     if data == 'sysinfo':
+        call_sysinfo()
         return jsonify({'message': 'Sysinfo message sent.'})
 
     if data == 'tasks':
