@@ -302,7 +302,7 @@ class Tasks:
         logger.debug(f"Waiting for task name...")
         taskkill = input("Task to kill: ")
         logger.debug(f"Task Name: {taskkill}")
-        if taskkill is None:
+        if not taskkill:
             try:
                 logger.debug(f"Sending 'n' to {self.endpoint.ip}...")
                 self.endpoint.conn.send('n'.encode())
@@ -539,20 +539,21 @@ def serve_static(path):
 
 @app.route('/')
 def index():
-    serving_on = 'handsoff.home.lab'
-    # response = requests.get('https://httpbin.org/ip')
-    # ip_address = response.json()['origin']
+    serving_on = os.getenv('URL')
     hostname = socket.gethostname()
-    # server_ip = ip_address
-    # server_port = 55400
+    server_ip = str(socket.gethostbyname(hostname))
+    server_port = os.getenv('PORT')
     boot_time = last_boot()
     connected_stations = len(server.endpoints)
 
     kwargs = {
         "serving_on": serving_on,
+        "server_ip": server_ip,
+        "server_port": server_port,
         "boot_time": boot_time,
         "connected_stations": connected_stations,
-        "endpoints": server.endpoints
+        "endpoints": server.endpoints,
+        "history": server.connHistory
     }
 
     return render_template('index.html', **kwargs)
@@ -678,6 +679,32 @@ def browse_local_files(ident) -> subprocess:
     return subprocess.Popen(rf"explorer {directory}")
 
 
+def call_update_selected_endpoint() -> bool:
+    logger.info(f'Running update_selected_endpoint...')
+    matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
+    if matching_endpoint:
+        logger.debug(f'Displaying confirmation...')
+        sure = input(f"Update {matching_endpoint.ip} | {matching_endpoint.ident} | Are you sure [Y/n]? ")
+        sure = sure.lower() == 'y'
+        if sure:
+            try:
+                logger.debug(f'Sending update command to {matching_endpoint.ip} | {matching_endpoint.ident}...')
+                matching_endpoint.conn.send('update'.encode())
+                server.remove_lost_connection(matching_endpoint)
+                logger.info(f'update_selected_endpoint completed.')
+                return True
+
+            except (RuntimeError, WindowsError, socket.error) as e:
+                logger.error(f'Connection Error: {e}.')
+                self.logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
+                server.remove_lost_connection(matching_endpoint)
+                return False
+
+        else:
+            logger.info(f'update_selected_endpoint canceled.')
+            return False
+
+
 @app.route('/controller', methods=['POST'])
 def send_message():
     data = request.json.get('data')
@@ -708,14 +735,8 @@ def send_message():
         return jsonify({'message': 'Local message sent.'})
 
     if data == 'update':
+        call_update_selected_endpoint()
         return jsonify({'message': 'Update message sent.'})
-
-
-def is_shell_target(endpoint_list, shell_target):
-    for endpoint in endpoint_list:
-        if endpoint.conn == shell_target:
-            return True
-    return False
 
 
 @app.route('/shell_data', methods=['POST'])
