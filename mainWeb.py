@@ -544,13 +544,12 @@ def index():
     # ip_address = response.json()['origin']
     hostname = socket.gethostname()
     # server_ip = ip_address
-    server_port = 55400
+    # server_port = 55400
     boot_time = last_boot()
     connected_stations = len(server.endpoints)
 
     kwargs = {
         "serving_on": serving_on,
-        "server_port": server_port,
         "boot_time": boot_time,
         "connected_stations": connected_stations,
         "endpoints": server.endpoints
