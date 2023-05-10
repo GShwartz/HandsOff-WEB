@@ -94,7 +94,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% for endpoint in endpoints %}
+					{% for endpoint, time in history.items() %}
 					<tr>
 						<td>{{ endpoint.client_mac }}</td>
 						<td>{{ endpoint.ip }}</td>
@@ -105,7 +105,7 @@
 
 					</tr>
 					 {% endfor %}
-					 {% if not endpoints %}
+					 {% if not history %}
 					<tr>
 						<td colspan="6">No endpoints found.</td>
 					</tr>
