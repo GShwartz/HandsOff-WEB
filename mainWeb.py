@@ -5,6 +5,7 @@ from datetime import datetime
 import PIL.ImageTk
 import subprocess
 import threading
+from PIL import Image
 import PIL.Image
 import requests
 import socketio
@@ -615,6 +616,7 @@ class Commands:
                     matching_endpoint.conn.send('restart'.encode())
                     logger.debug(f'Sleeping for 2.5s...')
                     time.sleep(2.5)
+                    server.remove_lost_connection(matching_endpoint)
                     print(f"Restart command sent to {matching_endpoint.ip} | {matching_endpoint.ident}")
                     logger.info(f'restart_command completed.')
                     return True
@@ -674,7 +676,6 @@ class Backend:
         self.sio.event('connect')(self.handle_connect)
 
         self.app.route('/')(self.index)
-        self.app.route('/get_image_dir/<hostname>')(self.get_image_dir)
         self.app.route('/get_images', methods=['GET'])(self.get_images)
 
         self.app.route('/controller', methods=['POST'])(self.send_message)
@@ -695,16 +696,6 @@ class Backend:
     def page_not_found(self, error):
         return jsonify({'error': 'Directory not found'}), 404
 
-    def get_image_dir(self, hostname):
-        # Get the directory name
-        directoryName = urllib.parse.quote_plus(hostname)
-        print(directoryName)
-
-        # Look for a directory with the same name under static/images
-        directoryPath = os.path.join('static/images', directoryName)
-
-        return {'directoryPath': directoryPath}
-
     def get_images(self):
         directory = request.args.get('directory')
         images = []
@@ -712,6 +703,10 @@ class Backend:
         if os.path.isdir(directory):
             for filename in os.listdir(directory):
                 if filename.endswith('.jpg') or filename.endswith('.png'):
+                    big_image = os.path.join(directory, filename)
+                    with Image.open(big_image) as img:
+                        img = img.resize((230, 200))
+                        img.save(big_image)
                     images.append({'path': os.path.join(directory, filename)})
 
         return jsonify({'images': images})
@@ -719,7 +714,7 @@ class Backend:
     def shell_data(self):
         global shell_target
         selected_row_data = request.get_json()
-        if isinstance(shell_target, list) and Backend().images:
+        if isinstance(shell_target, list) or Backend().images:
             shell_target = []
 
         for endpoint in server.endpoints:
