@@ -84,7 +84,7 @@ td:nth-child(5) {
 }
 
 .row-data.selected {
-  background-color: yellow;
+  background-color: green;
 }
 
 .box {
@@ -94,7 +94,66 @@ td:nth-child(5) {
 }
 
 .small-box {
-  padding: 5px;
-  width: 300px;
-  height: 100px;
+    padding: 5px;
+    width: 300px;
+    height: 100px;
+}
+
+.image-slider {
+  position: relative;
+  overflow: hidden;
+}
+
+.slider-container {
+  display: flex;
+  width: 100%;
+}
+
+.slide {
+  flex: 1 0 0;
+}
+
+.slide img {
+  width: 100%;
+  height: auto;
+}
+
+.slider-navigation {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.prev-btn,
+.next-btn {
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  color: #fff;
+  cursor: pointer;
+  outline: none;
+  padding: 0 10px;
+}
+
+.prev-btn:hover,
+.next-btn:hover {
+  color: #ccc;
+}
+
+.prev-btn {
+  margin-right: 10px;
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.slider-container.slide-animation {
+  animation: slide 0.5s forwards;
 }
