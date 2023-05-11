@@ -12,8 +12,6 @@ import eventlet
 import psutil
 import shutil
 import socket
-import base64
-import queue
 import glob
 import time
 import PIL
@@ -539,6 +537,8 @@ def serve_static(path):
 
 @app.route('/')
 def index():
+    global shell_target
+    shell_target = []
     serving_on = os.getenv('URL')
     hostname = socket.gethostname()
     server_ip = str(socket.gethostbyname(hostname))
@@ -680,6 +680,7 @@ def browse_local_files(ident) -> subprocess:
 
 
 def call_update_selected_endpoint() -> bool:
+    global shell_target
     logger.info(f'Running update_selected_endpoint...')
     matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
     if matching_endpoint:
@@ -691,12 +692,14 @@ def call_update_selected_endpoint() -> bool:
                 logger.debug(f'Sending update command to {matching_endpoint.ip} | {matching_endpoint.ident}...')
                 matching_endpoint.conn.send('update'.encode())
                 server.remove_lost_connection(matching_endpoint)
+                if isinstance(shell_target, list):
+                    shell_target = []
                 logger.info(f'update_selected_endpoint completed.')
                 return True
 
             except (RuntimeError, WindowsError, socket.error) as e:
                 logger.error(f'Connection Error: {e}.')
-                self.logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
+                logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
                 server.remove_lost_connection(matching_endpoint)
                 return False
 
@@ -748,9 +751,10 @@ def shell_data():
 
     for endpoint in server.endpoints:
         if endpoint.ip == selected_row_data['ip_address']:
-            # print(f"Shell to: {endpoint.conn} | {endpoint.ip} | {endpoint.ident}")
             shell_target = endpoint.conn
             return jsonify({'message': 'Selected row data received and saved successfully'})
+
+    return jsonify({'message': 'No endpoint found for the selected row data.'})
 
 
 def last_boot():
