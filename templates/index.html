@@ -3,6 +3,7 @@
 <head>
 	<title>HandsOff</title>
 	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 	<div class="container">
@@ -36,7 +37,7 @@
 						<th>Hostname</th>
 						<th>Logged User</th>
 						<th>Boot Time</th>
-						<th>Connection Time</th>
+						<th>Client Version</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -47,7 +48,7 @@
 						<td>{{ endpoint.ident }}</td>
 						<td>{{ endpoint.user }}</td>
 						<td>{{ endpoint.boot_time }}</td>
-						<td>{{ endpoint.connection_time }}</td>
+						<td>{{ endpoint.client_version }}</td>
 
 					</tr>
 					 {% endfor %}
@@ -76,8 +77,14 @@
 		<div class="footer">
 			<div class="box">
 				<h1>Details</h1>
-				<img src="/static/images/handsoff.png" alt="HO">
-    		</div>
+				<div class="image-slider">
+					<div id="slider-container"></div>
+					<div class="slider-navigation">
+						<button class="prev-btn">&lt;</button>
+						<button class="next-btn">&gt;</button>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<div class="content">
