@@ -2,11 +2,9 @@ from flask import Flask, render_template, request, jsonify, send_from_directory,
 from dotenv import load_dotenv, dotenv_values
 from flask_socketio import SocketIO, emit
 from datetime import datetime
-import PIL.ImageTk
+from PIL import Image, ImageTk
 import subprocess
 import threading
-from PIL import Image
-import PIL.Image
 import requests
 import socketio
 import eventlet
@@ -15,7 +13,6 @@ import shutil
 import socket
 import glob
 import time
-import PIL
 import os
 import re
 
@@ -120,7 +117,7 @@ class Screenshot:
             self.images = glob.glob(fr"{self.screenshot_path}\*.jpg")
             self.images.sort(key=os.path.getmtime)
             self.logger.debug(f"Opening latest screenshot...")
-            self.sc = PIL.Image.open(self.images[-1])
+            self.sc = Image.open(self.images[-1])
             self.logger.debug(f"Resizing to 650x350...")
             self.sc_resized = self.sc.resize((650, 350))
             self.last_screenshot = os.path.basename(self.images[-1])
@@ -133,7 +130,7 @@ class Screenshot:
                     src = os.path.join(self.screenshot_path, self.last_screenshot)
                     shutil.copy(src, local_dir)
 
-            os.startfile(self.last_sc_path)
+            # os.startfile(self.last_sc_path)
             self.logger.info(f"Screenshot completed.")
 
         except IndexError:
