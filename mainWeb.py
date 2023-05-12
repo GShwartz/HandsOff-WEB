@@ -704,9 +704,6 @@ class Backend:
             for filename in os.listdir(directory):
                 if filename.endswith('.jpg') or filename.endswith('.png'):
                     big_image = os.path.join(directory, filename)
-                    with Image.open(big_image) as img:
-                        img = img.resize((230, 200))
-                        img.save(big_image)
                     images.append({'path': os.path.join(directory, filename)})
 
         return jsonify({'images': images})
