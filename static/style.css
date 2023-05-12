@@ -7,13 +7,22 @@
 body {
   margin: 0;
   padding: 0;
+  background-color: #778899;
+  font-family: emoji;
+}
+
+/* Style for h1 */
+h1 {
+    font-size: 20px;
+    margin-top: 0;
 }
 
 /* Style for container div */
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  border: 1px solid #ccc;
+    max-width: 1200px;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    background-color: #DCDCDC;
 }
 
 /* Style for header and footer sections */
@@ -52,6 +61,7 @@ th {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 /* Style for buttons */
@@ -67,11 +77,6 @@ th {
 
 .buttons-container button:hover {
   background-color: #3e8e41;
-}
-
-/* Style for h1 */
-h1 {
-  margin-top: 0;
 }
 
 /* Add border to the Connection Time column */
@@ -90,7 +95,7 @@ td:nth-child(5) {
 .box {
   background-color: blue;
   margin-bottom: 5px;
-  border-radius: 5px;
+  border-radius: 2px;
   max-width: 100%;
   max-height: 50%;
 }
@@ -142,4 +147,3 @@ td:nth-child(5) {
 .slider-nav a:hover {
     opacity: 1;
 }
-

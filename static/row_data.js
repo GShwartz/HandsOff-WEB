@@ -3,7 +3,8 @@ const sliderNav = document.querySelector('.slider-nav');
 const updateSlider = (images) => {
     slider.innerHTML = '';
     sliderNav.innerHTML = '';
-    images.forEach(image => {
+    for (let i = images.length - 1; i >= 0; i--) {
+        const image = images[i];
         const img = document.createElement('img');
         img.src = image.path;
         img.alt = image.alt;
@@ -12,7 +13,7 @@ const updateSlider = (images) => {
         const navLink = document.createElement('a');
         navLink.href = `#${image.alt}`;
         sliderNav.appendChild(navLink);
-    });
+    }
 }
 
 const rows = document.querySelectorAll(".row-data");
