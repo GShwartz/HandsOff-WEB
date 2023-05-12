@@ -116,14 +116,6 @@ class Screenshot:
 
     def finish(self):
         try:
-            for endpoint in server.endpoints:
-                if endpoint.conn == shell_target:
-                    endpoint_ident = endpoint.ident
-
-            local_dir = os.path.join('static', 'images', endpoint_ident)
-            if not os.path.exists(local_dir):
-                os.makedirs(local_dir)
-
             self.logger.debug(f"Sorting jpg files by creation time...")
             self.images = glob.glob(fr"{self.screenshot_path}\*.jpg")
             self.images.sort(key=os.path.getmtime)
@@ -133,8 +125,14 @@ class Screenshot:
             self.sc_resized = self.sc.resize((650, 350))
             self.last_screenshot = os.path.basename(self.images[-1])
             self.last_sc_path = os.path.join(self.screenshot_path, self.last_screenshot)
-            src = os.path.join(self.screenshot_path, self.last_screenshot)
-            shutil.copy(src, local_dir)
+
+            for endpoint in server.endpoints:
+                if endpoint.conn == shell_target:
+                    endpoint_ident = endpoint.ident
+                    local_dir = create_local_dir(endpoint_ident)
+                    src = os.path.join(self.screenshot_path, self.last_screenshot)
+                    shutil.copy(src, local_dir)
+
             os.startfile(self.last_sc_path)
             self.logger.info(f"Screenshot completed.")
 
@@ -284,6 +282,13 @@ class Sysinfo:
         self.confirm()
         logger.debug(f"Calling file_validation...")
         self.file_validation()
+
+        for endpoint in server.endpoints:
+            if endpoint.conn == shell_target:
+                endpoint_ident = endpoint.ident
+                local_dir = create_local_dir(endpoint_ident)
+                shutil.copy(self.file_path, local_dir)
+
         logger.debug(f"Calling display_text...")
         self.display_text()
         logger.info(f"Sysinfo completed.")
@@ -478,18 +483,6 @@ class Tasks:
         self.endpoint.conn.settimeout(None)
         logger.debug(f"{self.endpoint.ip}: {msg}")
 
-    def move(self):
-        logger.info(f"Running move...")
-        src = os.path.abspath(self.filenameRecv)
-        dst = self.tasks_file_path
-
-        logger.debug(f"Moving {src} to {dst}...")
-        try:
-            shutil.move(src, dst)
-
-        except FileExistsError:
-            pass
-
     def run(self):
         logger.info(f"Running run...")
         self.filepath = os.path.join(self.path, self.endpoint.ident)
@@ -518,8 +511,14 @@ class Tasks:
         self.get_file_content()
         logger.debug(f"Calling confirm...")
         self.confirm()
-        # logger.debug(f"Calling move...")
-        # self.move()
+
+        src = os.path.join(self.filepath, self.filenameRecv)
+        for endpoint in server.endpoints:
+            if endpoint.conn == shell_target:
+                endpoint_ident = endpoint.ident
+                local_dir = create_local_dir(endpoint_ident)
+                shutil.copy(src, local_dir)
+
         logger.debug(f"Calling display_text...")
         self.display_text()
         logger.debug(f"Calling post_run...")
@@ -701,10 +700,12 @@ class Backend:
         images = []
 
         if os.path.isdir(directory):
-            for filename in os.listdir(directory):
+            file_names = [os.path.join(directory, f) for f in os.listdir(directory)]
+            file_names_sorted = sorted(file_names, key=os.path.getctime)
+
+            for filename in file_names_sorted:
                 if filename.endswith('.jpg') or filename.endswith('.png'):
-                    big_image = os.path.join(directory, filename)
-                    images.append({'path': os.path.join(directory, filename)})
+                    images.append({'path': filename})
 
         return jsonify({'images': images})
 
@@ -792,13 +793,22 @@ class Backend:
             "boot_time": boot_time,
             "connected_stations": connected_stations,
             "endpoints": server.endpoints,
-            "history": server.connHistory
+            "history": server.connHistory,
+            "server_version": version
         }
 
         return render_template('index.html', **kwargs)
 
     def run(self):
         self.sio.run(self.app, host='0.0.0.0', port=8000)
+
+
+def create_local_dir(endpoint_ident):
+    local_dir = os.path.join('static', 'images', endpoint_ident)
+    if not os.path.exists(local_dir):
+        os.makedirs(local_dir)
+
+    return local_dir
 
 
 def find_matching_endpoint(endpoint_list, shell_target):
@@ -835,6 +845,7 @@ def main():
 
 if __name__ == '__main__':
     load_dotenv()
+    version = "1.00"
     hands_off_path = r'c:\HandsOff'
     if not os.path.exists(str(hands_off_path)):
         os.makedirs(hands_off_path)
