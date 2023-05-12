@@ -2,9 +2,15 @@
 <html>
 <head>
 	<title>HandsOff</title>
+	<meta charset="UTF-8">
+	<meta name="description" content="A C&C for IT Admins">
+	<meta name="author" content="Gil Shwartz">
 	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="{{ url_for('static', filename='controller.js') }}" defer></script>
+	<script src="{{ url_for('static', filename='row_data.js') }}" defer></script>
 </head>
+
 <body>
 	<div class="container">
 		<div class="header">
@@ -29,37 +35,39 @@
 		</div>
 
 		<div class="content">
-			<h1>Connected Stations</h1>
-			<table>
-				<thead>
-					<tr>
-						<th>Client MAC</th>
-						<th>IP Address</th>
-						<th>Hostname</th>
-						<th>Logged User</th>
-						<th>Boot Time</th>
-						<th>Client Version</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for endpoint in endpoints %}
-					<tr class="row-data" data-id="{{ endpoint.client_mac }}" data-ip="{{ endpoint.ip }}" data-hostname="{{ endpoint.ident }}" data-user="{{ endpoint.user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
-						<td>{{ endpoint.client_mac }}</td>
-						<td>{{ endpoint.ip }}</td>
-						<td>{{ endpoint.ident }}</td>
-						<td>{{ endpoint.user }}</td>
-						<td>{{ endpoint.boot_time }}</td>
-						<td>{{ endpoint.client_version }}</td>
+			<div class="table-container">
+				<h1>Connected Stations</h1>
+				<table>
+					<thead>
+						<tr>
+							<th>Client MAC</th>
+							<th>IP Address</th>
+							<th>Hostname</th>
+							<th>Logged User</th>
+							<th>Boot Time</th>
+							<th>Client Version</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for endpoint in endpoints %}
+						<tr class="row-data" data-id="{{ endpoint.client_mac }}" data-ip="{{ endpoint.ip }}" data-hostname="{{ endpoint.ident }}" data-user="{{ endpoint.user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
+							<td>{{ endpoint.client_mac }}</td>
+							<td>{{ endpoint.ip }}</td>
+							<td>{{ endpoint.ident }}</td>
+							<td>{{ endpoint.user }}</td>
+							<td>{{ endpoint.boot_time }}</td>
+							<td>{{ endpoint.client_version }}</td>
 
-					</tr>
-					 {% endfor %}
-					 {% if not endpoints %}
-					<tr>
-						<td colspan="6">No endpoints found.</td>
-					</tr>
-					{% endif %}
-				</tbody>
-			</table>
+						</tr>
+						 {% endfor %}
+						 {% if not endpoints %}
+						<tr>
+							<td colspan="6">No endpoints found.</td>
+						</tr>
+						{% endif %}
+					</tbody>
+				</table>
+			</div>
 		</div>
 
 		<div class="container">
@@ -71,7 +79,6 @@
 			<button class="button" data-action="restart">Restart</button>
 			<button class="button" data-action="local">Local Files</button>
 			<button class="button" data-action="update">Update</button>
-			<script src="{{ url_for('static', filename='controller.js') }}"></script>
 			</div>
 		</div>
 
@@ -80,41 +87,42 @@
 				<div class="slider"></div>
 				<div class="slider-nav"></div>
 			</div>
-			<script src="{{ url_for('static', filename='row_data.js') }}"></script>
 		</div>
 
 		<div class="content">
-			<h1>Connection History</h1>
-			<table>
-				<thead>
-					<tr>
-						<th>Client MAC</th>
-						<th>IP Address</th>
-						<th>Hostname</th>
-						<th>Logged User</th>
-						<th>Boot Time</th>
-						<th>Connection Time</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for endpoint, time in history.items() %}
-					<tr>
-						<td>{{ endpoint.client_mac }}</td>
-						<td>{{ endpoint.ip }}</td>
-						<td>{{ endpoint.ident }}</td>
-						<td>{{ endpoint.user }}</td>
-						<td>{{ endpoint.boot_time }}</td>
-						<td>{{ endpoint.connection_time }}</td>
+			<div class="table-container">
+				<h1>Connection History</h1>
+				<table>
+					<thead>
+						<tr>
+							<th>Client MAC</th>
+							<th>IP Address</th>
+							<th>Hostname</th>
+							<th>Logged User</th>
+							<th>Boot Time</th>
+							<th>Connection Time</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for endpoint, time in history.items() %}
+						<tr>
+							<td>{{ endpoint.client_mac }}</td>
+							<td>{{ endpoint.ip }}</td>
+							<td>{{ endpoint.ident }}</td>
+							<td>{{ endpoint.user }}</td>
+							<td>{{ endpoint.boot_time }}</td>
+							<td>{{ endpoint.connection_time }}</td>
 
-					</tr>
-					 {% endfor %}
-					 {% if not history %}
-					<tr>
-						<td colspan="6">No endpoints found.</td>
-					</tr>
-					{% endif %}
-				</tbody>
-			</table>
+						</tr>
+						 {% endfor %}
+						 {% if not history %}
+						<tr>
+							<td colspan="6">No endpoints found.</td>
+						</tr>
+						{% endif %}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
 
