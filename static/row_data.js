@@ -1,3 +1,20 @@
+const slider = document.querySelector('.slider');
+const sliderNav = document.querySelector('.slider-nav');
+const updateSlider = (images) => {
+    slider.innerHTML = '';
+    sliderNav.innerHTML = '';
+    images.forEach(image => {
+        const img = document.createElement('img');
+        img.src = image.path;
+        img.alt = image.alt;
+        slider.appendChild(img);
+
+        const navLink = document.createElement('a');
+        navLink.href = `#${image.alt}`;
+        sliderNav.appendChild(navLink);
+    });
+}
+
 const rows = document.querySelectorAll(".row-data");
 rows.forEach((row) => {
     row.addEventListener("click", () => {
@@ -26,9 +43,8 @@ rows.forEach((row) => {
             .then(response => response.json())
             .then(data => {
                 console.log('Received response from Flask backend:', data);
-                // Show the images in the slider
-                const sliderHtml = getSliderHtml(data.images);
-                $('#slider-container').html(sliderHtml);
+                // Update the slider with the new images
+                updateSlider(data.images);
             })
             .catch(error => {
                 console.error('Error while getting images:', error);
@@ -52,64 +68,3 @@ rows.forEach((row) => {
         });
     });
 });
-
-// Helper function to generate HTML for the slider
-function getSliderHtml(images) {
-    let sliderHtml = '';
-    if (images && images.length > 0) {
-        sliderHtml += '<div class="slider-container">';
-        const sliderContainer = document.querySelector(".slider-container");
-        const prevBtn = document.querySelector(".prev-btn");
-        const nextBtn = document.querySelector(".next-btn");
-
-        let slideIndex = 0;
-        const slides = document.querySelectorAll(".image-slider");
-
-        // Show the first slide
-        slides[slideIndex].style.display = "block";
-
-        // Event listeners for the buttons
-        prevBtn.addEventListener("click", () => {
-          slideIndex--;
-          if (slideIndex < 0) {
-            slideIndex = slides.length - 1;
-          }
-          showSlide();
-        });
-
-        nextBtn.addEventListener("click", () => {
-          slideIndex++;
-          if (slideIndex >= slides.length) {
-            slideIndex = 0;
-          }
-          showSlide();
-        });
-
-        // Function to show the current slide
-        function showSlide(n) {
-          // Update slideIndex
-          slideIndex = (n + slides.length) % slides.length;
-
-          // Hide all slides
-          for (let i = 0; i < slides.length; i++) {
-            slides[i].style.display = "none";
-          }
-
-          // Display current slide
-          if (slides[slideIndex]) {
-            slides[slideIndex].style.display = "block";
-          }
-        }
-
-
-        images.forEach(function(image) {
-            sliderHtml += '<div class="slider">';
-            sliderHtml += '<img src="' + image.path + '">';
-            sliderHtml += '</div>';
-        });
-        sliderHtml += '</div>';
-    } else {
-        sliderHtml += '<p>No images found.</p>';
-    }
-    return sliderHtml;
-}
