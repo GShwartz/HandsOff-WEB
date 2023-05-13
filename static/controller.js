@@ -1,3 +1,5 @@
+
+
 // Declare variables and select DOM elements
 let lastSelectedRow = null;
 const buttonsContainer = document.querySelector('.buttons-container');
@@ -69,38 +71,68 @@ rows.forEach((row) => {
 
 // Handle button clicks
 function handleButtonClick(event) {
-  const button = event.target.closest('.button');
-  if (!button) return;
+    const button = event.target.closest('.button');
+    if (!button) return;
 
-  const action = button.dataset.action;
-  if (action === 'screenshot') {
-    makeAjaxRequest(action);
-    refreshImageSlider();
+    const action = button.dataset.action;
+    if (action === 'screenshot') {
+        makeAjaxRequest(action);
+        refreshImageSlider();
 
-  } else if (action == 'update') {
-    const popup = document.createElement('div');
-    popup.classList.add('popup');
-    popup.innerHTML = '<h1>Update Confirmation</h1><p>Are you sure?</p><button id="yes-button">Yes</button><button id="no-button">No</button>';
-    document.body.appendChild(popup);
+    } else if (action == 'update') {
+        if (!lastSelectedRow) {
+            console.log('No row selected');
+            return;
+        }
+        const overlay = document.createElement('div');
+        const popup = document.createElement('container');
+        popup.classList.add('popup', 'visible');
 
-    const yesButton = document.getElementById('yes-button');
-    const noButton = document.getElementById('no-button');
-    yesButton.addEventListener('click', handleUpdateConfirmation);
-    noButton.addEventListener('click', () => popup.remove());
+        overlay.classList.add('overlay');
+        document.body.appendChild(overlay);
+        popup.innerHTML = `<h1>Update ${lastSelectedRow.cells[2].innerText}?</h1><div class="popup-buttons"><button id="yes-button">Yes</button><button id="no-button">No</button></div>`;
+
+        document.body.appendChild(popup);
+
+        const yesButton = document.getElementById('yes-button');
+        const noButton = document.getElementById('no-button');
+
+        yesButton.addEventListener('click', handleUpdateConfirmation);
+        noButton.addEventListener('click', () => {
+          popup.remove();
+          overlay.classList.remove('visible');
+          document.body.removeChild(overlay);
+        });
+
 
   } else if (action == 'restart') {
-    const popup = document.createElement('div');
-    popup.classList.add('popup');
-    popup.innerHTML = '<h1>Restart Confirmation</h1><p>Are you sure you want to restart?</p><button id="yes-button">Yes</button><button id="no-button">No</button>';
-    document.body.appendChild(popup);
+        if (!lastSelectedRow) {
+            console.log('No row selected');
+            return;
+        }
 
-    const yesButton = document.getElementById('yes-button');
-    const noButton = document.getElementById('no-button');
-    yesButton.addEventListener('click', handleRestartConfirmation);
-    noButton.addEventListener('click', () => popup.remove());
+        const overlay = document.createElement('div');
+        const popup = document.createElement('container');
+        popup.classList.add('popup', 'visible');
+
+        overlay.classList.add('overlay');
+        document.body.appendChild(overlay);
+        popup.innerHTML = `<h1>Restart ${lastSelectedRow.cells[2].innerText}?</h1><div class="popup-buttons"><button id="yes-button">Yes</button><button id="no-button">No</button></div>`;
+
+        document.body.appendChild(popup);
+
+        const yesButton = document.getElementById('yes-button');
+        const noButton = document.getElementById('no-button');
+
+        yesButton.addEventListener('click', handleRestartConfirmation);
+        noButton.addEventListener('click', () => {
+          popup.remove();
+          overlay.classList.remove('visible');
+          document.body.removeChild(overlay);
+        });
 
   } else {
-    makeAjaxRequest(action);
+        makeAjaxRequest(action);
   }
 }
 
