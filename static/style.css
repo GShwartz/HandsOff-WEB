@@ -23,6 +23,16 @@ h1 {
     margin: 0 auto;
     border: 1px solid #ccc;
     background-color: #DCDCDC;
+
+}
+
+.table-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    background-color: #DCDCDC;
+    max-height: 300px; /* set the maximum height of the container */
+    overflow-y: auto; /* enable vertical scrollbar if content overflows */
 }
 
 /* Style for header and footer sections */
@@ -43,6 +53,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
+  max-height: 100%; /* set the maximum height of the table to match its container */
 }
 
 th,
