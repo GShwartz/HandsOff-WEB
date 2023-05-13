@@ -486,27 +486,19 @@ class Commands:
         logger.info(f'Running update_selected_endpoint...')
         matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
         if matching_endpoint:
-            logger.debug(f'Displaying confirmation...')
-            sure = input(f"Update {matching_endpoint.ip} | {matching_endpoint.ident} | Are you sure [Y/n]? ")
-            sure = sure.lower() == 'y'
-            if sure:
-                try:
-                    logger.debug(f'Sending update command to {matching_endpoint.ip} | {matching_endpoint.ident}...')
-                    matching_endpoint.conn.send('update'.encode())
-                    server.remove_lost_connection(matching_endpoint)
-                    if isinstance(shell_target, list):
-                        shell_target = []
-                    logger.info(f'update_selected_endpoint completed.')
-                    return True
+            try:
+                logger.debug(f'Sending update command to {matching_endpoint.ip} | {matching_endpoint.ident}...')
+                matching_endpoint.conn.send('update'.encode())
+                server.remove_lost_connection(matching_endpoint)
+                if isinstance(shell_target, list):
+                    shell_target = []
+                logger.info(f'update_selected_endpoint completed.')
+                return True
 
-                except (RuntimeError, WindowsError, socket.error) as e:
-                    logger.error(f'Connection Error: {e}.')
-                    logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
-                    server.remove_lost_connection(matching_endpoint)
-                    return False
-
-            else:
-                logger.info(f'update_selected_endpoint canceled.')
+            except (RuntimeError, WindowsError, socket.error) as e:
+                logger.error(f'Connection Error: {e}.')
+                logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
+                server.remove_lost_connection(matching_endpoint)
                 return False
 
 
@@ -619,7 +611,8 @@ class Backend:
             return jsonify({'message': 'Local message sent.'})
 
         if data == 'update':
-            self.commands.call_update_selected_endpoint()
+            if self.commands.call_update_selected_endpoint():
+                shell_target = []
             return jsonify({'message': 'Update message sent.'})
 
     def get_ident(self):
