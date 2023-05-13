@@ -78,8 +78,15 @@ function handleButtonClick(event) {
     refreshImageSlider();
 
   } else if (action == 'update') {
-    makeAjaxRequest(action);
-    location.reload();
+    const popup = document.createElement('div');
+    popup.classList.add('popup');
+    popup.innerHTML = '<h1>Update Confirmation</h1><p>Are you sure?</p><button id="yes-button">Yes</button><button id="no-button">No</button>';
+    document.body.appendChild(popup);
+
+    const yesButton = document.getElementById('yes-button');
+    const noButton = document.getElementById('no-button');
+    yesButton.addEventListener('click', handleUpdateConfirmation);
+    noButton.addEventListener('click', () => popup.remove());
 
   } else if (action == 'restart') {
     const popup = document.createElement('div');
@@ -99,6 +106,13 @@ function handleButtonClick(event) {
 
 function handleRestartConfirmation() {
   makeAjaxRequest('restart');
+  const popup = document.querySelector('.popup');
+  popup.remove();
+  location.reload();
+}
+
+function handleUpdateConfirmation() {
+  makeAjaxRequest('update');
   const popup = document.querySelector('.popup');
   popup.remove();
   location.reload();
