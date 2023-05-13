@@ -463,31 +463,22 @@ class Commands:
         if matching_endpoint:
             logger.info(f'Running restart_command...')
             logger.debug(f'Displaying confirmation...')
-            sure = input("Are you sure [Y/n]? ")
-            sure = sure.lower() == 'y'
-            logger.debug(f'Confirmation: {sure}.')
 
-            if sure:
-                try:
-                    logger.debug(f'Sending restart command to {matching_endpoint.ip}...')
-                    matching_endpoint.conn.send('restart'.encode())
-                    logger.debug(f'Sleeping for 1.2s...')
-                    time.sleep(1.2)
-                    server.remove_lost_connection(matching_endpoint)
-                    print(f"Restart command sent to {matching_endpoint.ip} | {matching_endpoint.ident}")
-                    logger.info(f'restart_command completed.')
-                    return True
+            try:
+                logger.debug(f'Sending restart command to {matching_endpoint.ip}...')
+                matching_endpoint.conn.send('restart'.encode())
+                logger.debug(f'Sleeping for 1.2s...')
+                time.sleep(1.2)
+                server.remove_lost_connection(matching_endpoint)
+                print(f"Restart command sent to {matching_endpoint.ip} | {matching_endpoint.ident}")
+                logger.info(f'restart_command completed.')
+                return True
 
-                except (RuntimeError, WindowsError, socket.error) as e:
-                    logger.error(f'Connection Error: {e}.')
-                    logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
-                    server.remove_lost_connection(matching_endpoint)
-                    logger.info(f'restart_command failed.')
-                    return False
-
-            else:
-                logger.info(f'Restart canceled.')
-                print("Restart canceled")
+            except (RuntimeError, WindowsError, socket.error) as e:
+                logger.error(f'Connection Error: {e}.')
+                logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
+                server.remove_lost_connection(matching_endpoint)
+                logger.info(f'restart_command failed.')
                 return False
 
     def call_update_selected_endpoint(self) -> bool:
@@ -617,7 +608,8 @@ class Backend:
             return jsonify({'message': 'Tasks message sent.'})
 
         if data == 'restart':
-            self.commands.call_restart()
+            if self.commands.call_restart():
+                shell_target = []
             return jsonify({'message': 'Restart message sent.'})
 
         if data == 'local':
