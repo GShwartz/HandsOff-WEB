@@ -370,16 +370,15 @@ class Tasks:
             logger.debug(f"Waiting for confirmation from {self.endpoint.ip}...")
             msg = self.endpoint.conn.recv(1024).decode()
             logger.debug(f"{self.endpoint.ip}: {msg}")
+            self.logger.debug(f"Displaying {msg} in popup window...")
+            print(f"{self.endpoint.ip} | {self.endpoint.ident}: ", f"{msg}")
+            return True
 
         except (WindowsError, socket.error) as e:
             logger.debug(f"Error: {e}")
             logger.debug(f"Calling server.remove_lost_connection({self.endpoint})...")
             server.remove_lost_connection(self.endpoint)
             return False
-
-        self.logger.debug(f"Displaying {msg} in popup window...")
-        print(f"{self.endpoint.ip} | {self.endpoint.ident}: ", f"{msg}")
-        return True
 
     def post_run(self):
         logger.info(f"Running post_run...")
@@ -392,10 +391,12 @@ class Tasks:
             self.task_to_kill = self.what_task()
             if str(self.task_to_kill) == '' or str(self.task_to_kill).startswith(' '):
                 logger.debug(f"task_to_kill: {self.task_to_kill}")
+                self.endpoint.conn.send('pass'.encode())
                 return False
 
             if not self.task_to_kill:
                 self.logger.info(f"post_run completed.")
+                print(f"task_to_kill: Sending pass command to {self.endpoint.ip}...")
                 return False
 
             self.logger.debug(f"Displaying kill confirmation pop-up...")
@@ -409,6 +410,7 @@ class Tasks:
             else:
                 try:
                     logger.debug(f"Sending pass command to {self.endpoint.ip}...")
+                    print(f"confirmKill: Sending pass command to {self.endpoint.ip}...")
                     self.endpoint.conn.send('pass'.encode())
                     return False
 
@@ -421,9 +423,10 @@ class Tasks:
         else:
             try:
                 logger.debug(f"Sending 'n' to {self.endpoint.ip}...")
+                print(f"Sending 'n' to {self.endpoint.ip}...")
                 self.endpoint.conn.send('n'.encode())
                 logger.info(f"post_run completed.")
-                return True
+                return False
 
             except (WindowsError, socket.error) as e:
                 logger.debug(f"Error: {e}")
@@ -524,9 +527,6 @@ class Tasks:
 
 
 class Commands:
-    def __init__(self):
-        pass
-
     def call_screenshot(self):
         matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
         if matching_endpoint:
@@ -610,8 +610,8 @@ class Commands:
                 try:
                     logger.debug(f'Sending restart command to {matching_endpoint.ip}...')
                     matching_endpoint.conn.send('restart'.encode())
-                    logger.debug(f'Sleeping for 2.5s...')
-                    time.sleep(2.5)
+                    logger.debug(f'Sleeping for 1.2s...')
+                    time.sleep(1.2)
                     server.remove_lost_connection(matching_endpoint)
                     print(f"Restart command sent to {matching_endpoint.ip} | {matching_endpoint.ident}")
                     logger.info(f'restart_command completed.')
