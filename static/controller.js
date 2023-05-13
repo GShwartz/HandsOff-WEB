@@ -69,24 +69,40 @@ rows.forEach((row) => {
 
 // Handle button clicks
 function handleButtonClick(event) {
-    const button = event.target.closest('.button');
-    if (!button) return;
+  const button = event.target.closest('.button');
+  if (!button) return;
 
-    const action = button.dataset.action;
-    if (action === 'screenshot') {
-        makeAjaxRequest(action);
-        refreshImageSlider();
-    } else if (action == 'update') {
-        makeAjaxRequest(action);
-        location.reload();
-    } else if (action == 'restart') {
-        makeAjaxRequest(action);
-        location.reload();
-    }
-    else {
-        makeAjaxRequest(action);
-    }
-};
+  const action = button.dataset.action;
+  if (action === 'screenshot') {
+    makeAjaxRequest(action);
+    refreshImageSlider();
+
+  } else if (action == 'update') {
+    makeAjaxRequest(action);
+    location.reload();
+
+  } else if (action == 'restart') {
+    const popup = document.createElement('div');
+    popup.classList.add('popup');
+    popup.innerHTML = '<h1>Restart Confirmation</h1><p>Are you sure you want to restart?</p><button id="yes-button">Yes</button><button id="no-button">No</button>';
+    document.body.appendChild(popup);
+
+    const yesButton = document.getElementById('yes-button');
+    const noButton = document.getElementById('no-button');
+    yesButton.addEventListener('click', handleRestartConfirmation);
+    noButton.addEventListener('click', () => popup.remove());
+
+  } else {
+    makeAjaxRequest(action);
+  }
+}
+
+function handleRestartConfirmation() {
+  makeAjaxRequest('restart');
+  const popup = document.querySelector('.popup');
+  popup.remove();
+  location.reload();
+}
 
 // Make AJAX request
 async function makeAjaxRequest(data) {
