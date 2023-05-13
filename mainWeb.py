@@ -666,6 +666,7 @@ class Backend:
         self.images = {}
         self.app.route('/static/<path:path>')(self.serve_static)
         self.app.route('/static/images/<path:path>')(self.serve_images)
+        self.app.route('/static/controller.js')(self.serve_controller_js)
         self.app.errorhandler(404)(self.page_not_found)
 
         self.sio.event('event')(self.on_event)
@@ -679,6 +680,9 @@ class Backend:
 
     def serve_static(self, path):
         return send_from_directory('static', path)
+
+    def serve_controller_js(self):
+        return self.app.send_static_file('controller.js'), 200, {'Content-Type': 'application/javascript'}
 
     def serve_images(self, path):
         return send_from_directory('static/images', path)
