@@ -1,27 +1,32 @@
+// Declare variables and select DOM elements
 let lastSelectedRow = null;
 const buttonsContainer = document.querySelector('.buttons-container');
-buttonsContainer.addEventListener('click', handleButtonClick);
-
 const slider = document.querySelector('.slider');
 const sliderNav = document.querySelector('.slider-nav');
 const rows = document.querySelectorAll(".row-data");
+
+// Add event listeners to buttons and rows
+buttonsContainer.addEventListener('click', handleButtonClick);
 rows.forEach((row) => {
     row.addEventListener("click", () => {
+        // Deselect all rows and select the clicked one
         rows.forEach((row) => {
             row.classList.remove("selected");
         });
         row.classList.add("selected");
 
+        // Get data from selected row
+        const [id, ip_address, hostname, logged_user, boot_time, connection_time] = row.cells;
         const selectedRowData = {
-            id: row.cells[0].innerText,
-            ip_address: row.cells[1].innerText,
-            hostname: row.cells[2].innerText,
-            logged_user: row.cells[3].innerText,
-            boot_time: row.cells[4].innerText,
-            connection_time: row.cells[5].innerText
+          id: id.innerText,
+          ip_address: ip_address.innerText,
+          hostname: hostname.innerText,
+          logged_user: logged_user.innerText,
+          boot_time: boot_time.innerText,
+          connection_time: connection_time.innerText
         };
 
-        // Check if hostname is not empty
+        // Fetch images for selected hostname
         if (selectedRowData.hostname.trim() !== '') {
             const hostname = encodeURIComponent(selectedRowData.hostname.trim());
             fetch(`/get_images?directory=static/images/${hostname}`, {
@@ -32,7 +37,7 @@ rows.forEach((row) => {
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Received response from Flask backend:', data);
+                console.log('Received response from server:', data);
                 // Update the slider with the new images
                 updateSlider(data.images, hostname);
             })
@@ -41,7 +46,7 @@ rows.forEach((row) => {
             });
         }
 
-        // Send the selected row data to the Flask backend
+        // Send selected row data to server
         fetch('/shell_data', {
             method: 'POST',
             headers: {
@@ -51,15 +56,18 @@ rows.forEach((row) => {
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Received response from Flask backend:', data);
+            console.log('Received response from server:', data);
         })
         .catch(error => {
-            console.error('Error while sending selected row data to Flask backend:', error);
+            console.error('Error while sending selected row data to server:', error);
         });
+
+        // Save last selected row
         lastSelectedRow = row;
     });
 });
 
+// Handle button clicks
 function handleButtonClick(event) {
     const button = event.target.closest('.button');
     if (!button) return;
@@ -68,18 +76,36 @@ function handleButtonClick(event) {
     if (action === 'screenshot') {
         makeAjaxRequest(action);
         refreshImageSlider();
-  } else {
+    } else if (action == 'update') {
+        makeAjaxRequest(action);
+        location.reload();
+    } else if (action == 'restart') {
+        makeAjaxRequest(action);
+        location.reload();
+    }
+    else {
         makeAjaxRequest(action);
     }
+};
+
+// Make AJAX request
+async function makeAjaxRequest(data) {
+  try {
+    const response = await fetch('/controller', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8'
+      },
+      body: JSON.stringify({ data })
+    });
+    console.log('Received response from Flask backend:', await response.json());
+
+  } catch (error) {
+    console.error('Error while sending data to Flask backend:', error);
+  }
 }
 
-function makeAjaxRequest(data) {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/controller');
-    xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-    xhr.send(JSON.stringify({ data }));
-}
-
+// Refresh image slider
 function refreshImageSlider() {
     if (lastSelectedRow) {
         const clickEvent = new MouseEvent('click', {
@@ -91,6 +117,7 @@ function refreshImageSlider() {
     }
 };
 
+// Update image slider
 const updateSlider = (images, hostname) => {
     slider.innerHTML = '';
     sliderNav.innerHTML = '';

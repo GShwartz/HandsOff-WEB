@@ -1,9 +1,7 @@
-/* Apply box-sizing: border-box to all elements */
 * {
   box-sizing: border-box;
 }
 
-/* Set default margin and padding to 0 */
 body {
   margin: 0;
   padding: 0;
@@ -11,19 +9,16 @@ body {
   font-family: emoji;
 }
 
-/* Style for h1 */
 h1 {
     font-size: 20px;
     margin-top: 0;
 }
 
-/* Style for container div */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     border: 1px solid #ccc;
     background-color: #DCDCDC;
-
 }
 
 .table-container {
@@ -31,29 +26,26 @@ h1 {
     margin: 0 auto;
     border: 1px solid #ccc;
     background-color: #DCDCDC;
-    max-height: 300px; /* set the maximum height of the container */
-    overflow-y: auto; /* enable vertical scrollbar if content overflows */
+    max-height: 300px;
+    overflow-y: auto;
 }
 
-/* Style for header and footer sections */
 .header,
 .footer {
   padding: 10px;
   text-align: center;
 }
 
-/* Style for content section */
 .content {
   padding: 10px;
   text-align: center;
 }
 
-/* Style for table */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
-  max-height: 100%; /* set the maximum height of the table to match its container */
+  max-height: 100%;
 }
 
 th,
@@ -67,7 +59,6 @@ th {
   background-color: #f2f2f2;
 }
 
-/* Style for buttons container */
 .buttons-container {
   display: flex;
   justify-content: center;
@@ -75,7 +66,6 @@ th {
   margin-bottom: 20px;
 }
 
-/* Style for buttons */
 .buttons-container button {
   margin: 0 10px;
   padding: 10px 20px;
@@ -90,7 +80,6 @@ th {
   background-color: #3e8e41;
 }
 
-/* Add border to the Connection Time column */
 td:nth-child(5) {
   border-right: 1px solid #ccc;
 }
@@ -101,14 +90,6 @@ td:nth-child(5) {
 
 .row-data.selected {
   background-color: green;
-}
-
-.box {
-  background-color: blue;
-  margin-bottom: 5px;
-  border-radius: 2px;
-  max-width: 100%;
-  max-height: 50%;
 }
 
 .slider-wrapper {
@@ -157,4 +138,40 @@ td:nth-child(5) {
 
 .slider-nav a:hover {
     opacity: 1;
+}
+
+.restart-modal {
+  display: none; /* Hidden by default */
+  position: absolute; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.restart-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
 }
