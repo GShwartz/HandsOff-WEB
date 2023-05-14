@@ -6,13 +6,15 @@
 	<meta charset="UTF-8">
 	<meta name="description" content="A C&C for IT Admins">
 	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='tables.css') }}">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="{{ url_for('static', filename='table_data.js') }}" defer></script>
+	<script src="{{ url_for('static', filename='minimizer.js') }}" defer></script>
 </head>
 
 <body>
 	<div class="container">
-		<div class="header">
+		<div class="table">
 			<table>
 				<thead>
 					<tr>
@@ -33,8 +35,8 @@
 			</table>
 		</div>
 
-		<div class="content">
-			<div class="table-container">
+		<div class="container">
+			<div class="table">
 				<h1>Connected Stations</h1>
 				<table>
 					<thead>
@@ -84,46 +86,49 @@
 		<div class="container">
 			<h1>Screenshots</h1>
 			<div class="slider-wrapper">
+				<button class="minimize-button">-</button>
 				<div class="slider"></div>
 				<div class="slider-nav"></div>
-				<button class="minimize-button">-</button>
-				<script src="{{ url_for('static', filename='minimizer.js') }}"></script>
 			</div>
 		</div>
 
-		<div class="content">
-			<div class="table-container">
-				<h1>Connection History</h1>
-				<table>
-					<thead>
-						<tr>
-							<th>Client MAC</th>
-							<th>IP Address</th>
-							<th>Hostname</th>
-							<th>Logged User</th>
-							<th>Boot Time</th>
-							<th>Connection Time</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for endpoint, time in history.items() %}
-						<tr>
-							<td>{{ endpoint.client_mac }}</td>
-							<td>{{ endpoint.ip }}</td>
-							<td>{{ endpoint.ident }}</td>
-							<td>{{ endpoint.user }}</td>
-							<td>{{ endpoint.boot_time }}</td>
-							<td>{{ endpoint.connection_time }}</td>
-
-						</tr>
-						 {% endfor %}
-						 {% if not history %}
-						<tr>
-							<td colspan="6">No endpoints found.</td>
-						</tr>
-						{% endif %}
-					</tbody>
-				</table>
+		<div class="container">
+			<h1>Connection History</h1>
+			<div class="history-table-wrapper">
+				<button class="history-table-minimize-button">-</button>
+				<div class="history-table-container">
+					<div class="table">
+						<table>
+							<thead>
+								<tr>
+									<th>Client MAC</th>
+									<th>IP Address</th>
+									<th>Hostname</th>
+									<th>Logged User</th>
+									<th>Boot Time</th>
+									<th>Connection Time</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for endpoint, time in history.items() %}
+								<tr>
+									<td>{{ endpoint.client_mac }}</td>
+									<td>{{ endpoint.ip }}</td>
+									<td>{{ endpoint.ident }}</td>
+									<td>{{ endpoint.user }}</td>
+									<td>{{ endpoint.boot_time }}</td>
+									<td>{{ endpoint.connection_time }}</td>
+								</tr>
+								 {% endfor %}
+								 {% if not history %}
+								<tr>
+									<td colspan="6">No endpoints found.</td>
+								</tr>
+								{% endif %}
+							</tbody>
+						</table>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
