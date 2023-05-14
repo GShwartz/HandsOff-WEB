@@ -148,7 +148,7 @@ td:nth-child(5) {
   width: 25%;
   height: 15%;
   transform: translate(-50%, -50%);
-  background-color: #F0FFFF;
+  background-color: #DCDCDC;
   border: 1px solid black;
   padding: 20px;
   z-index: 1000;
@@ -184,6 +184,10 @@ td:nth-child(5) {
   display: block;
 }
 
-.error {
-  border: 2px solid red;
+.fade-in {
+    opacity: 0;
+    transition: opacity 0.05s ease-in-out;
+}
+.fade-in.visible {
+    opacity: 1;
 }
