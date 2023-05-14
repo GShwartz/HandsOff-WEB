@@ -13,11 +13,11 @@ import shutil
 import socket
 import glob
 import time
+import sys
 import os
 
-from Modules.screenshot import Screenshot
 from Modules.logger import init_logger
-from Modules.sysinfo import Sysinfo
+from Modules.commands import Commands
 from Modules.server import Server
 
 
@@ -166,154 +166,33 @@ class Tasks:
         logger.info(f"run completed.")
 
 
-class Commands:
-    def call_screenshot(self):
-        matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
-        if matching_endpoint:
-            sc = Screenshot(hands_off_path, log_path, matching_endpoint, server, shell_target)
-            sc.run()
-
-    def call_anydesk(self) -> bool:
-        logger.info(f'Running anydesk_command...')
-        matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
-        if matching_endpoint:
-            try:
-                logger.debug(f'Sending anydesk command to {matching_endpoint.conn}...')
-                matching_endpoint.conn.send('anydesk'.encode())
-
-                logger.debug(f'Waiting for response from {matching_endpoint.ip}......')
-                msg = matching_endpoint.conn.recv(1024).decode()
-                logger.debug(f'Client response: {msg}.')
-                if "OK" not in msg:
-                    logger.debug(f'Updating statusbar message...')
-                    logger.debug(f'Display popup confirmation for install anydesk...')
-                    install_ad = input("Install Anydesk?")
-                    install_ad = install_ad == 'yes'
-
-                    logger.debug(f'Install anydesk: {install_ad}.')
-                    if install_ad:
-                        logger.debug(f'Updating statusbar message...')
-                        logger.debug(f'Sending install command to {matching_endpoint.conn}')
-                        matching_endpoint.conn.send('y'.encode())
-                        while "OK" not in msg:
-                            logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
-                            msg = matching_endpoint.conn.recv(1024).decode()
-                            logger.debug(f'{matching_endpoint.ip}: {msg}...')
-                            print(f'{matching_endpoint.ip}: {msg}...')
-
-                        logger.debug(f'End of OK in msg loop.')
-                        print("Anydesk Running")
-                        logger.info(f'anydesk_command completed.')
-
-                    else:
-                        logger.debug(f'Sending cancel command to {matching_endpoint.conn}...')
-                        matching_endpoint.conn.send('n'.encode())
-                        return
-
-                else:
-                    print("anydesk running...")
-                    logger.info(f'anydesk_command completed.')
-                    return True
-
-            except (WindowsError, ConnectionError, socket.error, RuntimeError) as e:
-                logger.error(f'Connection Error: {e}.')
-                logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
-                server.remove_lost_connection(matching_endpoint)
-                return False
-
-    def call_sysinfo(self):
-        matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
-        if matching_endpoint:
-            sysinfo = Sysinfo(hands_off_path, log_path, matching_endpoint, server, shell_target)
-            sysinfo.run()
-
-        else:
-            logger.info("No target")
-            return False
-
-    def call_tasks(self):
-        matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
-        if matching_endpoint:
-            self.tasks = Tasks(hands_off_path, log_path, matching_endpoint)
-            self.tasks.run()
-
-    def tasks_post_run(self):
-        task_name = request.json.get('taskName')
-        if task_name:
-            self.tasks.kill_task(task_name)
-            return jsonify({'message': f'Killed task {task_name}'}), 200
-
-        else:
-            return jsonify({'error': 'No task name provided'}), 400
-
-    def call_restart(self):
-        matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
-        if matching_endpoint:
-            logger.info(f'Running restart_command...')
-            logger.debug(f'Displaying confirmation...')
-
-            try:
-                logger.debug(f'Sending restart command to {matching_endpoint.ip}...')
-                matching_endpoint.conn.send('restart'.encode())
-                logger.debug(f'Sleeping for 1.2s...')
-                time.sleep(1.2)
-                server.remove_lost_connection(matching_endpoint)
-                print(f"Restart command sent to {matching_endpoint.ip} | {matching_endpoint.ident}")
-                logger.info(f'restart_command completed.')
-                return True
-
-            except (RuntimeError, WindowsError, socket.error) as e:
-                logger.error(f'Connection Error: {e}.')
-                logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
-                server.remove_lost_connection(matching_endpoint)
-                logger.info(f'restart_command failed.')
-                return False
-
-        else:
-            return False
-
-    def call_update_selected_endpoint(self) -> bool:
-        global shell_target
-        logger.info(f'Running update_selected_endpoint...')
-        matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
-        if matching_endpoint:
-            try:
-                logger.debug(f'Sending update command to {matching_endpoint.ip} | {matching_endpoint.ident}...')
-                matching_endpoint.conn.send('update'.encode())
-                server.remove_lost_connection(matching_endpoint)
-                if isinstance(shell_target, list):
-                    shell_target = []
-                logger.info(f'update_selected_endpoint completed.')
-                return True
-
-            except (RuntimeError, WindowsError, socket.error) as e:
-                logger.error(f'Connection Error: {e}.')
-                logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
-                server.remove_lost_connection(matching_endpoint)
-                return False
-
-
 class Backend:
-    def __init__(self):
+    def __init__(self, logger, main_path, log_path, server, version, shell_target):
+        self.logger = logger
+        self.main_path = main_path
+        self.log_path = log_path
+        self.server = server
+        self.version = version
+        self.shell_target = shell_target
+
         self.app = Flask(__name__)
         self.sio = SocketIO(self.app)
-        self.commands = Commands()
-        self.images = {}
-        self.app.route('/static/<path:path>')(self.serve_static)
-        self.app.route('/static/images/<path:path>')(self.serve_images)
-        self.app.route('/static/controller.js')(self.serve_controller_js)
-        self.app.errorhandler(404)(self.page_not_found)
 
-        self.app.route('/reload')(self.reload)
+        self.images = {}
+
         self.sio.event('event')(self.on_event)
         self.sio.event('connect')(self.handle_connect)
 
         self.app.route('/')(self.index)
-        self.app.route('/get_images', methods=['GET'])(self.get_images)
+        self.app.errorhandler(404)(self.page_not_found)
 
+        self.app.route('/reload')(self.reload)
+        self.app.route('/static/<path:path>')(self.serve_static)
+        self.app.route('/static/images/<path:path>')(self.serve_images)
+        self.app.route('/static/controller.js')(self.serve_controller_js)
+        self.app.route('/get_images', methods=['GET'])(self.get_images)
         self.app.route('/controller', methods=['POST'])(self.send_message)
         self.app.route('/shell_data', methods=['POST'])(self.shell_data)
-        self.app.route('/kill_task', methods=['POST'])(self.commands.tasks_post_run)
 
     def send_message(self):
         data = request.json.get('data')
@@ -343,16 +222,27 @@ class Backend:
             return jsonify({'message': 'Restart message sent.'})
 
         if data == 'local':
-            global shell_target
-            matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
+            matching_endpoint = self.find_matching_endpoint()
             if matching_endpoint:
-                browse_local_files(matching_endpoint.ident)
+                self.browse_local_files(matching_endpoint.ident)
             return jsonify({'message': 'Local message sent.'})
 
         if data == 'update':
             if self.commands.call_update_selected_endpoint():
-                shell_target = []
+                self.shell_target = []
             return jsonify({'message': 'Update message sent.'})
+
+    def find_matching_endpoint(self):
+        for endpoint in self.server.endpoints:
+            if endpoint.conn == self.shell_target:
+                return endpoint
+        return None
+
+    def browse_local_files(self, ident) -> subprocess:
+        self.logger.info(f'Running browse_local_files_command...')
+        directory = os.path.join(self.main_path, ident)
+        self.logger.debug(fr'Opening {directory}...')
+        return subprocess.Popen(rf"explorer {directory}")
 
     def serve_static(self, path):
         return send_from_directory('static', path)
@@ -390,14 +280,15 @@ class Backend:
         return jsonify({'images': images})
 
     def shell_data(self):
-        global shell_target
         selected_row_data = request.get_json()
-        if isinstance(shell_target, list) or Backend().images:
-            shell_target = []
+        if isinstance(self.shell_target, list) or self.images:
+            self.shell_target = []
 
-        for endpoint in server.endpoints:
+        for endpoint in self.server.endpoints:
             if endpoint.ip == selected_row_data['ip_address']:
-                shell_target = endpoint.conn
+                self.shell_target = endpoint.conn
+                self.commands = Commands(self.logger, self.main_path, self.log_path, self.server, self.shell_target)
+
                 endpoint_ident = endpoint.ident
 
                 dynamic_folder = request.args.get('folder')
@@ -417,60 +308,47 @@ class Backend:
         return jsonify({'message': 'No endpoint found for the selected row data.'})
 
     def get_ident(self):
-        for endpoint in server.endpoints:
-            if endpoint.conn == shell_target:
+        print(self.shell_target)
+        for endpoint in self.server.endpoints:
+            if endpoint.conn == self.shell_target:
                 endpoint_ident = endpoint.ident
                 return jsonify({'shell_target': endpoint_ident})
 
         return jsonify({'shell_target': 'None for now'})
 
     def index(self):
-        global shell_target
-        shell_target = []
-        serving_on = os.getenv('URL')
-        hostname = socket.gethostname()
-        server_ip = str(socket.gethostbyname(hostname))
-        server_port = os.getenv('PORT')
+        self.shell_target = []
         boot_time = last_boot()
-        connected_stations = len(server.endpoints)
+        connected_stations = len(self.server.endpoints)
 
         kwargs = {
-            "serving_on": serving_on,
-            "server_ip": server_ip,
-            "server_port": server_port,
+            "serving_on": os.getenv('SERVER_URL'),
+            "server_ip": os.getenv('SERVER_IP'),
+            "server_port": os.getenv('SERVER_PORT'),
             "boot_time": boot_time,
             "connected_stations": connected_stations,
-            "endpoints": server.endpoints,
-            "history": server.connHistory,
-            "server_version": version
+            "endpoints": self.server.endpoints,
+            "history": self.server.connHistory,
+            "server_version": self.version
         }
 
         return render_template('index.html', **kwargs)
 
     def run(self):
-        self.sio.run(self.app, host='0.0.0.0', port=8000)
+        port = int(sys.argv[1]) if len(sys.argv) > 1 else os.getenv('DEFAULT_PORT')
+        self.sio.run(self.app, host='0.0.0.0', port=port)
 
 
 def create_local_dir(endpoint_ident):
     local_dir = os.path.join('static', 'images', endpoint_ident)
     if not os.path.exists(local_dir):
-        os.makedirs(local_dir)
+        try:
+            os.makedirs(str(local_dir), exist_ok=True)
+
+        except Exception as e:
+            print(f"Failed to create directory '{local_dir}': {e}")
 
     return local_dir
-
-
-def find_matching_endpoint(endpoint_list, shell_target):
-    for endpoint in endpoint_list:
-        if endpoint.conn == shell_target:
-            return endpoint
-    return None
-
-
-def browse_local_files(ident) -> subprocess:
-    logger.info(f'Running browse_local_files_command...')
-    directory = os.path.join(hands_off_path, ident)
-    logger.debug(fr'Opening {directory}...')
-    return subprocess.Popen(rf"explorer {directory}")
 
 
 def last_boot():
@@ -486,27 +364,41 @@ def get_date() -> str:
 
 
 def main():
-    backend = Backend()
+    version = "1.00"
+
+    load_dotenv()
+    main_path = str(sys.argv[3]) if len(sys.argv) > 3 else os.getenv('MAIN_PATH')
+    server_ip = str(sys.argv[4]) if len(sys.argv) > 4 else os.getenv('SERVER_IP')
+    server_port = int(sys.argv[2]) if len(sys.argv) > 2 else os.getenv('SERVER_PORT')
+    log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
+
+    try:
+        os.makedirs(str(main_path), exist_ok=True)
+
+    except Exception as e:
+        print(f"Failed to create directory '{main_path}': {e}")
+
+    try:
+        with open(log_path, 'w'):
+            pass
+
+    except IOError as e:
+        print(f"Failed to open file '{log_path}': {e}")
+        sys.exit(1)
+
+    except Exception as e:
+        print(f"An error occurred while trying to open file '{log_path}': {e}")
+        sys.exit(1)
+
+    shell_target = []
+
+    server = Server(server_ip, server_port, log_path)
+    logger = init_logger(log_path, __name__)
+    backend = Backend(logger, main_path, log_path, server, version, shell_target)
+
     server.listener()
     backend.run()
 
 
 if __name__ == '__main__':
-    load_dotenv()
-    version = "1.00"
-    hands_off_path = r'c:\HandsOff'
-    if not os.path.exists(str(hands_off_path)):
-        os.makedirs(hands_off_path)
-
-    log_path = os.path.join(hands_off_path, 'server_log.txt')
-    with open(log_path, 'w'):
-        pass
-
-    server_ip = '0.0.0.0'
-    server_port = 55400
-    server = Server(server_ip, server_port, log_path)
-    logger = init_logger(log_path, __name__)
-
-    shell_target = []
-
     main()
