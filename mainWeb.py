@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, jsonify, send_from_directory,
 from dotenv import load_dotenv, dotenv_values
 from flask_socketio import SocketIO, emit
 from datetime import datetime
-from PIL import Image, ImageTk
 import subprocess
 import threading
 import requests
@@ -11,7 +10,6 @@ import eventlet
 import psutil
 import shutil
 import socket
-import glob
 import time
 import sys
 import os
@@ -355,12 +353,6 @@ def last_boot():
     last_reboot = psutil.boot_time()
     bt = datetime.fromtimestamp(last_reboot).strftime('%d/%b/%y %H:%M:%S %p')
     return bt
-
-
-def get_date() -> str:
-    d = datetime.now().replace(microsecond=0)
-    dt = str(d.strftime("%d/%b/%y %H:%M:%S"))
-    return dt
 
 
 def main():
