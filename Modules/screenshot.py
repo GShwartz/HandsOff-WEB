@@ -1,12 +1,11 @@
-import glob
 from datetime import datetime
-import os
 from PIL import Image
 import socket
 import shutil
+import glob
+import os
 
 from Modules.logger import init_logger
-from Modules.server import Server
 
 
 class Screenshot:
