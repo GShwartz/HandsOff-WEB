@@ -1,5 +1,4 @@
 
-
 // Declare variables and select DOM elements
 let lastSelectedRow = null;
 const buttonsContainer = document.querySelector('.buttons-container');
@@ -90,7 +89,12 @@ function handleButtonClick(event) {
 
         overlay.classList.add('overlay');
         document.body.appendChild(overlay);
-        popup.innerHTML = `<h1>Update ${lastSelectedRow.cells[2].innerText}?</h1><div class="popup-buttons"><button id="yes-button">Yes</button><button id="no-button">No</button></div>`;
+        popup.innerHTML = `
+            <h1>Update ${lastSelectedRow.cells[2].innerText}?</h1>
+            <div class="popup-buttons">
+                <button id="yes-button">Yes</button>
+                <button id="no-button">No</button>
+            </div>`;
 
         document.body.appendChild(popup);
 
@@ -105,7 +109,7 @@ function handleButtonClick(event) {
         });
 
 
-  } else if (action == 'restart') {
+    } else if (action == 'restart') {
         if (!lastSelectedRow) {
             console.log('No row selected');
             return;
@@ -117,7 +121,12 @@ function handleButtonClick(event) {
 
         overlay.classList.add('overlay');
         document.body.appendChild(overlay);
-        popup.innerHTML = `<h1>Restart ${lastSelectedRow.cells[2].innerText}?</h1><div class="popup-buttons"><button id="yes-button">Yes</button><button id="no-button">No</button></div>`;
+        popup.innerHTML = `
+            <h1>Restart ${lastSelectedRow.cells[2].innerText}?</h1>
+            <div class="popup-buttons">
+                <button id="yes-button">Yes</button>
+                <button id="no-button">No</button>
+            </div>`;
 
         document.body.appendChild(popup);
 
@@ -131,9 +140,86 @@ function handleButtonClick(event) {
           document.body.removeChild(overlay);
         });
 
-  } else {
+    } else if (action == 'tasks') {
+        if (!lastSelectedRow) {
+            console.log('No row selected');
+            return;
+        }
+        makeAjaxRequest('tasks');
+
+        setTimeout(function() {
+              return new Promise((resolve, reject) => {
+                const overlay = document.createElement('div');
+                const popup = document.createElement('container');
+                popup.classList.add('popup', 'visible');
+
+                overlay.classList.add('overlay');
+                document.body.appendChild(overlay);
+
+                popup.innerHTML = `
+                  <h1>Kill task on ${lastSelectedRow.cells[2].innerText}?</h1>
+                  <form>
+                    <label for="task-input">Enter task name (.exe)</label>
+                    <input type="text" id="task-input" name="task-input">
+                    <div class="popup-buttons">
+                      <button type="button" id="submit-button">Submit</button>
+                      <button type="button" id="cancel-button">Cancel</button>
+                    </div>
+                  </form>
+                `;
+
+                const submitButton = popup.querySelector('#submit-button');
+                const cancelButton = popup.querySelector('#cancel-button');
+                const taskInput = popup.querySelector('#task-input');
+
+                submitButton.addEventListener('click', () => {
+                  const taskName = taskInput.value.trim();
+                  if (taskName) {
+                    resolve(taskName);
+                    killTask(taskName);
+
+                  } else {
+                    reject(new Error('No task name provided'));
+                  }
+                  popup.remove();
+                  overlay.classList.remove('visible');
+                  document.body.removeChild(overlay);
+                });
+
+                cancelButton.addEventListener('click', () => {
+                  resolve('Popup was cancelled');
+                  popup.remove();
+                  overlay.classList.remove('visible');
+                  document.body.removeChild(overlay);
+                });
+
+                document.body.appendChild(popup);
+              });
+        }, 1500);
+    }
+    else {
         makeAjaxRequest(action);
-  }
+    }
+}
+
+function killTask(taskName) {
+//    makeAjaxRequest('kill_task');
+
+    // Send selected row data to server
+    fetch('/kill_task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 'taskName': taskName })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Received response from server:', data);
+    })
+    .catch(error => {
+        console.error('Error while sending selected row data to server:', error);
+    });
 }
 
 function handleRestartConfirmation() {

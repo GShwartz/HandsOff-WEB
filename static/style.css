@@ -183,3 +183,7 @@ td:nth-child(5) {
 .overlay.visible {
   display: block;
 }
+
+.error {
+  border: 2px solid red;
+}
