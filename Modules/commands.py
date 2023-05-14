@@ -120,7 +120,7 @@ class Commands:
 
     def call_update_selected_endpoint(self) -> bool:
         self.logger.info(f'Running update_selected_endpoint...')
-        self.matching_endpoint = self.find_matching_endpoint()
+        matching_endpoint = self.find_matching_endpoint()
         if matching_endpoint:
             try:
                 self.logger.debug(f'Sending update command to {matching_endpoint.ip} | {matching_endpoint.ident}...')
