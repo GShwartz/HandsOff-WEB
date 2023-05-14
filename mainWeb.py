@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory, url_for
+from flask import Flask, render_template, request, jsonify, send_from_directory, url_for, redirect
 from dotenv import load_dotenv, dotenv_values
 from flask_socketio import SocketIO, emit
 from datetime import datetime
@@ -28,6 +28,7 @@ class Tasks:
         self.log_path = log_path
         self.tasks_file_path = os.path.join(self.path, self.endpoint.ident)
         self.logger = init_logger(self.log_path, __name__)
+        self.on_complete = None
 
     def bytes_to_number(self, b: int) -> int:
         res = 0
@@ -39,42 +40,7 @@ class Tasks:
         logger.info(f"Running display_text...")
         os.startfile(self.full_file_path)
 
-    def what_task(self) -> str:
-        logger.info(f"Running what_task...")
-        logger.debug(f"Waiting for task name...")
-        taskkill = input("Task to kill: ")
-        logger.debug(f"Task Name: {taskkill}")
-        if not taskkill:
-            try:
-                logger.debug(f"Sending 'n' to {self.endpoint.ip}...")
-                self.endpoint.conn.send('n'.encode())
-                logger.debug(f"Printing warning ...")
-                print("Task Kill Canceled.")
-                return False
-
-            except (WindowsError, socket.error) as e:
-                logger.debug(f"Error: {e}")
-                logger.debug(f"Calling server.remove_lost_connection({self.endpoint})...")
-                server.remove_lost_connection(self.endpoint)
-                return False
-
-        if not str(taskkill).endswith('.exe'):
-            try:
-                logger.debug(f"Sending 'n' to {self.endpoint.ip}...")
-                self.endpoint.conn.send('n'.encode())
-                logger.debug(f"Printing warning...")
-                print("Task Kill canceled")
-                return False
-
-            except (WindowsError, socket.error) as e:
-                logger.debug(f"Error: {e}")
-                logger.debug(f"Calling app.remove_lost_connection({self.endpoint})...")
-                server.remove_lost_connection(self.endpoint)
-                return False
-
-        return taskkill
-
-    def kill_task(self):
+    def kill_task(self, taskname):
         logger.debug(f"Running kill_task...")
         try:
             logger.debug(f"Sending kill command to {self.endpoint.ip}...")
@@ -87,8 +53,8 @@ class Tasks:
             return False
 
         try:
-            logger.debug(f"Sending {self.task_to_kill} to {self.endpoint.ip}...")
-            self.endpoint.conn.send(self.task_to_kill.encode())
+            logger.debug(f"Sending {str(taskname)} to {self.endpoint.ip}...")
+            self.endpoint.conn.send(str(taskname).encode())
 
         except (WindowsError, socket.error) as e:
             logger.debug(f"Error: {e}")
@@ -109,60 +75,6 @@ class Tasks:
             logger.debug(f"Calling server.remove_lost_connection({self.endpoint})...")
             server.remove_lost_connection(self.endpoint)
             return False
-
-    def post_run(self):
-        logger.info(f"Running post_run...")
-        logger.debug(f"Displaying kill task validation...")
-        self.killTask = input(f"Tasks from {self.endpoint.ip} | {self.endpoint.ident}. Kill Task? [Y/n] ")
-        logger.debug(f"Kill task: {self.killTask}")
-        self.killTask = self.killTask.lower() == 'y'
-        if self.killTask:
-            logger.debug(f"Calling what_task({self.filepath})...")
-            self.task_to_kill = self.what_task()
-            if str(self.task_to_kill) == '' or str(self.task_to_kill).startswith(' '):
-                logger.debug(f"task_to_kill: {self.task_to_kill}")
-                self.endpoint.conn.send('pass'.encode())
-                return False
-
-            if not self.task_to_kill:
-                self.logger.info(f"post_run completed.")
-                print(f"task_to_kill: Sending pass command to {self.endpoint.ip}...")
-                return False
-
-            self.logger.debug(f"Displaying kill confirmation pop-up...")
-            confirmKill = input(f'Are you sure you want to kill {self.task_to_kill} [Y/n]? ')
-            confirmKill = confirmKill.lower() == 'y'
-            logger.debug(f"Kill confirmation: {confirmKill}")
-            if confirmKill:
-                logger.debug(f"Calling kill_task({self.task_to_kill})...")
-                self.kill_task()
-
-            else:
-                try:
-                    logger.debug(f"Sending pass command to {self.endpoint.ip}...")
-                    print(f"confirmKill: Sending pass command to {self.endpoint.ip}...")
-                    self.endpoint.conn.send('pass'.encode())
-                    return False
-
-                except (WindowsError, socket.error) as e:
-                    logger.debug(f"Error: {e}")
-                    logger.debug(f"Calling server.remove_lost_connection({self.endpoint})...")
-                    server.remove_lost_connection(self.endpoint)
-                    return False
-
-        else:
-            try:
-                logger.debug(f"Sending 'n' to {self.endpoint.ip}...")
-                print(f"Sending 'n' to {self.endpoint.ip}...")
-                self.endpoint.conn.send('n'.encode())
-                logger.info(f"post_run completed.")
-                return False
-
-            except (WindowsError, socket.error) as e:
-                logger.debug(f"Error: {e}")
-                logger.debug(f"Calling server.remove_lost_connection({self.endpoint})...")
-                server.remove_lost_connection(self.endpoint)
-                return False
 
     def get_file_name(self):
         logger.info(f"Running get_file_name...")
@@ -251,8 +163,6 @@ class Tasks:
 
         logger.debug(f"Calling display_text...")
         self.display_text()
-        logger.debug(f"Calling post_run...")
-        self.post_run()
         logger.info(f"run completed.")
 
 
@@ -324,8 +234,17 @@ class Commands:
     def call_tasks(self):
         matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
         if matching_endpoint:
-            tasks = Tasks(hands_off_path, log_path, matching_endpoint)
-            tasks.run()
+            self.tasks = Tasks(hands_off_path, log_path, matching_endpoint)
+            self.tasks.run()
+
+    def tasks_post_run(self):
+        task_name = request.json.get('taskName')
+        if task_name:
+            self.tasks.kill_task(task_name)
+            return jsonify({'message': f'Killed task {task_name}'}), 200
+
+        else:
+            return jsonify({'error': 'No task name provided'}), 400
 
     def call_restart(self):
         matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
@@ -394,6 +313,46 @@ class Backend:
 
         self.app.route('/controller', methods=['POST'])(self.send_message)
         self.app.route('/shell_data', methods=['POST'])(self.shell_data)
+        self.app.route('/kill_task', methods=['POST'])(self.commands.tasks_post_run)
+
+    def send_message(self):
+        data = request.json.get('data')
+        if data == 'screenshot':
+            self.commands.call_screenshot()
+            return jsonify({'message': 'Screenshot message sent.'})
+
+        if data == 'anydesk':
+            self.commands.call_anydesk()
+            return jsonify({'message': 'Anydesk message sent.'})
+
+        if data == 'sysinfo':
+            self.commands.call_sysinfo()
+            return jsonify({'message': 'Sysinfo message sent.'})
+
+        if data == 'tasks':
+            self.commands.call_tasks()
+            return jsonify({'message': 'Tasks message sent.'})
+
+        if data == 'kill_task':
+            self.commands.tasks_post_run()
+            # return jsonify({'message': 'Kill Task message sent.'})
+
+        if data == 'restart':
+            if self.commands.call_restart():
+                self.reload()
+            return jsonify({'message': 'Restart message sent.'})
+
+        if data == 'local':
+            global shell_target
+            matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
+            if matching_endpoint:
+                browse_local_files(matching_endpoint.ident)
+            return jsonify({'message': 'Local message sent.'})
+
+        if data == 'update':
+            if self.commands.call_update_selected_endpoint():
+                shell_target = []
+            return jsonify({'message': 'Update message sent.'})
 
     def serve_static(self, path):
         return send_from_directory('static', path)
@@ -456,41 +415,6 @@ class Backend:
                 return jsonify({'message': 'Selected row data received and saved successfully'})
 
         return jsonify({'message': 'No endpoint found for the selected row data.'})
-
-    def send_message(self):
-        data = request.json.get('data')
-        if data == 'screenshot':
-            self.commands.call_screenshot()
-            return jsonify({'message': 'Screenshot message sent.'})
-
-        if data == 'anydesk':
-            self.commands.call_anydesk()
-            return jsonify({'message': 'Anydesk message sent.'})
-
-        if data == 'sysinfo':
-            self.commands.call_sysinfo()
-            return jsonify({'message': 'Sysinfo message sent.'})
-
-        if data == 'tasks':
-            self.commands.call_tasks()
-            return jsonify({'message': 'Tasks message sent.'})
-
-        if data == 'restart':
-            if self.commands.call_restart():
-                self.reload()
-            return jsonify({'message': 'Restart message sent.'})
-
-        if data == 'local':
-            global shell_target
-            matching_endpoint = find_matching_endpoint(server.endpoints, shell_target)
-            if matching_endpoint:
-                browse_local_files(matching_endpoint.ident)
-            return jsonify({'message': 'Local message sent.'})
-
-        if data == 'update':
-            if self.commands.call_update_selected_endpoint():
-                shell_target = []
-            return jsonify({'message': 'Update message sent.'})
 
     def get_ident(self):
         for endpoint in server.endpoints:
