@@ -4,9 +4,12 @@ WORKDIR /app
 
 COPY . /app
 
+ARG DEFAULT_PORT=8000
+ENV PORT=${PORT:-$DEFAULT_PORT}
+
 RUN pip install --no-cache-dir --trusted-host pypi.python.org -r requirements.txt
 
-EXPOSE 8000 55400
+EXPOSE $PORT 55400
 
 # Run app.py when the container launches
-ENTRYPOINT ["python", "mainWeb.py"]
+ENTRYPOINT ["python", "mainWeb.py", "${PORT}"]
