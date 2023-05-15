@@ -20,7 +20,37 @@ class Commands:
         matching_endpoint = self.find_matching_endpoint()
         if matching_endpoint:
             sc = Screenshot(self.main_path, self.log_path, matching_endpoint, self.server, self.shell_target)
-            sc.run()
+            if sc.run():
+                return True
+
+    def skip_anydesk_install(self):
+        matching_endpoint = self.find_matching_endpoint()
+        self.logger.debug(f'Sending cancel command to {matching_endpoint.conn}...')
+        try:
+            matching_endpoint.conn.send('n'.encode())
+            skip = 'skipped'
+            return skip
+
+        except (RuntimeError, WindowsError, socket.error) as e:
+            self.logger.error(f'Connection Error: {e}.')
+            self.logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
+            self.server.remove_lost_connection(matching_endpoint)
+            self.logger.info(f'restart_command failed.')
+            return False
+
+    def install_anydesk(self):
+        matching_endpoint = self.find_matching_endpoint()
+        self.logger.debug(f'Sending install command to {matching_endpoint.conn}')
+        matching_endpoint.conn.send('y'.encode())
+        while "OK" not in msg:
+            self.logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
+            msg = matching_endpoint.conn.recv(1024).decode()
+            self.logger.debug(f'{matching_endpoint.ip}: {msg}...')
+            print(msg)
+
+        self.logger.debug(f'End of OK in msg loop.')
+        self.logger.info(f'anydesk_command completed.')
+        return True
 
     def call_anydesk(self) -> bool:
         self.logger.info(f'Running anydesk_command...')
@@ -33,40 +63,22 @@ class Commands:
                 self.logger.debug(f'Waiting for response from {matching_endpoint.ip}......')
                 msg = matching_endpoint.conn.recv(1024).decode()
                 self.logger.debug(f'Client response: {msg}.')
+
                 if "OK" not in msg:
-                    self.logger.debug(f'Updating statusbar message...')
-                    self.logger.debug(f'Display popup confirmation for install anydesk...')
-                    install_ad = input("Install Anydesk?")
-                    install_ad = install_ad == 'yes'
-
-                    self.logger.debug(f'Install anydesk: {install_ad}.')
-                    if install_ad:
-                        self.logger.debug(f'Updating statusbar message...')
-                        self.logger.debug(f'Sending install command to {matching_endpoint.conn}')
-                        matching_endpoint.conn.send('y'.encode())
-                        while "OK" not in msg:
-                            self.logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
-                            msg = matching_endpoint.conn.recv(1024).decode()
-                            self.logger.debug(f'{matching_endpoint.ip}: {msg}...')
-
-                        self.logger.debug(f'End of OK in msg loop.')
-                        self.logger.info(f'anydesk_command completed.')
-
-                    else:
-                        self.logger.debug(f'Sending cancel command to {matching_endpoint.conn}...')
-                        matching_endpoint.conn.send('n'.encode())
-                        return
+                    missing = 'missing'
+                    return missing
 
                 else:
-                    self.logger.info("anydesk running...")
-                    self.logger.info(f'anydesk_command completed.')
-                    return True
+                    return jsonify({'message': f'Anydesk running on {matching_endpoint}'}), 200
 
             except (WindowsError, ConnectionError, socket.error, RuntimeError) as e:
                 self.logger.error(f'Connection Error: {e}.')
                 self.logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
                 self.server.remove_lost_connection(matching_endpoint)
                 return False
+
+        else:
+            return False
 
     def call_sysinfo(self):
         matching_endpoint = self.find_matching_endpoint()
@@ -92,7 +104,7 @@ class Commands:
             return jsonify({'message': f'Killed task {task_name}'}), 200
 
         else:
-            return jsonify({'error': 'No task name provided'}), 400
+            return jsonify({'message': 'No task name provided'}), 400
 
     def call_restart(self):
         matching_endpoint = self.find_matching_endpoint()
