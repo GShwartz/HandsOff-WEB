@@ -243,7 +243,7 @@ function openInstallPopup() {
         const skipButton = popup.querySelector('#skip-button');
 
         installButton.addEventListener('click', () => {
-            makeAjaxRequest('install');
+            makeAjaxRequest('install_anydesk');
             popup.remove();
             overlay.classList.remove('visible');
             document.body.removeChild(overlay);
@@ -255,10 +255,6 @@ function openInstallPopup() {
             document.body.removeChild(overlay);
         });
         document.body.appendChild(popup);
-
-        function sendAjaxRequest(action) {
-        makeAjaxRequest({ action });
-        }
 
         function closePopup() {
             overlay.classList.remove('visible');
