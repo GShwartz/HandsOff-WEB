@@ -49,7 +49,7 @@ class Backend:
 
         self.app.route('/reload')(self.reload)
         self.app.route('/get_images', methods=['GET'])(self.get_images)
-        self.app.route('/controller', methods=['POST'])(self.send_message)
+        self.app.route('/controller', methods=['POST'])(self.controller)
         self.app.route('/shell_data', methods=['POST'])(self.shell_data)
         self.app.route('/kill_task', methods=['POST'])(self.commands.tasks_post_run)
 
@@ -65,15 +65,29 @@ class Backend:
     def serve_table_data_js(self):
         return self.app.send_static_file('table_data.js'), 200, {'Content-Type': 'application/javascript'}
 
-    def send_message(self) -> jsonify:
+    def controller(self) -> jsonify:
         data = request.json.get('data')
         if data == 'screenshot':
-            self.commands.call_screenshot()
-            return jsonify({'message': 'Screenshot message sent.'})
+            if self.commands.call_screenshot():
+                return jsonify({'message': 'Screenshot Completed'})
 
         if data == 'anydesk':
-            self.commands.call_anydesk()
-            return jsonify({'message': 'Anydesk message sent.'})
+            if self.commands.call_anydesk() == 'missing':
+                return jsonify({'message': f'missing'})
+
+            elif self.commands.call_anydesk() == 'running':
+                return jsonify({'message': f'Anydesk running'})
+
+            else:
+                return jsonify({'message': 'Anydesk canceled'})
+
+        if data == 'skip_anydesk':
+            print("data: skip_anydesk")
+            if self.commands.skip_anydesk_install() == 'skipped':
+                return jsonify({'message': 'Anydesk install skipped'})
+
+        if data == 'install_ad':
+            self.commands.install_anydesk()
 
         if data == 'sysinfo':
             self.commands.call_sysinfo()
