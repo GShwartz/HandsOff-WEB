@@ -36,6 +36,7 @@ class Backend:
 
         self.app.route('/static/<path:path>')(self.serve_static)
         self.app.route('/static/images/<path:path>')(self.serve_images)
+        self.app.route('/static/controller.js')(self.serve_controller_js)
 
         self.sio.event('event')(self.on_event)
         self.sio.event('connect')(self.handle_connect)
