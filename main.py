@@ -82,12 +82,13 @@ class Backend:
                 return jsonify({'message': 'Anydesk canceled'})
 
         if data == 'skip_anydesk':
-            print("data: skip_anydesk")
             if self.commands.skip_anydesk_install() == 'skipped':
                 return jsonify({'message': 'Anydesk install skipped'})
 
-        if data == 'install_ad':
-            self.commands.install_anydesk()
+        if data == 'install_anydesk':
+            if self.commands.install_anydesk() == 'running':
+                running = 'anydesk_running'
+                return jsonify({'message': f'{running}'})
 
         if data == 'sysinfo':
             self.commands.call_sysinfo()
