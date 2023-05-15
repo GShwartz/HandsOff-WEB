@@ -82,7 +82,8 @@ class Commands:
         matching_endpoint = self.find_matching_endpoint()
         if matching_endpoint:
             self.tasks = Tasks(self.main_path, self.log_path, matching_endpoint, self.server, self.shell_target)
-            self.tasks.run()
+            if self.tasks.run():
+                return True
 
     def tasks_post_run(self):
         task_name = request.json.get('taskName')
