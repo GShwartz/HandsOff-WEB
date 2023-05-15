@@ -91,67 +91,65 @@ function handleButtonClick(event) {
         }
         makeAjaxRequest('tasks');
 
-        setTimeout(function() {
-              return new Promise((resolve, reject) => {
-                const overlay = document.createElement('div');
-                const popup = document.createElement('container');
-                popup.classList.add('popup', 'fade-in');
-                setTimeout(() => {
-                    popup.classList.remove('visible');
-                    void popup.offsetWidth; // Trigger reflow to restart the animation
-                    popup.classList.add('visible');
-                }, 50);
+          return new Promise((resolve, reject) => {
+            const overlay = document.createElement('div');
+            const popup = document.createElement('container');
+            popup.classList.add('popup', 'fade-in');
+            setTimeout(() => {
+                popup.classList.remove('visible');
+                void popup.offsetWidth; // Trigger reflow to restart the animation
+                popup.classList.add('visible');
+            }, 50);
 
-                overlay.classList.add('overlay');
-                document.body.appendChild(overlay);
+            overlay.classList.add('overlay');
+            document.body.appendChild(overlay);
 
-                popup.innerHTML = `
-                  <h1>Kill task on ${lastSelectedRow.cells[2].innerText}?</h1>
-                  <form>
-                    <label for="task-input">Enter task name (.exe)</label>
-                    <input type="text" id="task-input" name="task-input">
-                    <div class="popup-buttons">
-                      <button type="button" id="submit-button">Submit</button>
-                      <button type="button" id="cancel-button">Cancel</button>
-                    </div>
-                  </form>
-                `;
+            popup.innerHTML = `
+              <h1>Kill task on ${lastSelectedRow.cells[2].innerText}?</h1>
+              <form>
+                <label for="task-input">Enter task name (.exe)</label>
+                <input type="text" id="task-input" name="task-input">
+                <div class="popup-buttons">
+                  <button type="button" id="submit-button">Submit</button>
+                  <button type="button" id="cancel-button">Cancel</button>
+                </div>
+              </form>
+            `;
 
-                const submitButton = popup.querySelector('#submit-button');
-                const cancelButton = popup.querySelector('#cancel-button');
-                const taskInput = popup.querySelector('#task-input');
+            const submitButton = popup.querySelector('#submit-button');
+            const cancelButton = popup.querySelector('#cancel-button');
+            const taskInput = popup.querySelector('#task-input');
 
-                submitButton.addEventListener('click', () => {
-                  const taskName = taskInput.value.trim();
-                  if (taskName) {
+            submitButton.addEventListener('click', () => {
+              const taskName = taskInput.value.trim();
+              if (taskName) {
+                resolve(taskName);
+                killTask(taskName);
+
+              } else {
+                reject(new Error('No task name provided'));
+              }
+              popup.remove();
+              overlay.classList.remove('visible');
+              document.body.removeChild(overlay);
+            });
+
+            cancelButton.addEventListener('click', () => {
+                const taskName = 'no';
+                if (taskName) {
                     resolve(taskName);
                     killTask(taskName);
 
-                  } else {
-                    reject(new Error('No task name provided'));
-                  }
-                  popup.remove();
-                  overlay.classList.remove('visible');
-                  document.body.removeChild(overlay);
-                });
+              } else {
+                    reject(new Error('Popup was cancelled'));
+              }
+                popup.remove();
+                overlay.classList.remove('visible');
+                document.body.removeChild(overlay);
+            });
 
-                cancelButton.addEventListener('click', () => {
-                    const taskName = 'no';
-                    if (taskName) {
-                        resolve(taskName);
-                        killTask(taskName);
-
-                  } else {
-                        reject(new Error('Popup was cancelled'));
-                  }
-                    popup.remove();
-                    overlay.classList.remove('visible');
-                    document.body.removeChild(overlay);
-                });
-
-                document.body.appendChild(popup);
-              });
-        }, 1000);
+            document.body.appendChild(popup);
+          });
     }
     else {
         makeAjaxRequest(action);
@@ -200,9 +198,83 @@ async function makeAjaxRequest(data) {
       },
       body: JSON.stringify({ data })
     });
-    console.log('Received response from Flask backend:', await response.json());
+
+    const responseData = await response.json();
+    console.log('Received response from Flask backend:', responseData);
+
+    if (responseData.message === 'missing') {
+      openInstallPopup();
+    }
+
+    if (responseData.message === 'skipped') {
+      closePopup();
+    }
 
   } catch (error) {
     console.error('Error while sending data to Flask backend:', error);
   }
+}
+
+function openInstallPopup() {
+    return new Promise((resolve, reject) => {
+        const overlay = document.createElement('div');
+        const popup = document.createElement('container');
+        popup.classList.add('popup', 'fade-in');
+        setTimeout(() => {
+            popup.classList.remove('visible');
+            void popup.offsetWidth; // Trigger reflow to restart the animation
+            popup.classList.add('visible');
+        }, 50);
+
+        overlay.classList.add('overlay');
+        document.body.appendChild(overlay);
+
+        popup.innerHTML = `
+          <h1>Install Anydesk on ${lastSelectedRow.cells[2].innerText}</h1>
+          <form>
+            <div class="popup-buttons">
+              <button type="button" id="install-button">Install</button>
+              <button type="button" id="skip-button">Skip</button>
+            </div>
+          </form>
+        `;
+
+        const installButton = popup.querySelector('#install-button');
+        const skipButton = popup.querySelector('#skip-button');
+
+        installButton.addEventListener('click', () => {
+            makeAjaxRequest('install');
+            popup.remove();
+            overlay.classList.remove('visible');
+            document.body.removeChild(overlay);
+        });
+        skipButton.addEventListener('click', () => {
+            makeAjaxRequest('skip_anydesk');
+            popup.remove();
+            overlay.classList.remove('visible');
+            document.body.removeChild(overlay);
+        });
+        document.body.appendChild(popup);
+
+        function sendAjaxRequest(action) {
+        makeAjaxRequest({ action });
+        }
+
+        function closePopup() {
+            overlay.classList.remove('visible');
+            document.body.removeChild(overlay);
+        }
+
+        overlay.classList.add('overlay');
+        document.body.appendChild(overlay);
+
+        popup.classList.add('popup', 'fade-in');
+        setTimeout(() => {
+        popup.classList.remove('visible');
+        void popup.offsetWidth; // Trigger reflow to restart the animation
+        popup.classList.add('visible');
+        }, 50);
+
+        overlay.appendChild(popup);
+        });
 }
