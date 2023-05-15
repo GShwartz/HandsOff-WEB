@@ -136,10 +136,17 @@ function handleButtonClick(event) {
                 });
 
                 cancelButton.addEventListener('click', () => {
-                  resolve('Popup was cancelled');
-                  popup.remove();
-                  overlay.classList.remove('visible');
-                  document.body.removeChild(overlay);
+                    const taskName = 'no';
+                    if (taskName) {
+                        resolve(taskName);
+                        killTask(taskName);
+
+                  } else {
+                        reject(new Error('Popup was cancelled'));
+                  }
+                    popup.remove();
+                    overlay.classList.remove('visible');
+                    document.body.removeChild(overlay);
                 });
 
                 document.body.appendChild(popup);
