@@ -9,12 +9,12 @@ from Modules.tasks import Tasks
 
 
 class Commands:
-    def __init__(self, logger, main_path, log_path, server, shell_target):
-        self.logger = logger
+    def __init__(self, main_path, log_path, server):
         self.main_path = main_path
         self.log_path = log_path
         self.server = server
-        self.shell_target = shell_target
+        self.shell_target = []
+        self.logger = init_logger(self.log_path, __name__)
 
     def call_screenshot(self):
         matching_endpoint = self.find_matching_endpoint()
@@ -81,7 +81,7 @@ class Commands:
     def call_tasks(self):
         matching_endpoint = self.find_matching_endpoint()
         if matching_endpoint:
-            self.tasks = Tasks(self.main_path, self.log_path, matching_endpoint)
+            self.tasks = Tasks(self.main_path, self.log_path, matching_endpoint, self.server, self.shell_target)
             self.tasks.run()
 
     def tasks_post_run(self):
