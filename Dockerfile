@@ -1,5 +1,9 @@
 FROM python:3.11
 
+LABEL maintainer="Gil Shwartz"
+LABEL version="1.0.0"
+LABEL description="HandsOff the mouse and keyboard sir/lady!"
+
 WORKDIR /app
 
 COPY . /app
