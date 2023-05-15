@@ -22,6 +22,17 @@ class Screenshot:
 
         self.server = server
 
+    def create_local_dir(self):
+        local_dir = os.path.join('static', 'images', self.endpoint.ident)
+        try:
+            os.makedirs(str(local_dir), exist_ok=True)
+
+        except Exception as e:
+            print(f"Failed to create directory '{local_dir}': {e}")
+            sys.exit(1)
+
+        return local_dir
+
     def bytes_to_number(self, b: int) -> int:
         res = 0
         for i in range(4):
@@ -119,7 +130,7 @@ class Screenshot:
             for endpoint in self.server.endpoints:
                 if endpoint.conn == self.shell_target:
                     endpoint_ident = endpoint.ident
-                    local_dir = create_local_dir(endpoint_ident)
+                    local_dir = self.create_local_dir()
                     src = os.path.join(self.screenshot_path, self.last_screenshot)
                     shutil.copy(src, local_dir)
 
@@ -151,11 +162,3 @@ class Screenshot:
         self.logger.debug(f"Calling get_file_content...")
         self.get_file_content()
         self.finish()
-
-
-def create_local_dir(endpoint_ident):
-    local_dir = os.path.join('static', 'images', endpoint_ident)
-    if not os.path.exists(local_dir):
-        os.makedirs(local_dir)
-
-    return local_dir
