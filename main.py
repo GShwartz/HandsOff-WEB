@@ -34,6 +34,9 @@ class Backend:
         self.app = Flask(__name__)
         self.sio = SocketIO(self.app)
 
+        self.app.route('/static/<path:path>')(self.serve_static)
+        self.app.route('/static/images/<path:path>')(self.serve_images)
+
         self.sio.event('event')(self.on_event)
         self.sio.event('connect')(self.handle_connect)
 
@@ -41,9 +44,6 @@ class Backend:
         self.app.errorhandler(404)(self.page_not_found)
 
         self.app.route('/reload')(self.reload)
-        self.app.route('/static/<path:path>')(self.serve_static)
-        self.app.route('/static/images/<path:path>')(self.serve_images)
-
         self.app.route('/get_images', methods=['GET'])(self.get_images)
         self.app.route('/controller', methods=['POST'])(self.send_message)
         self.app.route('/shell_data', methods=['POST'])(self.shell_data)
@@ -69,7 +69,7 @@ class Backend:
 
         if data == 'kill_task':
             self.commands.tasks_post_run()
-            # return jsonify({'message': 'Kill Task message sent.'})
+            return jsonify({'message': 'Kill Task message sent.'})
 
         if data == 'restart':
             if self.commands.call_restart():
@@ -194,10 +194,10 @@ class Backend:
         self.sio.run(self.app, host=os.getenv('SERVER_IP'), port=self.port)
 
 
-def last_boot():
+def last_boot(format_str='%d/%b/%y %H:%M:%S %p'):
     last_reboot = psutil.boot_time()
-    bt = datetime.fromtimestamp(last_reboot).strftime('%d/%b/%y %H:%M:%S %p')
-    return bt
+    last_reboot_str = datetime.fromtimestamp(last_reboot).strftime(format_str)
+    return last_reboot_str
 
 
 def main():
@@ -215,6 +215,7 @@ def main():
 
     except Exception as e:
         print(f"Failed to create directory '{main_path}': {e}")
+        sys.exit(1)
 
     try:
         with open(log_path, 'w'):

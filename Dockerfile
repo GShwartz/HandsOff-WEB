@@ -21,4 +21,4 @@ RUN pip install --no-cache-dir --trusted-host pypi.python.org -r requirements.tx
 EXPOSE $WEB_PORT $SERVER_PORT
 
 # Run mainWeb.py when the container launches
-ENTRYPOINT ["python", "mainWeb.py", "$MAIN_PATH", "$WEB_PORT", "$SERVER_IP", "$SERVER_PORT"]
+ENTRYPOINT ["python", "main.py", "$MAIN_PATH", "$WEB_PORT", "$SERVER_IP", "$SERVER_PORT"]
