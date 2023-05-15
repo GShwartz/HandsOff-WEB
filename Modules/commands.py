@@ -42,6 +42,7 @@ class Commands:
         matching_endpoint = self.find_matching_endpoint()
         self.logger.debug(f'Sending install command to {matching_endpoint.conn}')
         matching_endpoint.conn.send('y'.encode())
+        msg = matching_endpoint.conn.recv(1024).decode()
         while "OK" not in msg:
             self.logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
             msg = matching_endpoint.conn.recv(1024).decode()
@@ -50,7 +51,8 @@ class Commands:
 
         self.logger.debug(f'End of OK in msg loop.')
         self.logger.info(f'anydesk_command completed.')
-        return True
+        running = 'running'
+        return running
 
     def call_anydesk(self) -> bool:
         self.logger.info(f'Running anydesk_command...')
