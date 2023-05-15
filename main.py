@@ -34,13 +34,16 @@ class Backend:
         self.app = Flask(__name__)
         self.sio = SocketIO(self.app)
 
-        self.app.route('/static/<path:path>')(self.serve_static)
-        self.app.route('/static/images/<path:path>')(self.serve_images)
-        self.app.route('/static/controller.js')(self.serve_controller_js)
+        self._routes()
 
+    def _routes(self):
         self.sio.event('event')(self.on_event)
         self.sio.event('connect')(self.handle_connect)
 
+        self.app.route('/static/<path:path>')(self.serve_static)
+        self.app.route('/static/images/<path:path>')(self.serve_images)
+        self.app.route('/static/controller.js')(self.serve_controller_js)
+        self.app.route('/static/table_data.js')(self.serve_table_data_js)
         self.app.route('/')(self.index)
         self.app.errorhandler(404)(self.page_not_found)
 
@@ -50,7 +53,19 @@ class Backend:
         self.app.route('/shell_data', methods=['POST'])(self.shell_data)
         self.app.route('/kill_task', methods=['POST'])(self.commands.tasks_post_run)
 
-    def send_message(self):
+    def serve_static(self, path):
+        return send_from_directory('static', path)
+
+    def serve_images(self, path):
+        return send_from_directory('static/images', path)
+
+    def serve_controller_js(self):
+        return self.app.send_static_file('controller.js'), 200, {'Content-Type': 'application/javascript'}
+
+    def serve_table_data_js(self):
+        return self.app.send_static_file('table_data.js'), 200, {'Content-Type': 'application/javascript'}
+
+    def send_message(self) -> jsonify:
         data = request.json.get('data')
         if data == 'screenshot':
             self.commands.call_screenshot()
@@ -65,8 +80,8 @@ class Backend:
             return jsonify({'message': 'Sysinfo message sent.'})
 
         if data == 'tasks':
-            self.commands.call_tasks()
-            return jsonify({'message': 'Tasks message sent.'})
+            if self.commands.call_tasks():
+                return jsonify({'message': 'Tasks success'})
 
         if data == 'kill_task':
             self.commands.tasks_post_run()
@@ -97,7 +112,7 @@ class Backend:
             else:
                 return jsonify({'message': 'Failed to send Update message.'})
 
-    def find_matching_endpoint(self):
+    def find_matching_endpoint(self) -> str:
         for endpoint in self.server.endpoints:
             if endpoint.conn == self.commands.shell_target:
                 return endpoint
@@ -109,15 +124,6 @@ class Backend:
         self.logger.debug(fr'Opening {directory}...')
         return subprocess.Popen(rf"explorer {directory}")
 
-    def serve_static(self, path):
-        return send_from_directory('static', path)
-
-    def serve_controller_js(self):
-        return self.app.send_static_file('controller.js'), 200, {'Content-Type': 'application/javascript'}
-
-    def serve_images(self, path):
-        return send_from_directory('static/images', path)
-
     def reload(self):
         return redirect(url_for('index'))
 
@@ -127,10 +133,10 @@ class Backend:
     def handle_connect(self):
         pass
 
-    def page_not_found(self, error):
+    def page_not_found(self, error) -> jsonify:
         return jsonify({'error': 'Directory not found'}), 404
 
-    def get_images(self):
+    def get_images(self) -> jsonify:
         directory = request.args.get('directory')
         images = []
 
@@ -144,28 +150,27 @@ class Backend:
 
         return jsonify({'images': images})
 
-    def shell_data(self):
+    def shell_data(self) -> jsonify:
         selected_row_data = request.get_json()
         if isinstance(self.commands.shell_target, list) or self.images:
             self.commands.shell_target = []
 
-        for endpoint in self.server.endpoints:
-            if endpoint.client_mac == selected_row_data['id']:
-                self.commands.shell_target = endpoint.conn
-                endpoint_ident = endpoint.ident
-                dynamic_folder = request.args.get('folder')
-                images = []
+        if self.server.endpoints:
+            for endpoint in self.server.endpoints:
+                if endpoint.client_mac == selected_row_data['id']:
+                    self.commands.shell_target = endpoint.conn
+                    endpoint_ident = endpoint.ident
+                    dynamic_folder = request.args.get('folder')
+                    images = []
 
-                if os.path.isdir(str(dynamic_folder)):
-                    for filename in os.listdir(dynamic_folder):
-                        if filename.endswith('.jpg'):
-                            images.append({'path': os.path.join(dynamic_folder, filename)})
+                    if os.path.isdir(str(dynamic_folder)):
+                        for filename in os.listdir(dynamic_folder):
+                            if filename.endswith('.jpg'):
+                                images.append({'path': os.path.join(dynamic_folder, filename)})
 
-                    return jsonify({'images': images})
+        return jsonify({'images': images})
 
-        return jsonify({'message': 'No endpoint found for the selected row data.'})
-
-    def get_ident(self):
+    def get_ident(self) -> jsonify:
         for endpoint in self.server.endpoints:
             if endpoint.conn == self.commands.shell_target:
                 endpoint_ident = endpoint.ident
@@ -173,7 +178,7 @@ class Backend:
 
         return jsonify({'shell_target': 'None'})
 
-    def index(self):
+    def index(self) -> render_template:
         self.commands.shell_target = []
         boot_time = last_boot()
         connected_stations = len(self.server.endpoints)
