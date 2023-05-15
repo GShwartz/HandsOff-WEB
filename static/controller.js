@@ -1,5 +1,4 @@
 // Declare variables and select DOM elements
-let lastSelectedRow = null;
 const buttonsContainer = document.querySelector('.buttons-container');
 buttonsContainer.addEventListener('click', handleButtonClick);
 
@@ -20,7 +19,12 @@ function handleButtonClick(event) {
         }
         const overlay = document.createElement('div');
         const popup = document.createElement('container');
-        popup.classList.add('popup', 'visible');
+        popup.classList.add('popup', 'fade-in');
+        setTimeout(() => {
+            popup.classList.remove('visible');
+            void popup.offsetWidth; // Trigger reflow to restart the animation
+            popup.classList.add('visible');
+        }, 50);
 
         overlay.classList.add('overlay');
         document.body.appendChild(overlay);
@@ -52,7 +56,12 @@ function handleButtonClick(event) {
 
         const overlay = document.createElement('div');
         const popup = document.createElement('container');
-        popup.classList.add('popup', 'visible');
+        popup.classList.add('popup', 'fade-in');
+        setTimeout(() => {
+                    popup.classList.remove('visible');
+                    void popup.offsetWidth; // Trigger reflow to restart the animation
+                    popup.classList.add('visible');
+                }, 50);
 
         overlay.classList.add('overlay');
         document.body.appendChild(overlay);
@@ -86,7 +95,12 @@ function handleButtonClick(event) {
               return new Promise((resolve, reject) => {
                 const overlay = document.createElement('div');
                 const popup = document.createElement('container');
-                popup.classList.add('popup', 'visible');
+                popup.classList.add('popup', 'fade-in');
+                setTimeout(() => {
+                    popup.classList.remove('visible');
+                    void popup.offsetWidth; // Trigger reflow to restart the animation
+                    popup.classList.add('visible');
+                }, 50);
 
                 overlay.classList.add('overlay');
                 document.body.appendChild(overlay);
@@ -130,7 +144,7 @@ function handleButtonClick(event) {
 
                 document.body.appendChild(popup);
               });
-        }, 1500);
+        }, 1000);
     }
     else {
         makeAjaxRequest(action);
@@ -138,9 +152,7 @@ function handleButtonClick(event) {
 }
 
 function killTask(taskName) {
-//    makeAjaxRequest('kill_task');
-
-    // Send selected row data to server
+    // Send taskName data to server
     fetch('/kill_task', {
         method: 'POST',
         headers: {
