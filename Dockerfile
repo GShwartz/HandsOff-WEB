@@ -21,13 +21,11 @@ RUN pip install --no-cache-dir --trusted-host pypi.python.org -r requirements.tx
 ARG INSTALL_PYINSTALLER=false
 RUN if [ "$INSTALL_PYINSTALLER" = "true" ]; then pip install pyinstaller; fi
 
-#COPY src/HandsOff.ico ./images/
+RUN mv main.py handsoff.py
 
-RUN ren main.py handsoff.py
-
-RUN if [ "$INSTALL_PYINSTALLER" = "true" ]; then pyinstaller -F --icon=src/handsoff.ico handsoff; fi
+RUN if [ "$INSTALL_PYINSTALLER" = "true" ]; then pyinstaller -F --icon=src/handsoff.ico handsoff.py; fi
 
 EXPOSE $WEB_PORT $SERVER_PORT
 
-# Run mainWeb.py when the container launches
-ENTRYPOINT ["python", "handsoff.exe", "${MAIN_PATH}", "${WEB_PORT}", "${SERVER_IP}", "${SERVER_PORT}"]
+# Run mainWeb.py or handsoff.exe depending on the value of INSTALL_PYINSTALLER
+ENTRYPOINT if [ "$INSTALL_PYINSTALLER" = "true" ]; then ./dist/handsoff.exe "${MAIN_PATH}" "${WEB_PORT}" "${SERVER_IP}" "${SERVER_PORT}"; else python main.py "${MAIN_PATH}" "${WEB_PORT}" "${SERVER_IP}" "${SERVER_PORT}"; fi
