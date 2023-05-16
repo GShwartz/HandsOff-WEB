@@ -51,7 +51,7 @@ class Backend:
         self.app.route('/reload')(self.reload)
         self.app.route('/get_images', methods=['GET'])(self.get_images)
         self.app.route('/controller', methods=['POST'])(self.controller)
-        self.app.route('/shell_data', methods=['POST'])(self.shell_data)
+        self.app.route('/shell_data', methods=['POST', 'GET'])(self.shell_data)
         self.app.route('/kill_task', methods=['POST'])(self.commands.tasks_post_run)
 
     def serve_static(self, path):
@@ -220,22 +220,33 @@ class Backend:
 
     def shell_data(self) -> jsonify:
         self.logger.info(f'Running shell_data...')
-        selected_row_data = request.get_json()
-        if isinstance(self.commands.shell_target, list) or self.images:
-            self.logger.debug(fr'resetting shell_target...')
-            self.commands.shell_target = []
-
         if self.server.endpoints:
-            for endpoint in self.server.endpoints:
-                if endpoint.client_mac == selected_row_data['id']:
-                    self.commands.shell_target = endpoint.conn
-
-            self.logger.info(fr'row: {selected_row_data}')
-            return jsonify({'row': selected_row_data})
+            station = True
 
         else:
-            self.logger.info(fr'No connected stations.')
-            return jsonify({'message': 'No connected stations.'})
+            station = False
+
+        selected_row_data = request.get_json()
+        if selected_row_data:
+            if isinstance(self.commands.shell_target, list) or self.images:
+                self.logger.debug(fr'resetting shell_target...')
+                self.commands.shell_target = []
+
+            if self.server.endpoints:
+                for endpoint in self.server.endpoints:
+                    if endpoint.client_mac == selected_row_data['id']:
+                        self.commands.shell_target = endpoint.conn
+
+                self.logger.info(fr'row: {selected_row_data}')
+                return jsonify({'row': selected_row_data,
+                                'station': station})
+
+            else:
+                self.logger.info(fr'No connected stations.')
+                return jsonify({'message': 'No connected stations.'})
+
+        else:
+            return jsonify({'station': station})
 
     def get_ident(self) -> jsonify:
         self.logger.info(f'Running get_ident...')
@@ -265,7 +276,7 @@ class Backend:
             "connected_stations": connected_stations,
             "endpoints": self.server.endpoints,
             "history": self.server.connHistory,
-            "server_version": self.version
+            "server_version": self.version,
         }
 
         return render_template('index.html', **kwargs)
