@@ -37,6 +37,7 @@ class Backend:
         self._routes()
 
     def _routes(self):
+        self.logger.info(f"Defining app routes...")
         self.sio.event('event')(self.on_event)
         self.sio.event('connect')(self.handle_connect)
 
@@ -92,7 +93,7 @@ class Backend:
 
             else:
                 self.logger.debug(f"Anydesk canceled.")
-                return jsonify({'message': 'Anydesk canceled'})
+                return jsonify({'message': 'Anydesk installed & running'})
 
         if data == 'skip_anydesk':
             self.logger.debug(f"Calling self.commands.skip_anydesk_install()...")
@@ -197,10 +198,14 @@ class Backend:
         pass
 
     def page_not_found(self, error) -> jsonify:
+        self.logger.info(fr'Error 404: Directory not found.')
         return jsonify({'error': 'Directory not found'}), 404
 
     def get_images(self) -> jsonify:
+        self.logger.info(f'Running get_images...')
+        self.logger.debug(fr'Waiting for directory from the frontend...')
         directory = request.args.get('directory')
+        self.logger.debug(fr'directory: {directory}')
         images = []
 
         if os.path.isdir(directory):
@@ -214,32 +219,43 @@ class Backend:
         return jsonify({'images': images})
 
     def shell_data(self) -> jsonify:
+        self.logger.info(f'Running shell_data...')
         selected_row_data = request.get_json()
         if isinstance(self.commands.shell_target, list) or self.images:
+            self.logger.debug(fr'resetting shell_target...')
             self.commands.shell_target = []
 
         if self.server.endpoints:
             for endpoint in self.server.endpoints:
                 if endpoint.client_mac == selected_row_data['id']:
                     self.commands.shell_target = endpoint.conn
-                    endpoint_ident = endpoint.ident
-                    dynamic_folder = request.args.get('folder')
-                    images = []
 
-        return jsonify({'row': selected_row_data})
+            self.logger.info(fr'row: {selected_row_data}')
+            return jsonify({'row': selected_row_data})
+
+        else:
+            self.logger.info(fr'No connected stations.')
+            return jsonify({'message': 'No connected stations.'})
 
     def get_ident(self) -> jsonify:
+        self.logger.info(f'Running get_ident...')
         for endpoint in self.server.endpoints:
             if endpoint.conn == self.commands.shell_target:
                 endpoint_ident = endpoint.ident
+
+                self.logger.info(fr'shell_target: {endpoint_ident}')
                 return jsonify({'shell_target': endpoint_ident})
 
+        self.logger.info(fr'shell_target: None')
         return jsonify({'shell_target': 'None'})
 
     def index(self) -> render_template:
+        self.logger.info(f'Running index...')
         self.commands.shell_target = []
+        self.logger.debug(fr'shell_target: {self.commands.shell_target}')
         boot_time = last_boot()
         connected_stations = len(self.server.endpoints)
+        self.logger.debug(fr'connected stations: {len(self.server.endpoints)}')
 
         kwargs = {
             "serving_on": os.getenv('SERVER_URL'),
