@@ -7,7 +7,7 @@ WORKDIR /app
 
 COPY . /app
 
-ARG DEFAULT_MAIN_PATH="c:\HandsOff"
+ARG DEFAULT_MAIN_PATH="/HandsOff"
 ENV MAIN_PATH=${MAIN_PATH:-$DEFAULT_MAIN_PATH}
 
 ARG DEFAULT_WEB_PORT=8000
@@ -25,5 +25,5 @@ VOLUME ["/app/static"]
 
 EXPOSE $WEB_PORT $SERVER_PORT
 
-# Run mainWeb.py when the container launches
-ENTRYPOINT ["python", "main.py", "${MAIN_PATH}", "${WEB_PORT}", "${SERVER_IP}", "${SERVER_PORT}"]
+# Run main.py when the container launches
+CMD ["python", "main.py", "$WEB_PORT", "$SERVER_PORT", "$MAIN_PATH", "$SERVER_IP"]
