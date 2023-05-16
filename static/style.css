@@ -58,7 +58,7 @@ h1 {
 
 .buttons-container button:active {
   transform: translateY(3px); /* Change value to desired vertical displacement */
-  background-color: #4CAF50;
+  background-color: green;
 }
 
 td:nth-child(5) {

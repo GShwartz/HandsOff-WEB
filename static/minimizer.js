@@ -7,11 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const slider = sliderWrapper.querySelector('.slider');
 
     document.addEventListener('stationValue', (event) => {
+        const station = event.detail.station;
         if (station === false) {
-//            const minimizeBtn = document.querySelector('.history-table-minimize-button');
-//            const minimizeButton = document.querySelector('.screenshots-min-button');
             minimizeBtn.click();
-            minimizeButton.click();
+
+        } else {
+            tableContainer.classList.remove('minimized');
+            minimizeBtn.textContent = '-';
         }
     });
 
@@ -29,6 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
         minimizeButton.textContent = '+';
         slider.style.display = 'none';
     }
+
+    // Initial check for station value
+    const initialStationValue = true; // Replace with your initial station value
+    document.dispatchEvent(new CustomEvent('stationValue', { detail: { station: initialStationValue } }));
 
     minimizeBtn.addEventListener('click', () => {
         tableContainer.classList.toggle('minimized');

@@ -1,3 +1,15 @@
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+.history-table tbody tr:hover {
+    background-color: initial; /* Set the background color to its initial value */
+}
+
 .history-table-wrapper {
     position: relative;
     max-width: 1200px;
@@ -36,6 +48,18 @@
     content: '+';
 }
 
+.server-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+.server-table tbody tr:hover {
+    background-color: initial; /* Set the background color to its initial value */
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -44,15 +68,15 @@ table {
     overflow-y: auto;
 }
 
+th {
+    background-color: #f2f2f2;
+}
+
 th,
 td {
     padding: 5px;
     text-align: center;
     border: 1px solid #ccc;
-}
-
-th {
-    background-color: #f2f2f2;
 }
 
 table tr:hover {
