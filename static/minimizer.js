@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('stationValue', (event) => {
         if (station === false) {
-            const minimizeBtn = document.querySelector('.history-table-minimize-button');
-            const minimizeButton = document.querySelector('.screenshots-min-button');
+//            const minimizeBtn = document.querySelector('.history-table-minimize-button');
+//            const minimizeButton = document.querySelector('.screenshots-min-button');
             minimizeBtn.click();
             minimizeButton.click();
         }

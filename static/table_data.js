@@ -75,6 +75,10 @@ rows.forEach((row) => {
 
         // Fetch images for selected hostname
         if (selectedRowData.hostname.trim() !== '') {
+            // Update the heading with the selected hostname
+            const screenshotsHeading = document.getElementById("screenshots-header");
+            screenshotsHeading.innerText = `Screenshots - ${selectedRowData.hostname.trim()}`;
+
             const hostname = encodeURIComponent(selectedRowData.hostname.trim());
             fetch(`/get_images?directory=static/images/${hostname}`, {
                 method: 'GET',
