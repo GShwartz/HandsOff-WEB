@@ -12,6 +12,7 @@ import argparse
 import psutil
 import shutil
 import socket
+import glob
 import time
 import sys
 import os
@@ -22,7 +23,8 @@ from Modules.server import Server
 
 
 class Backend:
-    def __init__(self, main_path, log_path, server, version, port):
+    def __init__(self, logger, main_path, log_path, server, version, port):
+        self.logger = logger
         self.main_path = main_path
         self.log_path = log_path
         self.server = server
@@ -32,7 +34,6 @@ class Backend:
         self.station = False
         self.images = {}
 
-        self.logger = init_logger(log_path, __name__)
         self.commands = Commands(self.main_path, self.log_path, self.server)
 
         self.app = Flask(__name__)
@@ -298,17 +299,16 @@ def main():
     parser.add_argument('-sp', '--server_port', type=int, help='Server port')
     parser.add_argument('-mp', '--main_path', type=str, help='Main path')
     parser.add_argument('-ip', '--server_ip', type=str, help='Server IP')
-
     args = parser.parse_args()
 
     load_dotenv()
-
     web_port = args.web_port if args.web_port else int(os.getenv('WEB_PORT'))
     server_port = args.server_port if args.server_port else int(os.getenv('SERVER_PORT'))
     main_path = args.main_path if args.main_path else str(os.getenv('MAIN_PATH'))
     server_ip = args.server_ip if args.server_ip else str(os.getenv('SERVER_IP'))
     log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
-    version = os.getenv('SERVER_VERSION')
+    server_version = os.getenv('SERVER_VERSION')
+    logger = init_logger(log_path, __name__)
 
     if platform.system() == 'Windows':
         main_path = main_path.replace('/', '\\')
@@ -341,7 +341,7 @@ def main():
         sys.exit(1)
 
     server = Server(server_ip, server_port, log_path)
-    backend = Backend(main_path, log_path, server, version, web_port)
+    backend = Backend(logger, main_path, log_path, server, server_version, web_port)
 
     server.listener()
     backend.run()
