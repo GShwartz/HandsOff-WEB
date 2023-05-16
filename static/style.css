@@ -10,9 +10,18 @@ body {
 }
 
 h1 {
-    font-size: 20px;
+    /* font-size: 20px; */
     margin-top: 1rem;
     font-family: emoji
+    color: #FF0000; /* Set the text color */
+    font-size: 24px; /* Set the font size */
+    /* font-family: Arial, sans-serif; /* Set the font family */
+    text-align: center; /* Center align the text */
+    text-transform: uppercase; /* Convert the text to uppercase */
+    letter-spacing: 2px; /* Add spacing between letters */
+    text-shadow: 2px 2px 4px #DCDCDC; /* Add a text shadow */
+    background-color: #4CAF50; /* Set the background color */
+    padding: 10px; /* Add padding around the text */
 }
 
 .container {
