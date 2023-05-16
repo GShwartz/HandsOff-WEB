@@ -1,5 +1,8 @@
 FROM python:3.11
 
+LABEL maintainer="Gil Shwartz <https://www.linkedin.com/in/gilshwartz/>"
+LABEL version="1.0.0"
+
 WORKDIR /app
 
 COPY . /app
@@ -17,6 +20,8 @@ ARG DEFAULT_SERVER_PORT=55400
 ENV SERVER_PORT=${SERVER_PORT:-$DEFAULT_SERVER_PORT}
 
 RUN pip install --no-cache-dir --trusted-host pypi.python.org -r requirements.txt
+
+VOLUME ["/app/static"]
 
 EXPOSE $WEB_PORT $SERVER_PORT
 
