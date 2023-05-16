@@ -30,3 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+document.addEventListener('stationValue', (event) => {
+    const { station } = event.detail;
+    if (station === false) {
+        // Trigger click event on minimize buttons
+        const minimizeBtn = document.querySelector('.history-table-minimize-button');
+        const minimizeButton = document.querySelector('.screenshots-min-button');
+        minimizeBtn.click();
+        minimizeButton.click();
+    }
+});

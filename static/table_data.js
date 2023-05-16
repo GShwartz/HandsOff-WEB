@@ -1,6 +1,40 @@
 const rows = document.querySelectorAll(".row-data");
 const slider = document.querySelector('.slider');
 const sliderNav = document.querySelector('.slider-nav');
+let lastSelectedRow = null;
+let station = null;
+
+// Refresh image slider
+function refreshImageSlider() {
+    if (lastSelectedRow) {
+        const clickEvent = new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: true
+        });
+        lastSelectedRow.dispatchEvent(clickEvent);
+    }
+}
+
+fetch('/shell_data', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(station)
+})
+    .then(response => response.json())
+    .then(data => {
+        const station = data.station;
+        window.station = station;
+        console.log('station:', data.station)
+
+        const event = new CustomEvent('stationValue', { detail: { station } });
+        document.dispatchEvent(event);
+    })
+    .catch(error => {
+        console.error('Error while sending selected row data to server:', error);
+});
 
 // Update image slider
 const updateSlider = (images, hostname) => {
@@ -31,12 +65,12 @@ rows.forEach((row) => {
         // Get data from selected row
         const [id, ip_address, hostname, logged_user, boot_time, connection_time] = row.cells;
         const selectedRowData = {
-          id: id.innerText,
-          ip_address: ip_address.innerText,
-          hostname: hostname.innerText,
-          logged_user: logged_user.innerText,
-          boot_time: boot_time.innerText,
-          connection_time: connection_time.innerText
+            id: id.innerText,
+            ip_address: ip_address.innerText,
+            hostname: hostname.innerText,
+            logged_user: logged_user.innerText,
+            boot_time: boot_time.innerText,
+            connection_time: connection_time.innerText
         };
 
         // Fetch images for selected hostname
@@ -48,46 +82,35 @@ rows.forEach((row) => {
                     'Content-Type': 'application/json'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Received row response from server:', data);
-                // Update the slider with the new images
-                updateSlider(data.images, hostname);
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Received row response from server:', data);
+                    // Update the slider with the new images
+                    updateSlider(data.images, hostname);
+                })
+                .catch(error => {
+                    console.error('Error while getting images:', error);
+                });
+
+            // Send selected row data to server
+            fetch('/shell_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(selectedRowData)
             })
-            .catch(error => {
-                console.error('Error while getting images:', error);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    const station = data.station;
+                    console.log('row data sent to backend.');
+                })
+                .catch(error => {
+                    console.error('Error while sending selected row data to server:', error);
+                });
+
+            // Save last selected row
+            lastSelectedRow = row;
         }
-
-        // Send selected row data to server
-        fetch('/shell_data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(selectedRowData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Received response from server.');
-        })
-        .catch(error => {
-            console.error('Error while sending selected row data to server:', error);
-        });
-
-        // Save last selected row
-        lastSelectedRow = row;
     });
 });
-
-// Refresh image slider
-function refreshImageSlider() {
-    if (lastSelectedRow) {
-        const clickEvent = new MouseEvent('click', {
-            view: window,
-            bubbles: true,
-            cancelable: true
-        });
-        lastSelectedRow.dispatchEvent(clickEvent);
-    }
-};
