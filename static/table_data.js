@@ -50,7 +50,7 @@ rows.forEach((row) => {
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Received response from server:', data);
+                console.log('Received row response from server:', data);
                 // Update the slider with the new images
                 updateSlider(data.images, hostname);
             })
@@ -69,7 +69,7 @@ rows.forEach((row) => {
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Received response from server:', data);
+            console.log('Received response from server.');
         })
         .catch(error => {
             console.error('Error while sending selected row data to server:', error);
