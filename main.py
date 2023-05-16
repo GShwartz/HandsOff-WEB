@@ -66,68 +66,116 @@ class Backend:
         return self.app.send_static_file('table_data.js'), 200, {'Content-Type': 'application/javascript'}
 
     def controller(self) -> jsonify:
+        self.logger.info(f"Waiting for command from the Frontend...")
         data = request.json.get('data')
+        self.logger.debug(f"Command: {data}")
+
         if data == 'screenshot':
+            self.logger.debug(f"Calling self.commands.call_screenshot()...")
             if self.commands.call_screenshot():
+                self.logger.info(f"Screenshot completed.")
                 return jsonify({'message': 'Screenshot Completed'})
 
+            else:
+                self.logger.debug(f"Screenshot failed.")
+                return jsonify({'message': 'Screenshot failed'})
+
         if data == 'anydesk':
+            self.logger.debug(f"Calling self.commands.call_anydesk()...")
             if self.commands.call_anydesk() == 'missing':
+                self.logger.debug(f"Anydesk missing.")
                 return jsonify({'message': f'missing'})
 
             elif self.commands.call_anydesk() == 'running':
+                self.logger.debug(f"Anydesk running.")
                 return jsonify({'message': f'Anydesk running'})
 
             else:
+                self.logger.debug(f"Anydesk canceled.")
                 return jsonify({'message': 'Anydesk canceled'})
 
         if data == 'skip_anydesk':
+            self.logger.debug(f"Calling self.commands.skip_anydesk_install()...")
             if self.commands.skip_anydesk_install() == 'skipped':
+                self.logger.debug(f"Anydesk skipped.")
                 return jsonify({'message': 'Anydesk install skipped'})
 
+            else:
+                self.logger.debug(f"Skip anydesk failed.")
+                return jsonify({'message': f'skip_failed'})
+
         if data == 'install_anydesk':
+            self.logger.debug(f"Calling self.commands.install_anydesk()...")
             if self.commands.install_anydesk() == 'running':
                 running = 'anydesk_running'
+                self.logger.debug(f"sending {running}...")
                 return jsonify({'message': f'{running}'})
 
+            else:
+                self.logger.debug(f"Install anydesk failed.")
+                return jsonify({'message': f'install_failed'})
+
         if data == 'sysinfo':
+            self.logger.debug(f"Calling self.commands.call_sysinfo()...")
             self.commands.call_sysinfo()
+            self.logger.debug(f"Sysinfo completed.")
             return jsonify({'message': 'Sysinfo message sent.'})
 
         if data == 'tasks':
+            self.logger.debug(f"Calling self.commands.call_tasks()...")
             if self.commands.call_tasks():
+                self.logger.debug(f"Tasks completed.")
                 return jsonify({'message': 'Tasks success'})
 
+            else:
+                self.logger.debug(f"Tasks failed.")
+                return jsonify({'message': 'tasks_failed'})
+
         if data == 'kill_task':
+            self.logger.debug(f"Calling self.commands.tasks_post_run()...")
             self.commands.tasks_post_run()
+            self.logger.debug(f"Tasks post run completed.")
             return jsonify({'message': 'Kill Task message sent.'})
 
         if data == 'restart':
+            self.logger.debug(f"Calling self.commands.call_restart()...")
             if self.commands.call_restart():
+                self.logger.debug(f"Reloading app...")
                 self.reload()
+                self.logger.debug(f"Restart completed.")
                 return jsonify({'message': 'Restart message sent.'})
 
             else:
-                return jsonify({'message': 'Failed to send Restart message.'})
-
-        if data == 'local':
-            matching_endpoint = self.find_matching_endpoint()
-            if matching_endpoint:
-                self.browse_local_files(matching_endpoint.ident)
-                return jsonify({'message': 'Local message sent.'})
-
-            else:
-                return jsonify({'message': 'Failed to send Local message.'})
+                self.logger.debug(f"Restart failed.")
+                return jsonify({'message': 'Restart failed.'})
 
         if data == 'update':
+            self.logger.debug(f"Calling self.commands.call_update_selected_endpoint()...")
             if self.commands.call_update_selected_endpoint():
+                self.logger.debug(f"Resetting self.commands.shell_target...")
                 self.commands.shell_target = []
+                self.logger.debug(f"Update completed.")
                 return jsonify({'message': 'Update message sent.'})
 
             else:
-                return jsonify({'message': 'Failed to send Update message.'})
+                self.logger.debug(f"Update failed.")
+                return jsonify({'message': 'Update failed.'})
+
+        if data == 'local':
+            self.logger.debug(f"Calling self.find_matching_endpoint()...")
+            matching_endpoint = self.find_matching_endpoint()
+            self.logger.debug(f"{matching_endpoint}")
+            if matching_endpoint:
+                self.logger.debug(f"Calling self.browse_local_files({matching_endpoint.ident})...")
+                self.browse_local_files(matching_endpoint.ident)
+                self.logger.debug(f"Local completed.")
+                return jsonify({'message': 'Local message sent.'})
+
+            else:
+                return jsonify({'message': 'Local failed.'})
 
     def find_matching_endpoint(self) -> str:
+        self.logger.debug(f"Finding matching endpoint...")
         for endpoint in self.server.endpoints:
             if endpoint.conn == self.commands.shell_target:
                 return endpoint
@@ -178,12 +226,7 @@ class Backend:
                     dynamic_folder = request.args.get('folder')
                     images = []
 
-                    if os.path.isdir(str(dynamic_folder)):
-                        for filename in os.listdir(dynamic_folder):
-                            if filename.endswith('.jpg'):
-                                images.append({'path': os.path.join(dynamic_folder, filename)})
-
-        return jsonify({'images': images})
+        return jsonify({'row': selected_row_data})
 
     def get_ident(self) -> jsonify:
         for endpoint in self.server.endpoints:
