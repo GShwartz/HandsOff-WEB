@@ -7,6 +7,7 @@ import threading
 import requests
 import socketio
 import eventlet
+import platform
 import psutil
 import shutil
 import socket
@@ -26,6 +27,8 @@ class Backend:
         self.server = server
         self.version = version
         self.port = port
+
+        self.station = False
         self.images = {}
 
         self.logger = init_logger(log_path, __name__)
@@ -221,10 +224,7 @@ class Backend:
     def shell_data(self) -> jsonify:
         self.logger.info(f'Running shell_data...')
         if self.server.endpoints:
-            station = True
-
-        else:
-            station = False
+            self.station = True
 
         selected_row_data = request.get_json()
         if selected_row_data:
@@ -239,14 +239,14 @@ class Backend:
 
                 self.logger.info(fr'row: {selected_row_data}')
                 return jsonify({'row': selected_row_data,
-                                'station': station})
+                                'station': self.station})
 
             else:
                 self.logger.info(fr'No connected stations.')
                 return jsonify({'message': 'No connected stations.'})
 
         else:
-            return jsonify({'station': station})
+            return jsonify({'station': self.station})
 
     def get_ident(self) -> jsonify:
         self.logger.info(f'Running get_ident...')
@@ -300,6 +300,17 @@ def main():
     server_ip = str(sys.argv[4]) if len(sys.argv) > 4 else os.getenv('SERVER_IP')
     log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
     version = os.getenv('SERVER_VERSION')
+
+    if platform.system() == 'Windows':
+        main_path = main_path.replace('/', '\\')
+        log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
+
+    elif platform.system() == 'Linux':
+        log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
+
+    else:
+        print("Unsupported operating system.")
+        sys.exit(1)
 
     try:
         os.makedirs(str(main_path), exist_ok=True)
