@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (station === false) {
 //            minimizeBtn.click();
             minimizeSliderButton.style.display = 'none';
-            minimizeBtn.style.display = 'none';
+            minimizeHistoryButton.style.display = 'none';
         } else {
             tableContainer.classList.remove('minimized');
             minimizeHistoryButton.textContent = '-';
