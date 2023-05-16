@@ -8,6 +8,7 @@ import requests
 import socketio
 import eventlet
 import platform
+import argparse
 import psutil
 import shutil
 import socket
@@ -292,12 +293,20 @@ def last_boot(format_str='%d/%b/%y %H:%M:%S %p'):
 
 
 def main():
+    parser = argparse.ArgumentParser(description='HandsOff-Server')
+    parser.add_argument('-wp', '--web_port', type=int, help='Web port')
+    parser.add_argument('-sp', '--server_port', type=int, help='Server port')
+    parser.add_argument('-mp', '--main_path', type=str, help='Main path')
+    parser.add_argument('-ip', '--server_ip', type=str, help='Server IP')
+
+    args = parser.parse_args()
+
     load_dotenv()
 
-    web_port = int(sys.argv[1]) if len(sys.argv) > 1 else os.getenv('WEB_PORT')
-    server_port = int(sys.argv[2]) if len(sys.argv) > 2 else os.getenv('SERVER_PORT')
-    main_path = str(sys.argv[3]) if len(sys.argv) > 3 else os.getenv('MAIN_PATH')
-    server_ip = str(sys.argv[4]) if len(sys.argv) > 4 else os.getenv('SERVER_IP')
+    web_port = args.web_port if args.web_port else int(os.getenv('WEB_PORT'))
+    server_port = args.server_port if args.server_port else int(os.getenv('SERVER_PORT'))
+    main_path = args.main_path if args.main_path else str(os.getenv('MAIN_PATH'))
+    server_ip = args.server_ip if args.server_ip else str(os.getenv('SERVER_IP'))
     log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
     version = os.getenv('SERVER_VERSION')
 
