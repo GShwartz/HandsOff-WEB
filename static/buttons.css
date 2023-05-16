@@ -37,9 +37,7 @@
 }
 
 .buttons-container button:hover {
-    transform: scale(1.1);
     transition: transform 0.1s, background-color 0.1s;
-
 }
 
 .buttons-container button:active {
