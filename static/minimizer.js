@@ -1,19 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
     const tableContainer = document.querySelector('.history-table-container');
-    const minimizeBtn = document.querySelector('.history-table-minimize-button');
+    const minimizeHistoryButton = document.querySelector('.history-table-minimize-button');
     const table = tableContainer.querySelector('table');
     const sliderWrapper = document.querySelector('.slider-wrapper');
-    const minimizeButton = sliderWrapper.querySelector('.screenshots-min-button');
+    const minimizeSliderButton = sliderWrapper.querySelector('.screenshots-min-button');
     const slider = sliderWrapper.querySelector('.slider');
 
     document.addEventListener('stationValue', (event) => {
         const station = event.detail.station;
         if (station === false) {
-            minimizeBtn.click();
-
+//            minimizeBtn.click();
+            minimizeSliderButton.style.display = 'none';
+            minimizeBtn.style.display = 'none';
         } else {
             tableContainer.classList.remove('minimized');
-            minimizeBtn.textContent = '-';
+            minimizeHistoryButton.textContent = '-';
         }
     });
 
@@ -27,8 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!isRowSelected()) {
         tableContainer.classList.add('minimized');
         sliderWrapper.classList.add('minimized');
-        minimizeBtn.textContent = '+';
-        minimizeButton.textContent = '+';
+        minimizeHistoryButton.textContent = '+';
+        minimizeSliderButton.textContent = '+';
         slider.style.display = 'none';
     }
 
@@ -36,12 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialStationValue = true; // Replace with your initial station value
     document.dispatchEvent(new CustomEvent('stationValue', { detail: { station: initialStationValue } }));
 
-    minimizeBtn.addEventListener('click', () => {
+    minimizeHistoryButton.addEventListener('click', () => {
         tableContainer.classList.toggle('minimized');
         if (tableContainer.classList.contains('minimized')) {
-            minimizeBtn.textContent = '+';
+            minimizeHistoryButton.textContent = '+';
         } else {
-            minimizeBtn.textContent = '-';
+            minimizeHistoryButton.textContent = '-';
         }
     });
 
@@ -49,13 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
         event.stopPropagation();
     });
 
-    minimizeButton.addEventListener('click', () => {
+    minimizeSliderButton.addEventListener('click', () => {
         sliderWrapper.classList.toggle('minimized');
         if (sliderWrapper.classList.contains('minimized')) {
-            minimizeButton.textContent = '+';
+            minimizeSliderButton.textContent = '+';
             slider.style.display = 'none';
         } else {
-            minimizeButton.textContent = '-';
+            minimizeSliderButton.textContent = '-';
             slider.style.display = 'flex';
         }
     });
