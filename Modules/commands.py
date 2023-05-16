@@ -47,7 +47,6 @@ class Commands:
             self.logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
             msg = matching_endpoint.conn.recv(1024).decode()
             self.logger.debug(f'{matching_endpoint.ip}: {msg}...')
-            print(msg)
 
         self.logger.debug(f'End of OK in msg loop.')
         self.logger.info(f'anydesk_command completed.')
