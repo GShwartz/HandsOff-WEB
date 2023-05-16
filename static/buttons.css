@@ -37,11 +37,12 @@
 }
 
 .buttons-container button:hover {
-  transform: scale(1.1);
+    transform: scale(1.1);
+    transition: transform 0.1s, background-color 0.1s;
 
 }
 
 .buttons-container button:active {
-  transform: translateY(3px); /* Change value to desired vertical displacement */
+  transform: translateY(3px);
   background-color: green;
 }
