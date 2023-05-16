@@ -152,7 +152,4 @@ class Commands:
                 return False
 
     def find_matching_endpoint(self):
-        for endpoint in self.server.endpoints:
-            if endpoint.conn == self.shell_target:
-                return endpoint
-        return None
+        return next((endpoint for endpoint in self.server.endpoints if endpoint.conn == self.shell_target), None)

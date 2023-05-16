@@ -4,6 +4,7 @@ import sys
 import os
 
 from Modules.logger import init_logger
+from Modules.utils import Handlers
 
 
 class Tasks:
@@ -15,17 +16,8 @@ class Tasks:
         self.shell_target = shell_target
         self.tasks_file_path = os.path.join(self.path, self.endpoint.ident)
         self.logger = init_logger(self.log_path, __name__)
-
-    def create_local_dir(self):
-        local_dir = os.path.join('static', 'images', self.endpoint.ident)
-        try:
-            os.makedirs(str(local_dir), exist_ok=True)
-
-        except Exception as e:
-            print(f"Failed to create directory '{local_dir}': {e}")
-            sys.exit(1)
-
-        return local_dir
+        self.handlers = Handlers(self.log_path, self.tasks_file_path, self.endpoint)
+        self.local_dir = self.handlers.handle_local_dir()
 
     def bytes_to_number(self, b: int) -> int:
         res = 0
@@ -148,15 +140,7 @@ class Tasks:
         return False
 
     def run(self):
-        self.logger.info(f"Running run...")
-        self.filepath = os.path.join(self.path, self.endpoint.ident)
-        try:
-            os.makedirs(str(self.filepath), exist_ok=True)
-
-        except Exception as e:
-            print(f"Failed to create directory '{self.filepath}': {e}")
-            sys.exit(1)
-
+        self.logger.info(f"Running tasks.run()...")
         try:
             self.logger.debug(f"Sending tasks command to {self.endpoint.ip}...")
             self.endpoint.conn.send('tasks'.encode())
@@ -176,12 +160,9 @@ class Tasks:
         self.logger.debug(f"Calling confirm...")
         self.confirm()
 
-        src = os.path.join(self.filepath, self.filenameRecv)
-        for endpoint in self.server.endpoints:
-            if endpoint.conn == self.shell_target:
-                endpoint_ident = endpoint.ident
-                local_dir = self.create_local_dir()
-                shutil.copy(src, local_dir)
+        src = os.path.join(self.tasks_file_path, self.filenameRecv)
+        if self.endpoint.conn == self.shell_target:
+            shutil.copy(src, self.local_dir)
 
         self.logger.debug(f"Calling display_text...")
         self.display_text()

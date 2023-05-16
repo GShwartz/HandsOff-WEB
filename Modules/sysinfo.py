@@ -1,4 +1,5 @@
 from Modules.logger import init_logger
+from Modules.utils import Handlers
 import shutil
 import socket
 import os
@@ -13,20 +14,14 @@ class Sysinfo:
         self.log_path = log_path
         self.path = os.path.join(self.app_path, self.endpoint.ident)
         self.logger = init_logger(self.log_path, __name__)
+        self.handlers = Handlers(self.log_path, self.path, self.endpoint)
+        self.local_dir = self.handlers.handle_local_dir()
 
     def bytes_to_number(self, b: int) -> int:
         res = 0
         for i in range(4):
             res += b[i] << (i * 8)
         return res
-
-    def make_dir(self):
-        try:
-            os.makedirs(self.path)
-
-        except FileExistsError:
-            self.logger.debug(f"{self.path} exists.")
-            pass
 
     def get_file_name(self):
         try:
@@ -112,17 +107,8 @@ class Sysinfo:
         self.logger.info(f"Running display_text...")
         os.startfile(self.file_path)
 
-    def create_local_dir(self, endpoint_ident):
-        local_dir = os.path.join('static', 'images', endpoint_ident)
-        if not os.path.exists(local_dir):
-            os.makedirs(local_dir)
-
-        return local_dir
-
     def run(self):
         self.logger.info(f"Running Sysinfo...")
-        self.logger.debug(f"Calling make_dir...")
-        self.make_dir()
         self.logger.debug(f"Calling get_file_name...")
         self.get_file_name()
         self.logger.debug(f"Calling get_file_size...")
@@ -137,8 +123,7 @@ class Sysinfo:
         for endpoint in self.server.endpoints:
             if endpoint.conn == self.shell_target:
                 endpoint_ident = endpoint.ident
-                local_dir = self.create_local_dir(endpoint_ident)
-                shutil.copy(self.file_path, local_dir)
+                shutil.copy(self.file_path, self.local_dir)
 
         self.logger.debug(f"Calling display_text...")
         self.display_text()
