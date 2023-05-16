@@ -65,7 +65,6 @@ td:nth-child(5) {
     max-width: 60rem;
     max-height: 48rem;
     margin: 0 auto;
-
 }
 
 .slider {
@@ -75,7 +74,7 @@ td:nth-child(5) {
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     box-shadow: 0 1.5rem 3rem -0.75rem hsla(0, 0%, 0%, 0.25);
-    border-radius:0.5rem;
+    border-radius: 0.5rem;
 }
 
 .slider img {
@@ -116,21 +115,25 @@ td:nth-child(5) {
     height: 10px;
 }
 
-.minimize-button {
+.screenshots-min-button, .max-button {
     position: absolute;
     top: 0;
     right: 0;
-    margin-left: auto;
-
+    margin-right: 10px;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-.minimize-button:before {
+.min-button:before {
     content: '-';
 }
 
-.slider-wrapper.minimized .minimize-button:before {
+.max-button:before {
     content: '+';
 }
+
 
 .popup {
   position: fixed;
