@@ -1,0 +1,47 @@
+/* BUTTONS */
+.screenshots-min-button, .max-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-right: 10px;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.min-button:before {
+    content: '-';
+}
+
+.max-button:before {
+    content: '+';
+}
+
+.buttons-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.buttons-container button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  background-color: #191970;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.buttons-container button:hover {
+  transform: scale(1.1);
+
+}
+
+.buttons-container button:active {
+  transform: translateY(3px); /* Change value to desired vertical displacement */
+  background-color: green;
+}

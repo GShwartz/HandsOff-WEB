@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('stationValue', (event) => {
         const station = event.detail.station;
         if (station === false) {
-//            minimizeBtn.click();
             minimizeSliderButton.style.display = 'none';
             minimizeHistoryButton.style.display = 'none';
         } else {
