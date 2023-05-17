@@ -14,6 +14,14 @@
 </head>
 
 <body>
+	<div class="container-left">
+		<div class="sidebar-buttons-container">
+			<button id="restart-all" class="sidebar-button" data-action="restart">Restart All Stations</button>
+			<button id="clear-local-files" class="sidebar-button" data-action="local">Manage Local Files</button>
+			<button id="update-all" class="sidebar-button" data-action="update">Update All Stations</button>
+			<script src="{{ url_for('static', filename='sidebar-controller.js') }}"></script>
+		</div>
+	</div>
 	<div class="container">
 		<div class="server-table">
 			<table>
@@ -70,7 +78,6 @@
 				</tbody>
 			</table>
 		</div>
-	</div>
 
 	<div class="container">
 		<div class="buttons-container">
@@ -113,42 +120,44 @@
 		</div>
 	</div>
 
-	<div class="container">
-		<div class="table">
-			<h1>Connection History</h1>
-			<div class="history-table-wrapper">
-				<button class="history-minimize-button">-</button>
-				<div class="history-table-container">
-					<div class="table">
-						<table>
-							<thead>
-								<tr>
-									<th>Client MAC</th>
-									<th>IP Address</th>
-									<th>Hostname</th>
-									<th>Logged User</th>
-									<th>Boot Time</th>
-									<th>Connection Time</th>
-								</tr>
-							</thead>
-							<tbody>
-								{% for endpoint, time in history.items() %}
-								<tr>
-									<td>{{ endpoint.client_mac }}</td>
-									<td>{{ endpoint.ip }}</td>
-									<td>{{ endpoint.ident }}</td>
-									<td>{{ endpoint.user }}</td>
-									<td>{{ endpoint.boot_time }}</td>
-									<td>{{ endpoint.connection_time }}</td>
-								</tr>
-								 {% endfor %}
-								 {% if not history %}
-								<tr>
-									<td colspan="6">No endpoints found.</td>
-								</tr>
-								{% endif %}
-							</tbody>
-						</table>
+	<div class="container-wrapper">
+		<div class="container">
+			<div class="table">
+				<h1>Connection History</h1>
+				<div class="history-table-wrapper">
+					<button class="history-minimize-button">-</button>
+					<div class="history-table-container">
+						<div class="table">
+							<table>
+								<thead>
+									<tr>
+										<th>Client MAC</th>
+										<th>IP Address</th>
+										<th>Hostname</th>
+										<th>Logged User</th>
+										<th>Boot Time</th>
+										<th>Connection Time</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for endpoint, time in history.items() %}
+									<tr>
+										<td>{{ endpoint.client_mac }}</td>
+										<td>{{ endpoint.ip }}</td>
+										<td>{{ endpoint.ident }}</td>
+										<td>{{ endpoint.user }}</td>
+										<td>{{ endpoint.boot_time }}</td>
+										<td>{{ endpoint.connection_time }}</td>
+									</tr>
+									 {% endfor %}
+									 {% if not history %}
+									<tr>
+										<td colspan="6">No endpoints found.</td>
+									</tr>
+									{% endif %}
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>
