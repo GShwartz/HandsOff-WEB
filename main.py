@@ -293,6 +293,21 @@ def last_boot(format_str='%d/%b/%y %H:%M:%S %p'):
     return last_reboot_str
 
 
+def check_platform(main_path):
+    if platform.system() == 'Windows':
+        main_path = main_path.replace('/', '\\')
+        log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
+        return main_path, log_path
+
+    elif platform.system() == 'Linux':
+        log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
+        return main_path, log_path
+
+    else:
+        print("Unsupported operating system.")
+        sys.exit(1)
+
+
 def main():
     parser = argparse.ArgumentParser(description='HandsOff-Server')
     parser.add_argument('-wp', '--web_port', type=int, help='Web port')
@@ -305,21 +320,10 @@ def main():
     web_port = args.web_port if args.web_port else int(os.getenv('WEB_PORT'))
     server_port = args.server_port if args.server_port else int(os.getenv('SERVER_PORT'))
     main_path = args.main_path if args.main_path else str(os.getenv('MAIN_PATH'))
+    main_path, log_path = check_platform(main_path)
     server_ip = args.server_ip if args.server_ip else str(os.getenv('SERVER_IP'))
-    log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
     server_version = os.getenv('SERVER_VERSION')
     logger = init_logger(log_path, __name__)
-
-    if platform.system() == 'Windows':
-        main_path = main_path.replace('/', '\\')
-        log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
-
-    elif platform.system() == 'Linux':
-        log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
-
-    else:
-        print("Unsupported operating system.")
-        sys.exit(1)
 
     try:
         os.makedirs(str(main_path), exist_ok=True)
