@@ -8,13 +8,19 @@
 .history-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    margin-top: 0 auto 0;
     max-height: 100%;
     overflow-y: auto;
 }
 
 .history-table tbody tr:hover {
     background-color: initial; /* Set the background color to its initial value */
+}
+
+.history-table tbody tr {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .history-table-container {
@@ -25,8 +31,6 @@
     max-height: 300px;
     overflow-y: auto;
 }
-
-
 
 .history-table-container.minimized .table {
     display: none;
@@ -43,9 +47,15 @@
 .server-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    margin-top: 0 auto 0;
     max-height: 100%;
     overflow-y: auto;
+}
+
+.server-table tbody tr{
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .server-table tbody tr:hover {
@@ -55,9 +65,15 @@
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    margin-top: 5px;
     max-height: 100%;
     overflow-y: auto;
+}
+
+.table tbody tr {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 th {
