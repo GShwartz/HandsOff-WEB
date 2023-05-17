@@ -33,7 +33,6 @@ class Sysinfo:
             self.endpoint.conn.send("OK".encode())
             self.logger.debug(f"{self.endpoint.ip}: {self.filename}")
             self.file_path = os.path.join(self.ident_path, self.filename)
-            print(self.file_path)
             self.logger.debug(f"File path: {self.ident_path}")
 
         except (WindowsError, socket.error) as e:

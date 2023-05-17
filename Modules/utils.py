@@ -12,7 +12,6 @@ class Handlers:
 
     def handle_local_dir(self):
         self.ident_path = os.path.join(self.app_path, self.endpoint.ident)
-        print(self.ident_path)
         self.local_dir = os.path.join('static', 'images', self.endpoint.ident)
         if not os.path.isdir(self.ident_path):
             try:
