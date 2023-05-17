@@ -18,7 +18,7 @@ class Screenshot:
         self.shell_target = shell_target
         self.screenshot_path = os.path.join(self.path, self.endpoint.ident)
         self.logger = init_logger(self.log_path, __name__)
-        self.handlers = Handlers(self.log_path, self.screenshot_path, self.endpoint)
+        self.handlers = Handlers(self.log_path, self.path, self.endpoint)
         self.local_dir = self.handlers.handle_local_dir()
 
     def bytes_to_number(self, b: int) -> int:
@@ -38,7 +38,6 @@ class Screenshot:
             self.filename = str(self.filename).strip("b'")
             self.endpoint.conn.send("Filename OK".encode())
             self.screenshot_file_path = os.path.join(self.screenshot_path, self.filename)
-            print(self.screenshot_file_path)
 
         except (ConnectionError, socket.error) as e:
             self.handle_errors(e)

@@ -12,9 +12,9 @@ class Sysinfo:
         self.endpoint = endpoint
         self.app_path = path
         self.log_path = log_path
-        self.path = os.path.join(self.app_path, self.endpoint.ident)
+        self.ident_path = os.path.join(self.app_path, self.endpoint.ident)
         self.logger = init_logger(self.log_path, __name__)
-        self.handlers = Handlers(self.log_path, self.path, self.endpoint)
+        self.handlers = Handlers(self.log_path, self.app_path, self.endpoint)
         self.local_dir = self.handlers.handle_local_dir()
 
     def bytes_to_number(self, b: int) -> int:
@@ -32,8 +32,9 @@ class Sysinfo:
             self.logger.debug(f"Sending confirmation to {self.endpoint.conn}...")
             self.endpoint.conn.send("OK".encode())
             self.logger.debug(f"{self.endpoint.ip}: {self.filename}")
-            self.file_path = os.path.join(self.path, self.filename)
-            self.logger.debug(f"File path: {self.file_path}")
+            self.file_path = os.path.join(self.ident_path, self.filename)
+            print(self.file_path)
+            self.logger.debug(f"File path: {self.ident_path}")
 
         except (WindowsError, socket.error) as e:
             self.logger.debug(f"Connection error: {e}")
@@ -122,7 +123,6 @@ class Sysinfo:
 
         for endpoint in self.server.endpoints:
             if endpoint.conn == self.shell_target:
-                endpoint_ident = endpoint.ident
                 shutil.copy(self.file_path, self.local_dir)
 
         self.logger.debug(f"Calling display_text...")

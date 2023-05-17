@@ -16,7 +16,7 @@ class Tasks:
         self.shell_target = shell_target
         self.tasks_file_path = os.path.join(self.path, self.endpoint.ident)
         self.logger = init_logger(self.log_path, __name__)
-        self.handlers = Handlers(self.log_path, self.tasks_file_path, self.endpoint)
+        self.handlers = Handlers(self.log_path, self.path, self.endpoint)
         self.local_dir = self.handlers.handle_local_dir()
 
     def bytes_to_number(self, b: int) -> int:
