@@ -1,21 +1,38 @@
 /* BUTTONS */
-.screenshots-min-button, .max-button {
+.screenshots-minimize-button {
     position: absolute;
-    top: 0;
-    right: 0;
-    margin-right: 10px;
-    padding: 5px;
-    font-size: 16px;
-    font-weight: bold;
+    top: -3rem;
+    left: 0;
     cursor: pointer;
+    z-index: 1; /* Add z-index to ensure button is on top of the container */
 }
 
-.min-button:before {
-    content: '-';
+.screenshots-minimize-button:before {
+    content: '';
 }
 
-.max-button:before {
-    content: '+';
+.information-minimize-button {
+    position: absolute;
+    top: -2.7rem;
+    left: 0;
+    cursor: pointer;
+    z-index: 1; /* Add z-index to ensure button is on top of the container */
+}
+
+.information-minimize-button:before {
+    content: '';
+}
+
+.history-minimize-button {
+    position: absolute;
+    top: -3rem;
+    left: 7.5rem;
+    cursor: pointer;
+    z-index: 1; /* Add z-index to ensure button is on top of the container */
+}
+
+.history-minimize-button:before {
+    content: '';
 }
 
 .buttons-container {
@@ -37,6 +54,7 @@
 }
 
 .buttons-container button:hover {
+    color: lab(100% 55 -160);
     transition: transform 0.1s, background-color 0.1s;
 }
 

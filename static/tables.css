@@ -26,15 +26,7 @@
     overflow-y: auto;
 }
 
-.history-table-minimize-button {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
+
 
 .history-table-container.minimized .table {
     display: none;

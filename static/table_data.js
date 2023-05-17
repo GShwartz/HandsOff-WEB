@@ -79,6 +79,9 @@ rows.forEach((row) => {
             const screenshotsHeading = document.getElementById("screenshots-header");
             screenshotsHeading.innerText = `Screenshots - ${selectedRowData.hostname.trim()}`;
 
+            const informationHeading = document.getElementById("information-header");
+            informationHeading.innerText = `Information - ${selectedRowData.hostname.trim()}`;
+
             const hostname = encodeURIComponent(selectedRowData.hostname.trim());
             fetch(`/get_images?directory=static/images/${hostname}`, {
                 method: 'GET',
