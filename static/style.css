@@ -19,16 +19,35 @@ h1 {
     letter-spacing: 1px;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
     background-color: #f2f2f2;
-    padding: 10px;
+    border: 5px solid #ccc;
+    padding: 2px;
+}
+
+.container-wrapper {
+    display: flex;
+    justify-content: center;
 }
 
 .container {
+    flex: 1;
     max-width: 1200px;
+    max-height: 100%;
     margin: 0 auto;
     border: 1px solid #ccc;
     background-color: #DCDCDC;
     transition: height 0.5s ease-in-out;
     text-align: center;
+}
+
+.container-left {
+    position: fixed;
+    top: 5%;
+    left: 1%;
+    width: 40%; /* Adjust the width as needed */
+    max-width: 300px;
+    max-height: 100%;
+    background-color: #f2f2f2;
+    border: 5px solid #ccc;
 }
 
 /* TABLES */
@@ -51,6 +70,7 @@ td:nth-child(5) {
     position: relative;
     max-width: 60rem;
     max-height: 48rem;
+    min-height: 5%;
     margin: 0 auto;
 }
 
