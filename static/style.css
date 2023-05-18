@@ -61,7 +61,7 @@
 /* GRID */
 .grid-main-container {
   display: grid;
-  grid-template-columns: 0.9fr 2.8fr 0.9fr;
+  grid-template-columns: 0.9fr 3fr 0.9fr;
   grid-template-rows: auto;
   gap: 1px 0px;
   grid-auto-flow: row;
@@ -394,7 +394,11 @@ h1 {
 
 /* ---------------------------------------------------------------------------------------------------- */
 /* BUTTONS */
-
+.Controller {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
 .controller-buttons-container {
   grid-area: Controller;
@@ -410,25 +414,52 @@ h1 {
 
 .controller-buttons-container button {
   margin: 10px;
-  padding: 25px 5px;
+  padding: 15px 5px;
   background-color: #191970;
   border: none;
   color: white;
   font-size: 16px;
   cursor: pointer;
   border-radius: 10px;
-  width: 30%;
+  width: 100px;
 }
 
 .controller-buttons-container button:hover {
-    color: lab(100% 55 -160);
-    transition: transform 0.1s, background-color 0.1s;
+  color: lime;
+  transition: transform 0.1s, background-color 0.1s;
 }
 
 .controller-buttons-container button:active {
   transform: translateY(3px);
   background-color: green;
 }
+
+.confirmation-container {
+  display: none;
+}
+
+.confirmation-container.show {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+}
+
+.confirmation-content {
+  background-color: #fff;
+  padding: 20px;
+  text-align: center;
+  width: 200px; /* Adjust the width as needed */
+  height: 100px; /* Adjust the height as needed */
+}
+
+.confirmation-content button {
+  margin-top: 10px;
+}
+
+
 
 .sidebar-buttons-container {
   display: flex;

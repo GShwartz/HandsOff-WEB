@@ -1,6 +1,22 @@
-// Declare variables and select DOM elements
-const buttonsContainer = document.querySelector('.controller-buttons-container');
-buttonsContainer.addEventListener('click', handleButtonClick);
+const btnsContainer = document.querySelector('.controller-buttons-container');
+btnsContainer.addEventListener('click', handleButtonClick);
+
+var confirmationContainer = document.querySelector('.confirmation-container');
+var restartButton = document.getElementById('restart');
+restartButton.addEventListener('click', function() {
+  if (confirmationContainer.style.display === 'block') {
+    confirmationContainer.style.display = 'none';
+  } else {
+    confirmationContainer.style.display = 'block';
+  }
+});
+
+var cancelButton = document.querySelector('.cancel-button');
+
+cancelButton.addEventListener('click', function() {
+  confirmationContainer.style.display = 'none';
+});
+
 
 // Handle button clicks
 function handleButtonClick(event) {
@@ -188,33 +204,6 @@ function handleUpdateConfirmation() {
   location.reload();
 }
 
-// Make AJAX request
-async function makeAjaxRequest(data) {
-  try {
-    const response = await fetch('/controller', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8'
-      },
-      body: JSON.stringify({ data })
-    });
-
-    const responseData = await response.json();
-    console.log('Received response from Flask backend:', responseData);
-
-    if (responseData.message === 'missing') {
-      openInstallPopup();
-    }
-
-    if (responseData.message === 'skipped') {
-      closePopup();
-    }
-
-  } catch (error) {
-    console.error('Error while sending data to Flask backend:', error);
-  }
-}
-
 function openInstallPopup() {
     return new Promise((resolve, reject) => {
         const overlay = document.createElement('div');
@@ -273,4 +262,30 @@ function openInstallPopup() {
 
         overlay.appendChild(popup);
         });
+}
+
+async function makeAjaxRequest(data) {
+  try {
+    const response = await fetch('/controller', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8'
+      },
+      body: JSON.stringify({ data })
+    });
+
+    const responseData = await response.json();
+    console.log('Received response from Flask backend:', responseData);
+
+    if (responseData.message === 'missing') {
+      openInstallPopup();
+    }
+
+    if (responseData.message === 'skipped') {
+      closePopup();
+    }
+
+  } catch (error) {
+    console.error('Error while sending data to Flask backend:', error);
+  }
 }
