@@ -96,7 +96,6 @@ class Commands:
             return False
 
     def call_tasks(self):
-        print('call_tasks')
         matching_endpoint = self.find_matching_endpoint()
         if matching_endpoint:
             tasks = Tasks(self.main_path, self.log_path, matching_endpoint, self.server, self.shell_target)
