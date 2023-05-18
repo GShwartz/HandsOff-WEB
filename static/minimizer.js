@@ -1,11 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const tableContainer = document.querySelector('.history-table-container');
-  const minimizeHistoryButton = document.querySelector('.history-minimize-button');
-  const table = tableContainer.querySelector('table');
-
-  const sliderWrapper = document.querySelector('.slider-wrapper');
+  const sliderWrapper = document.querySelector('.screenshots-slider-wrapper');
   const minimizeSliderButton = sliderWrapper.querySelector('.screenshots-minimize-button');
-  const slider = sliderWrapper.querySelector('.slider');
+  const slider = sliderWrapper.querySelector('.screenshots-slider');
 
   const informationWrapper = document.querySelector('.information-wrapper');
   const minimizeInformationButton = informationWrapper.querySelector('.information-minimize-button');
@@ -24,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const station = event.detail.station;
     if (station === false) {
       minimizeSliderButton.style.display = 'none';
-      minimizeHistoryButton.style.display = 'none';
       minimizeInformationButton.style.display = 'none';
       minimizeInformationButton.textContent = '+';
 
@@ -44,19 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       slider.style.display = 'none';
     }
-  });
-
-  minimizeHistoryButton.addEventListener('click', () => {
-    tableContainer.classList.toggle('minimized');
-    if (tableContainer.classList.contains('minimized')) {
-      minimizeHistoryButton.textContent = '+';
-    } else {
-      minimizeHistoryButton.textContent = '-';
-    }
-  });
-
-  table.addEventListener('click', (event) => {
-    event.stopPropagation();
   });
 
   minimizeSliderButton.addEventListener('click', () => {

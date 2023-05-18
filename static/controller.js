@@ -1,5 +1,5 @@
 // Declare variables and select DOM elements
-const buttonsContainer = document.querySelector('.buttons-container');
+const buttonsContainer = document.querySelector('.controller-buttons-container');
 buttonsContainer.addEventListener('click', handleButtonClick);
 
 // Handle button clicks

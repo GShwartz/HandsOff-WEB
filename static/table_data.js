@@ -1,6 +1,6 @@
-const rows = document.querySelectorAll(".row-data");
-const slider = document.querySelector('.slider');
-const sliderNav = document.querySelector('.slider-nav');
+const rows = document.querySelectorAll(".table-connected-row-data");
+const slider = document.querySelector('.screenshots-slider');
+const sliderNav = document.querySelector('.screenshots-slider-nav');
 let lastSelectedRow = null;
 let station = null;
 
