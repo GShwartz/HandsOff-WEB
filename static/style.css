@@ -394,17 +394,7 @@ h1 {
 
 /* ---------------------------------------------------------------------------------------------------- */
 /* BUTTONS */
-.history-minimize-button {
-    position: absolute;
-    top: -2.9rem;
-    left: 7.3rem;
-    cursor: pointer;
-    z-index: 1; /* Add z-index to ensure button is on top of the container */
-}
 
-.history-minimize-button:before {
-    content: '';
-}
 
 .controller-buttons-container {
   grid-area: Controller;
@@ -420,7 +410,7 @@ h1 {
 
 .controller-buttons-container button {
   margin: 10px;
-  padding: 25px 20px;
+  padding: 25px 5px;
   background-color: #191970;
   border: none;
   color: white;
@@ -511,7 +501,7 @@ h1 {
 .table-history-wrapper {
     position: relative;
     width: 100%;
-    max-width: 60rem;
+    max-width: auto;
     max-height: 48rem;
     margin-top: 2%;
 }
