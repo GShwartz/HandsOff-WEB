@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
 	<title>HandsOff</title>
 	<meta name="author" content="Gil Shwartz">
@@ -12,6 +12,44 @@
 </head>
 <body>
 	<div class="grid-main-container">
+		<div class="LeftNav">
+			<nav>
+				<menu>
+					<menuitem id="demo1">
+						<a>drop</a>
+						<menu>
+							<menuitem><a>about</a></menuitem>
+					   <menuitem>
+						  <a>settings</a>
+						  <menu>
+							 <menuitem><a>Test 1</a></menuitem>
+							 <menuitem><a>Test 2</a></menuitem>
+							 <menuitem><a>Test 3</a></menuitem>
+							 <menuitem><a>Test 4</a></menuitem>
+						  </menu>
+					   </menuitem>
+							<menuitem><a>help</a></menuitem>
+							<menuitem id="demo2">
+								<a>more</a>
+								<menu>
+									<menuitem id="demo3">
+										<a>deeper</a>
+										<menu>
+											<menuitem><a>deep 1</a></menuitem>
+											<menuitem><a>deep 2</a></menuitem>
+											<menuitem><a>deep 3</a></menuitem>
+										</menu>
+									</menuitem>
+									<menuitem><a>test</a></menuitem>
+								</menu>
+							</menuitem>
+						</menu>
+					</menuitem>
+				</menu>
+			</nav>
+			<script src="{{ url_for('static', filename='sidebar-controller.js') }}"></script>
+		</div>
+
 		<div class="Logo">
 			<p>Logo comes here</p>
 		</div>
@@ -86,37 +124,31 @@
 				<script src="{{ url_for('static', filename='controller.js') }}" defer></script>
 			  </div>
 		</div>
+		<div class="Extenders">
+			<div class="extenders-header">
+				<h1 id="screenshots-header">Screenshots</h1>
+				<h1 id="information-header">Information</h1>
+				<h1 id="tasks-header">Tasks</h1>
+			</div>
+		</div>
 
 		<div class="Screenshots">
 			<div class="screenshots-slider-wrapper">
-				<h1 id="screenshots-header">Screenshots</h1>
-				<button class="screenshots-minimize-button">-</button>
-					<div class="screenshots-slider">
-						<div class="screenshots-slider-nav"></div>
-					</div>
+				<div class="screenshots-slider">
+					<div class="screenshots-slider-nav"></div>
+				</div>
 			</div>
 		</div>
 
 		<div class="Information">
 			<div class="information-wrapper">
-				<button class="information-minimize-button">-</button>
-				<h1 id="information-header">Information</h1>
-				<div id="info-container" class="information-container"></div>
+				<div class="information-container"></div>
 			</div>
 		</div>
 
 		<div class="Tasks">
 		  <div class="tasks-wrapper">
-			<button class="tasks-minimize-button">-</button>
-			<h1 id="tasks-header">Tasks</h1>
-			<div class="tasks-container">
-			  <ul>
-				<li>This is a task.</li>
-				<li>This is another task.</li>
-				<li>This is a third task.</li>
-				<li>This is a fourth task.</li>
-			  </ul>
-			</div>
+			<div class="tasks-container"></div>
 		  </div>
 		</div>
 
@@ -160,17 +192,6 @@
 		<div class="TopNav"></div>
 
 		<div class="Footer"></div>
-
-		<div class="LeftNav">
-			<div class="left-container-wrapper">
-				<div class="sidebar-buttons-container">
-					<button id="restart-all" class="sidebar-button" data-action="restart">Restart All Stations</button>
-					<button id="clear-local-files" class="sidebar-button" data-action="local">Manage Local Files</button>
-					<button id="update-all" class="sidebar-button" data-action="update">Update All Stations</button>
-					<script src="{{ url_for('static', filename='sidebar-controller.js') }}"></script>
-				</div>
-			</div>
-		</div>
 
 		<div class="RightNav"></div>
 
