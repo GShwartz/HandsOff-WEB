@@ -122,10 +122,17 @@ class Backend:
                 return jsonify({'message': f'install_failed'})
 
         if data == 'sysinfo':
-            self.logger.debug(f"Calling self.commands.call_sysinfo()...")
-            self.commands.call_sysinfo()
-            self.logger.debug(f"Sysinfo completed.")
-            return jsonify({'message': 'Sysinfo message sent.'})
+            latest_file = self.commands.call_sysinfo()
+            with open(latest_file, 'r') as file:
+                file_content = file.read()
+
+            data = {
+                'type': 'system',
+                'fileName': f'{latest_file}',
+                'fileContent': f'{file_content}',
+            }
+
+            return jsonify(data)
 
         if data == 'tasks':
             self.logger.debug(f"Calling self.commands.call_tasks()...")
