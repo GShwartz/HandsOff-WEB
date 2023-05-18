@@ -135,14 +135,26 @@ class Backend:
             return jsonify(data)
 
         if data == 'tasks':
-            self.logger.debug(f"Calling self.commands.call_tasks()...")
-            if self.commands.call_tasks():
-                self.logger.debug(f"Tasks completed.")
-                return jsonify({'message': 'Tasks success'})
+            latest_file = self.commands.call_tasks()
+            with open(latest_file, 'r') as file:
+                file_content = file.read()
 
-            else:
-                self.logger.debug(f"Tasks failed.")
-                return jsonify({'message': 'tasks_failed'})
+            data = {
+                'type': 'tasks',
+                'fileName': f'{latest_file}',
+                'fileContent': f'{file_content}',
+            }
+
+            return jsonify(data)
+
+            # self.logger.debug(f"Calling self.commands.call_tasks()...")
+            # if self.commands.call_tasks():
+            #     self.logger.debug(f"Tasks completed.")
+            #     return jsonify({'message': 'Tasks success'})
+            #
+            # else:
+            #     self.logger.debug(f"Tasks failed.")
+            #     return jsonify({'message': 'tasks_failed'})
 
         if data == 'kill_task':
             self.logger.debug(f"Calling self.commands.tasks_post_run()...")
