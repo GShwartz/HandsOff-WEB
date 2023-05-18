@@ -72,6 +72,7 @@
     "LeftNav Controller RightNav"
     "LeftNav Screenshots RightNav"
     "LeftNav Information RightNav"
+    "LeftNav Tasks RightNav"
     "LeftNav ConnectionHistory RightNav"
     "Footer Footer Footer";
   width: 100%;
@@ -89,6 +90,8 @@
 
 .Information { grid-area: Information; }
 
+.Tasks { grid-area: Tasks; }
+
 .ConnectionHistory { grid-area: ConnectionHistory; }
 
 .TopNav { grid-area: TopNav; }
@@ -101,8 +104,8 @@
 
 .UserMgmt { grid-area: UserMgmt; }
 
-/* ---------------------------------------------------------------------------------------------------- */
 
+/* ---------------------------------------------------------------------------------------------------- */
 body {
     margin: 0;
     padding: 0;
@@ -183,7 +186,6 @@ h1 {
   align-items: center;
 }
 
-
 .screenshots-slider-wrapper {
     position: relative;
     width: 100%;
@@ -193,13 +195,14 @@ h1 {
 }
 
 .screenshots-slider-container {
-    position: relative;
     width: 100%;
     display: flex;
     border-radius: 0.5rem;
     max-height: 100%;
     height: 500px;
-    padding: 10px;
+    overflow: auto;
+    padding: 5px;
+    margin-top: 1%;
 }
 
 .screenshots-slider {
@@ -320,7 +323,72 @@ h1 {
     z-index: 1;
 }
 
+.information-minimize-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+    z-index: 1;
+}
+
 .information-minimize-button:before {
+    content: '';
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* TASKS */
+.Tasks {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tasks-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 60rem;
+    max-height: 48rem;
+    margin-top: 2%;
+}
+
+.tasks-wrapper minimized {
+    max-height: 50px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.tasks-container {
+    width: 100%;
+    display: flex;
+    border-radius: 0.5rem;
+    max-height: 100%;
+    height: 500px;
+    overflow: auto;
+    padding: 5px;
+    margin-top: 1%;
+}
+
+.tasks-container > * {
+    flex: 1 0 100%;
+    object-fit: contain;
+    border: 2px solid green;
+    margin: 1rem auto 0;
+}
+
+.tasks-container.minimized {
+    max-height: 15px;
+    overflow: hidden;
+}
+
+.tasks-minimize-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.tasks-minimize-button:before {
     content: '';
 }
 
@@ -403,18 +471,6 @@ h1 {
   background-color: green;
 }
 
-.information-minimize-button {
-    position: absolute;
-    top: 0;
-    left: 0;
-    cursor: pointer;
-    z-index: 1;
-}
-
-.information-minimize-button:before {
-    content: '';
-}
-
 .sidebar-buttons-container {
   display: flex;
   flex-direction: column;
@@ -446,6 +502,20 @@ h1 {
 
 /* ---------------------------------------------------------------------------------------------------- */
 /* TABLES */
+.ConnectionHistory {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.table-history-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 60rem;
+    max-height: 48rem;
+    margin-top: 2%;
+}
+
 .table-history {
     width: 100%;
     text-align: center;
