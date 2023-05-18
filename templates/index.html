@@ -10,41 +10,37 @@
 	<script src="{{ url_for('static', filename='table_data.js') }}" defer></script>
 	<script src="{{ url_for('static', filename='minimizer.js') }}" defer></script>
 </head>
-
 <body>
-	<div class="main-container">
-		<div class="left-container-wrapper">
-			<div class="sidebar-buttons-container">
-				<button id="restart-all" class="sidebar-button" data-action="restart">Restart All Stations</button>
-				<button id="clear-local-files" class="sidebar-button" data-action="local">Manage Local Files</button>
-				<button id="update-all" class="sidebar-button" data-action="update">Update All Stations</button>
-				<script src="{{ url_for('static', filename='sidebar-controller.js') }}"></script>
-			</div>
+	<div class="grid-main-container">
+		<div class="Logo">
+			<p>Logo comes here</p>
 		</div>
 
-		<div class="middle-container-wrapper">
+		<div class="ServerInfo">
 			<div class="server-table">
-				<table>
-					<thead>
-						<tr>
-							<th>serving on</th>
-							<th>boot time</th>
-							<th>server version</th>
-							<th>connected stations</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>{{ serving_on }}</td>
-							<td>{{ boot_time }}</td>
-							<td>{{ server_version }}</td>
-							<td>{{ connected_stations }}</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
+			<table>
+				<thead>
+					<tr>
+						<th>serving on</th>
+						<th>boot time</th>
+						<th>server version</th>
+						<th>connected stations</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>{{ serving_on }}</td>
+						<td>{{ boot_time }}</td>
+						<td>{{ server_version }}</td>
+						<td>{{ connected_stations }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		</div>
 
-			<div class="connected-table">
+		<div class="ConnectedStations">
+			<div class="table-connected">
 				<h1 >Connected Stations</h1>
 				<table>
 					<thead>
@@ -59,7 +55,7 @@
 					</thead>
 					<tbody>
 						{% for endpoint in endpoints %}
-						<tr class="row-data" data-id="{{ endpoint.client_mac }}" data-ip="{{ endpoint.ip }}" data-hostname="{{ endpoint.ident }}" data-user="{{ endpoint.user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
+						<tr class="table-connected-row-data" data-id="{{ endpoint.client_mac }}" data-ip="{{ endpoint.ip }}" data-hostname="{{ endpoint.ident }}" data-user="{{ endpoint.user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
 							<td>{{ endpoint.client_mac }}</td>
 							<td>{{ endpoint.ip }}</td>
 							<td>{{ endpoint.ident }}</td>
@@ -76,8 +72,10 @@
 					</tbody>
 				</table>
 			</div>
+		</div>
 
-			<div class="buttons-container">
+		<div class="Controller">
+			<div class="controller-buttons-container">
 				<button class="button" data-action="screenshot">Screenshot</button>
 				<button class="button" data-action="anydesk">Anydesk</button>
 				<button class="button" data-action="sysinfo">Sysinfo</button>
@@ -87,17 +85,19 @@
 				<button id="update" class="button" data-action="update">Update</button>
 				<script type="module" src="{{ url_for('static', filename='controller.js') }}" defer></script>
 			</div>
+		</div>
 
-			<div class="slider-wrapper">
-				<button class="screenshots-minimize-button">-</button>
+		<div class="Screenshots">
+			<div class="screenshots-slider-wrapper">
 				<h1 id="screenshots-header">Screenshots</h1>
-				<div class="slider-container">
-					<div class="slider">
-						<div class="slider-nav"></div>
+				<button class="screenshots-minimize-button">-</button>
+					<div class="screenshots-slider">
+						<div class="screenshots-slider-nav"></div>
 					</div>
-				</div>
 			</div>
+		</div>
 
+		<div class="Information">
 			<div class="information-wrapper">
 				<button class="information-minimize-button">-</button>
 				<h1 id="information-header">Information</h1>
@@ -106,45 +106,83 @@
 						This is a testing content<br>
 						This is a testing content<br>
 						This is a testing content<br>
-						wdqwdqw<br>
 					</p>
 				</div>
 			</div>
+		</div>
 
-			<div class="history-table">
-				<h1>Connection History</h1>
-				<button class="history-minimize-button">-</button>
-				<table>
-					<thead>
-						<tr>
-							<th>Client MAC</th>
-							<th>IP Address</th>
-							<th>Hostname</th>
-							<th>Logged User</th>
-							<th>Boot Time</th>
-							<th>Connection Time</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for endpoint, time in history.items() %}
-						<tr>
-							<td>{{ endpoint.client_mac }}</td>
-							<td>{{ endpoint.ip }}</td>
-							<td>{{ endpoint.ident }}</td>
-							<td>{{ endpoint.user }}</td>
-							<td>{{ endpoint.boot_time }}</td>
-							<td>{{ endpoint.connection_time }}</td>
-						</tr>
-						 {% endfor %}
-						 {% if not history %}
-						<tr>
-							<td colspan="6">No endpoints found.</td>
-						</tr>
-						{% endif %}
-					</tbody>
-				</table>
+		<div class="Tasks">
+		  <div class="tasks-wrapper">
+			<h1 id="tasks-header">Tasks</h1>
+			<button class="tasks-minimize-button">-</button>
+
+			<div class="tasks-container">
+			  <ul>
+				<li>This is a task.</li>
+				<li>This is another task.</li>
+				<li>This is a third task.</li>
+				<li>This is a fourth task.</li>
+			  </ul>
+			</div>
+		  </div>
+		</div>
+
+		<div class="ConnectionHistory">
+		  <div class="table-history-wrapper">
+			<h1>Connection History</h1>
+			<div class="table-history">
+			  <table>
+				<thead>
+				  <tr>
+					<th>Client MAC</th>
+					<th>IP Address</th>
+					<th>Hostname</th>
+					<th>Logged User</th>
+					<th>Boot Time</th>
+					<th>Connection Time</th>
+				  </tr>
+				</thead>
+				<tbody>
+				  {% for endpoint, time in history.items() %}
+				  <tr>
+					<td>{{ endpoint.client_mac }}</td>
+					<td>{{ endpoint.ip }}</td>
+					<td>{{ endpoint.ident }}</td>
+					<td>{{ endpoint.user }}</td>
+					<td>{{ endpoint.boot_time }}</td>
+					<td>{{ endpoint.connection_time }}</td>
+				  </tr>
+				   {% endfor %}
+				   {% if not history %}
+				  <tr>
+					<td colspan="6">No endpoints found.</td>
+				  </tr>
+				  {% endif %}
+				</tbody>
+			  </table>
+			</div>
+		  </div>
+		</div>
+
+		<div class="TopNav"></div>
+
+		<div class="Footer"></div>
+
+		<div class="LeftNav">
+			<div class="left-container-wrapper">
+				<div class="sidebar-buttons-container">
+					<button id="restart-all" class="sidebar-button" data-action="restart">Restart All Stations</button>
+					<button id="clear-local-files" class="sidebar-button" data-action="local">Manage Local Files</button>
+					<button id="update-all" class="sidebar-button" data-action="update">Update All Stations</button>
+					<script src="{{ url_for('static', filename='sidebar-controller.js') }}"></script>
+				</div>
 			</div>
 		</div>
-	</div>
+
+		<div class="RightNav"></div>
+
+		<div class="UserMgmt"></div>
+    </div>
+
 </body>
 </html>
