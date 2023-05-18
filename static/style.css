@@ -317,7 +317,7 @@ h1 {
     top: -3rem;
     left: 0;
     cursor: pointer;
-    z-index: 1; /* Add z-index to ensure button is on top of the container */
+    z-index: 1;
 }
 
 .information-minimize-button:before {
@@ -403,7 +403,6 @@ h1 {
   background-color: green;
 }
 
-/* BUTTONS */
 .information-minimize-button {
     position: absolute;
     top: 0;
@@ -445,6 +444,7 @@ h1 {
   background-color: green;
 }
 
+/* ---------------------------------------------------------------------------------------------------- */
 /* TABLES */
 .table-history {
     width: 100%;
@@ -500,8 +500,6 @@ h1 {
     background-color: initial;
 }
 
-
-
 table-connected {
     width: 100%;
     border-collapse: collapse;
@@ -514,18 +512,15 @@ table-connected {
   background-color: green;
 }
 
-.table tbody tr {
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    font-weight: bold;
-}
-
 th {
     background-color: #f2f2f2;
 }
 
 th,
 td {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
     padding: 5px;
     text-align: center;
     border: 1px solid #ccc;
