@@ -1,6 +1,8 @@
 from flask import request, jsonify
 import socket
 import time
+import glob
+import os
 
 from Modules.logger import init_logger
 from Modules.screenshot import Screenshot
@@ -85,18 +87,26 @@ class Commands:
         matching_endpoint = self.find_matching_endpoint()
         if matching_endpoint:
             sysinfo = Sysinfo(self.main_path, self.log_path, matching_endpoint, self.server, self.shell_target)
-            sysinfo.run()
+            if sysinfo.run():
+                latest_file = max(glob.glob(os.path.join(sysinfo.local_dir, 'systeminfo*.txt')), key=os.path.getmtime)
+                return str(latest_file)
 
         else:
             self.logger.info("No target")
             return False
 
     def call_tasks(self):
+        print('call_tasks')
         matching_endpoint = self.find_matching_endpoint()
         if matching_endpoint:
-            self.tasks = Tasks(self.main_path, self.log_path, matching_endpoint, self.server, self.shell_target)
-            if self.tasks.run():
-                return True
+            tasks = Tasks(self.main_path, self.log_path, matching_endpoint, self.server, self.shell_target)
+            if tasks.run():
+                latest_file = max(glob.glob(os.path.join(tasks.local_dir, 'tasks*.txt')), key=os.path.getmtime)
+                return str(latest_file)
+
+        else:
+            self.logger.info("No target")
+            return False
 
     def tasks_post_run(self):
         task_name = request.json.get('taskName')

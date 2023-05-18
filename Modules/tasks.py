@@ -164,7 +164,7 @@ class Tasks:
         if self.endpoint.conn == self.shell_target:
             shutil.copy(src, self.local_dir)
 
-        self.logger.debug(f"Calling display_text...")
-        self.display_text()
+        # self.logger.debug(f"Calling display_text...")
+        # self.display_text()
         self.logger.info(f"run completed.")
         return True
