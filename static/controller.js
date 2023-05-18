@@ -4,11 +4,10 @@ btnsContainer.addEventListener('click', handleButtonClick);
 var confirmationContainer = document.querySelector('.confirmation-container');
 var restartButton = document.getElementById('restart');
 restartButton.addEventListener('click', function() {
-  if (confirmationContainer.style.display === 'block') {
-    confirmationContainer.style.display = 'none';
-  } else {
-    confirmationContainer.style.display = 'block';
-  }
+  var buttonRect = restartButton.getBoundingClientRect();
+  var top = buttonRect.top + buttonRect.height + 100;
+  confirmationContainer.style.display = 'block';
+  confirmationContainer.style.top = top + 'px';
 });
 
 var cancelButton = document.querySelector('.cancel-button');
@@ -16,6 +15,7 @@ var cancelButton = document.querySelector('.cancel-button');
 cancelButton.addEventListener('click', function() {
   confirmationContainer.style.display = 'none';
 });
+
 
 
 // Handle button clicks
