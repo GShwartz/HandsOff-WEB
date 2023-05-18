@@ -83,8 +83,15 @@
 				<button id="restart" class="button" data-action="restart">Restart</button>
 				<button class="button" data-action="local">Local Files</button>
 				<button id="update" class="button" data-action="update">Update</button>
-				<script type="module" src="{{ url_for('static', filename='controller.js') }}" defer></script>
-			</div>
+			  </div>
+
+			  <div class="confirmation-container">
+				<div class="confirmation-content">
+				  <button class="confirm-button">V</button>
+				  <button class="cancel-button">X</button>
+				</div>
+			  </div>
+			<script src="{{ url_for('static', filename='controller.js') }}" defer></script>
 		</div>
 
 		<div class="Screenshots">
