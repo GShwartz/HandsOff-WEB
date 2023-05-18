@@ -91,71 +91,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
       }
 
-      else if (action === 'tasks') {
+      else if (action === 'get_tasks') {
             if (!lastSelectedRow) {
               console.log('No row selected');
               return;
             }
             makeAjaxRequest('tasks');
-
-            return new Promise((resolve, reject) => {
-              const overlay = document.createElement('div');
-              const popup = document.createElement('container');
-              popup.classList.add('popup', 'fade-in');
-              setTimeout(() => {
-                popup.classList.remove('visible');
-                void popup.offsetWidth; // Trigger reflow to restart the animation
-                popup.classList.add('visible');
-              }, 50);
-
-              overlay.classList.add('overlay');
-              document.body.appendChild(overlay);
-
-              popup.innerHTML = `
-                <h1>Kill task on ${lastSelectedRow.cells[2].innerText}?</h1>
-                <form>
-                  <label for="task-input">Enter task name (.exe)</label>
-                  <input type="text" id="task-input" name="task-input">
-                  <div class="popup-buttons">
-                    <button type="button" id="submit-button">Submit</button>
-                    <button type="button" id="cancel-button">Cancel</button>
-                  </div>
-                </form>
-              `;
-
-              const submitButton = popup.querySelector('#submit-button');
-              const cancelButton = popup.querySelector('#cancel-button');
-              const taskInput = popup.querySelector('#task-input');
-
-              submitButton.addEventListener('click', () => {
-                const taskName = taskInput.value.trim();
-                if (taskName) {
-                  resolve(taskName);
-                  killTask(taskName);
-                } else {
-                  reject(new Error('No task name provided'));
-                }
-                popup.remove();
-                overlay.classList.remove('visible');
-                document.body.removeChild(overlay);
-              });
-
-              cancelButton.addEventListener('click', () => {
-                const taskName = 'no';
-                if (taskName) {
-                  resolve(taskName);
-                  killTask(taskName);
-                } else {
-                  reject(new Error('Popup was cancelled'));
-                }
-                popup.remove();
-                overlay.classList.remove('visible');
-                document.body.removeChild(overlay);
-              });
-
-              document.body.appendChild(popup);
-            });
-
       }
 
       else {
@@ -267,18 +208,31 @@ document.addEventListener('DOMContentLoaded', function() {
           closePopup();
 
         }
-        if (responseData.type === 'system') {
-          var fileName = responseData.fileName;
-          var fileContent = responseData.fileContent;
+        if ((responseData.type === 'system') || (responseData.type === 'tasks')) {
+          if (responseData.type === 'system') {
+              var fileName = responseData.fileName;
+              var fileContent = responseData.fileContent;
 
-          var informationContainer = document.querySelector('.information-container');
-          var preElement = document.createElement('pre');
-          preElement.textContent = responseData.fileContent;
-          informationContainer.appendChild(preElement);
+              var informationContainer = document.querySelector('.information-container');
+              var preElement = document.createElement('pre');
+              preElement.textContent = responseData.fileContent;
+              informationContainer.appendChild(preElement);
 
-          console.log('responseData', fileName);
+              console.log('responseData', fileName);
+          }
+
+          else if (responseData.type === 'tasks') {
+            var fileName = responseData.fileName;
+            var fileContent = responseData.fileContent;
+
+            var tasksContainer = document.querySelector('.tasks-container');
+            var preElement = document.createElement('pre');
+            preElement.textContent = responseData.fileContent;
+            tasksContainer.appendChild(preElement);
+
+            console.log('responseData', fileName);
+          }
         }
-
       } catch (error) {
         console.error('Error in makeAjaxRequest:', error);
       }

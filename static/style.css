@@ -287,7 +287,7 @@ h1 {
 }
 
 .information-wrapper minimized {
-    max-height: 50px;
+    max-height: 20px;
     margin-top: 10px;
     margin-bottom: 10px;
 }
@@ -307,7 +307,6 @@ h1 {
 .information-container > * {
     flex: 1 0 100%;
     object-fit: contain;
-    border: 2px solid green;
     margin: 1rem auto 0;
 }
 
@@ -367,12 +366,12 @@ h1 {
     overflow: auto;
     padding: 5px;
     margin-top: 1%;
+    border: 1px solid black;
 }
 
 .tasks-container > * {
     flex: 1 0 100%;
     object-fit: contain;
-    border: 2px solid green;
     margin: 1rem auto 0;
 }
 
