@@ -87,6 +87,9 @@ class Backend:
                 return jsonify({'message': 'Screenshot failed'})
 
         if data == 'anydesk':
+            if not self.commands.call_anydesk():
+                return jsonify({'error': f'No row selected'})
+
             self.logger.debug(f"Calling self.commands.call_anydesk()...")
             if self.commands.call_anydesk() == 'missing':
                 self.logger.debug(f"Anydesk missing.")
@@ -123,44 +126,45 @@ class Backend:
 
         if data == 'sysinfo':
             latest_file = self.commands.call_sysinfo()
-            with open(latest_file, 'r') as file:
-                file_content = file.read()
+            if latest_file:
+                try:
+                    with open(latest_file, 'r') as file:
+                        file_content = file.read()
 
-            data = {
-                'type': 'system',
-                'fileName': f'{latest_file}',
-                'fileContent': f'{file_content}',
-            }
+                    data = {
+                        'type': 'system',
+                        'fileName': f'{latest_file}',
+                        'fileContent': f'{file_content}',
+                    }
 
-            return jsonify(data)
+                    return jsonify(data)
+
+                except Exception as e:
+                    return jsonify({'error': f'{e}'})
+
+            else:
+                return jsonify({'error': 'local dir not found'})
 
         if data == 'tasks':
             latest_file = self.commands.call_tasks()
-            with open(latest_file, 'r') as file:
-                file_content = file.read()
+            if latest_file:
+                try:
+                    with open(latest_file, 'r') as file:
+                        file_content = file.read()
 
-            data = {
-                'type': 'tasks',
-                'fileName': f'{latest_file}',
-                'fileContent': f'{file_content}',
-            }
+                    data = {
+                        'type': 'tasks',
+                        'fileName': f'{latest_file}',
+                        'fileContent': f'{file_content}',
+                    }
+                    self.commands.shell_target.send('n'.encode())
+                    return jsonify(data)
 
-            return jsonify(data)
+                except Exception as e:
+                    return jsonify({'error': f'{e}'})
 
-            # self.logger.debug(f"Calling self.commands.call_tasks()...")
-            # if self.commands.call_tasks():
-            #     self.logger.debug(f"Tasks completed.")
-            #     return jsonify({'message': 'Tasks success'})
-            #
-            # else:
-            #     self.logger.debug(f"Tasks failed.")
-            #     return jsonify({'message': 'tasks_failed'})
-
-        if data == 'kill_task':
-            self.logger.debug(f"Calling self.commands.tasks_post_run()...")
-            self.commands.tasks_post_run()
-            self.logger.debug(f"Tasks post run completed.")
-            return jsonify({'message': 'Kill Task message sent.'})
+            else:
+                return jsonify({'error': 'local dir not found'})
 
         if data == 'restart':
             self.logger.debug(f"Calling self.commands.call_restart()...")
