@@ -11,74 +11,44 @@
 	<script src="{{ url_for('static', filename='minimizer.js') }}" defer></script>
 </head>
 <body>
-	<div class="grid-main-container">
-		<div class="LeftNav">
-			<nav>
-				<menu>
-					<menuitem id="demo1">
-						<a>drop</a>
-						<menu>
-							<menuitem><a>about</a></menuitem>
-					   <menuitem>
-						  <a>settings</a>
-						  <menu>
-							 <menuitem><a>Test 1</a></menuitem>
-							 <menuitem><a>Test 2</a></menuitem>
-							 <menuitem><a>Test 3</a></menuitem>
-							 <menuitem><a>Test 4</a></menuitem>
-						  </menu>
-					   </menuitem>
-							<menuitem><a>help</a></menuitem>
-							<menuitem id="demo2">
-								<a>more</a>
-								<menu>
-									<menuitem id="demo3">
-										<a>deeper</a>
-										<menu>
-											<menuitem><a>deep 1</a></menuitem>
-											<menuitem><a>deep 2</a></menuitem>
-											<menuitem><a>deep 3</a></menuitem>
-										</menu>
-									</menuitem>
-									<menuitem><a>test</a></menuitem>
-								</menu>
-							</menuitem>
-						</menu>
-					</menuitem>
-				</menu>
-			</nav>
-			<script src="{{ url_for('static', filename='sidebar-controller.js') }}"></script>
-		</div>
-
-		<div class="Logo">
-			<p>Logo comes here</p>
+	<div class="grid">
+		<div class="TopNav">
+			<div class="top-nav-logo">
+				<img src="static/images/handsoff-low-resolution-logo-color-on-transparent-background.png">
+			</div>
 		</div>
 
 		<div class="ServerInfo">
-			<div class="server-table">
-			<table>
-				<thead>
-					<tr>
-						<th>serving on</th>
-						<th>boot time</th>
-						<th>server version</th>
-						<th>connected stations</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>{{ serving_on }}</td>
-						<td>{{ boot_time }}</td>
-						<td>{{ server_version }}</td>
-						<td>{{ connected_stations }}</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+			<div class="middle-container">
+				<div class="server-table-wrapper">
+					<h1 id="server-info">Server Information</h1>
+				</div>
+				<div class="server-table">
+					<table>
+						<thead>
+							<tr>
+								<th>serving on</th>
+								<th>boot time</th>
+								<th>server version</th>
+								<th>connected stations</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>{{ serving_on }}</td>
+								<td>{{ boot_time }}</td>
+								<td>{{ server_version }}</td>
+								<td>{{ connected_stations }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 
 		<div class="ConnectedStations">
-			<div class="table-connected">
+			<div class="middle-container">
+				<div class="table-connected">
 				<h1 >Connected Stations</h1>
 				<table>
 					<thead>
@@ -110,10 +80,12 @@
 					</tbody>
 				</table>
 			</div>
+			</div>
 		</div>
 
 		<div class="Controller">
-			<div class="controller-buttons-container">
+			<div class="middle-container">
+				<div class="controller-buttons-container">
 				<button class="button" data-action="screenshot">Screenshot</button>
 				<button class="button" data-action="anydesk">Anydesk</button>
 				<button class="button" data-action="sysinfo">Sysinfo</button>
@@ -123,7 +95,9 @@
 				<button id="update" class="button" data-action="update">Update</button>
 				<script src="{{ url_for('static', filename='controller.js') }}" defer></script>
 			  </div>
+			</div>
 		</div>
+
 		<div class="Extenders">
 			<div class="extenders-header">
 				<h1 id="screenshots-header">Screenshots</h1>
@@ -132,28 +106,30 @@
 			</div>
 		</div>
 
-		<div class="Screenshots">
-			<div class="screenshots-slider-wrapper">
-				<div class="screenshots-slider">
-					<div class="screenshots-slider-nav"></div>
+		<div class="Display">
+			<div class="Screenshots">
+				<div class="screenshots-slider-wrapper">
+					<div class="screenshots-slider">
+						<div class="screenshots-slider-nav"></div>
+					</div>
+				</div>
+			</div>
+
+			<div class="Information">
+				<div class="information-wrapper">
+					<div class="information-container"></div>
+				</div>
+			</div>
+
+			<div class="Tasks">
+				<div class="tasks-wrapper">
+					<div class="tasks-container"></div>
 				</div>
 			</div>
 		</div>
 
-		<div class="Information">
-			<div class="information-wrapper">
-				<div class="information-container"></div>
-			</div>
-		</div>
-
-		<div class="Tasks">
-		  <div class="tasks-wrapper">
-			<div class="tasks-container"></div>
-		  </div>
-		</div>
-
 		<div class="ConnectionHistory">
-		  <div class="table-history-wrapper">
+			<div class="table-history-wrapper">
 			<h1>Connection History</h1>
 			<div class="table-history">
 			  <table>
@@ -189,13 +165,12 @@
 		  </div>
 		</div>
 
-		<div class="TopNav"></div>
+		<div class="Footer">
+			<div class="footer-logo">
+				<img src="static/images/handsoff-low-resolution-logo-color-on-transparent-background.png">
+			</div>
+		</div>
 
-		<div class="Footer"></div>
-
-		<div class="RightNav"></div>
-
-		<div class="UserMgmt"></div>
     </div>
 
 </body>
