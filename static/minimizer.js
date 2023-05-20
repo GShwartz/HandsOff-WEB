@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const screenshotHeaderButton = document.getElementById('screenshots-button');
-  const slider = document.querySelector('.screenshots-slider');
-  const scGrid = document.querySelector('.Screenshots');
+  const screenshotGrid = document.querySelector('.Screenshots');
 
   const informationHeaderButton = document.getElementById('information-button');
   const informationContainer = document.querySelector('.information-container');
@@ -11,10 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Apply minimized effect initially if no row is selected or station is false
   if (!isRowSelected()) {
-    scGrid.classList.add('minimized');
+//    screenshotGrid.classList.add('minimized');
     informationContainer.classList.add('minimized');
     tasksContainer.classList.add('minimized');
-    slider.style.display = 'none';
+  } else {
+    screenshotGrid.style.backgroundColor = 'green'; // Change background color to green
   }
 
   // Initial check for station value
@@ -30,43 +30,39 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   screenshotHeaderButton.addEventListener('click', () => {
-    scGrid.classList.toggle('minimized');
+    screenshotGrid.classList.toggle('minimized');
+    screenshotHeaderButton.style.backgroundColor = screenshotGrid.classList.contains('minimized') ? '' : 'green';
+    screenshotGrid.style.display = screenshotGrid.classList.contains('minimized') ? 'none' : 'flex';
+//    screenshotGrid.style.backgroundColor = isRowSelected() ? 'green' : '';
 
-    if (scGrid.classList.contains('minimized')) {
-      scGrid.style.display = 'none';
-    } else {
-      screenshotHeaderButton.style.backgroundColor = 'green';
-      scGrid.style.display = 'flex';
-      slider.style.display = 'flex';
-    }
-
-    if (!scGrid.classList.contains('minimized')) {
-      informationContainer.classList.add('minimized')
-      tasksContainer.classList.add('minimized');
-      screenshotHeaderButton.style.backgroundColor = '';
-    }
+    informationContainer.classList.add('minimized');
+    tasksContainer.classList.add('minimized');
+    informationHeaderButton.style.backgroundColor = '';
+    tasksHeaderButton.style.backgroundColor = '';
   });
 
   informationHeaderButton.addEventListener('click', () => {
     informationContainer.classList.toggle('minimized');
+    informationHeaderButton.style.backgroundColor = informationContainer.classList.contains('minimized') ? '' : 'green';
 
-    if (!informationContainer.classList.contains('minimized')) {
-      scGrid.classList.add('minimized');
-      tasksContainer.classList.add('minimized');
-      scGrid.style.display = 'none';
-      slider.style.display = 'none';
-    }
+    screenshotGrid.classList.add('minimized');
+    tasksContainer.classList.add('minimized');
+    screenshotGrid.style.display = 'none';
+
+    screenshotHeaderButton.style.backgroundColor = '';
+    tasksHeaderButton.style.backgroundColor = '';
   });
 
   tasksHeaderButton.addEventListener('click', () => {
     tasksContainer.classList.toggle('minimized');
+    tasksHeaderButton.style.backgroundColor = tasksContainer.classList.contains('minimized') ? '' : 'green';
 
-    if (!tasksContainer.classList.contains('minimized')) {
-      scGrid.classList.add('minimized');
-      informationContainer.classList.add('minimized');
-      scGrid.style.display = 'none';
-      slider.style.display = 'none';
-    }
+    screenshotGrid.classList.add('minimized');
+    informationContainer.classList.add('minimized');
+    screenshotGrid.style.display = 'none';
+
+    screenshotHeaderButton.style.backgroundColor = '';
+    informationHeaderButton.style.backgroundColor = '';
   });
 });
 

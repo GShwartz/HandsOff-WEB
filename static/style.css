@@ -214,6 +214,7 @@ h1 {
   margin-right: 25%;
   max-width: 900px;
   max-height: 600px;
+  height: 100%;
 
 }
 
@@ -271,7 +272,7 @@ h1 {
 .screenshots-slider-wrapper {
     width: 100%;
     max-width: 900px;
-    max-height: 1000px;
+    max-height: 600px;
 }
 
 .screenshots-slider-container {
@@ -279,9 +280,8 @@ h1 {
     display: flex;
     border-radius: 0.5rem;
     max-height: 100%;
-    height: 500px;
+    height: 600px;
     overflow: auto;
-    margin-top: 1%;
 }
 
 .screenshots-slider {
@@ -330,7 +330,7 @@ h1 {
 }
 
 .information-container {
-  max-height: 500px;
+  max-height: 600px;
   width: 100%;
   border-radius: 0.5rem;
   overflow-y: scroll;
@@ -370,7 +370,7 @@ h1 {
 }
 
 .tasks-container {
-  max-height: 500px;
+  max-height: 600px;
   width: 100%;
   display: flex;
   border-radius: 0.5rem;
@@ -399,7 +399,6 @@ h1 {
 /* HEADERS */
 #screenshots-header {
   cursor: pointer;
-  padding: 10px;
   background-color: #ccc;
   color: #fff;
   border-radius: 5px;
