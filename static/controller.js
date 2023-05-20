@@ -50,7 +50,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     else if (action === 'sysinfo') {
-      button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
       makeAjaxRequest('sysinfo');
     }
 
@@ -96,7 +95,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('No row selected');
         return;
       }
-      button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
       makeAjaxRequest('tasks');
     }
 
@@ -218,6 +216,9 @@ async function makeAjaxRequest(data) {
           var fileContent = responseData.fileContent;
 
           var informationContainer = document.querySelector('.information-container');
+          // Clear the tasks container
+          informationContainer.innerHTML = '';
+
           var preElement = document.createElement('pre');
           preElement.textContent = responseData.fileContent;
           informationContainer.appendChild(preElement);
@@ -229,14 +230,15 @@ async function makeAjaxRequest(data) {
         var fileContent = responseData.fileContent;
 
         var tasksContainer = document.querySelector('.tasks-container');
+
+        // Clear the tasks container
+        tasksContainer.innerHTML = '';
+
         var preElement = document.createElement('pre');
         preElement.textContent = responseData.fileContent;
         tasksContainer.appendChild(preElement);
 
         console.log('responseData', fileName);
-      }
-      else if (responseData.type === 'error') {
-        console.log('error', responseData.error);
       }
     }
   } catch (error) {

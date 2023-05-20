@@ -76,13 +76,13 @@ rows.forEach((row) => {
         // Fetch images for selected hostname
         if (selectedRowData.hostname.trim() !== '') {
             // Update the heading with the selected hostname
-            const screenshotsHeading = document.getElementById("screenshots-header");
+            const screenshotsHeading = document.getElementById("screenshots-button");
             screenshotsHeading.innerText = `Screenshots - ${selectedRowData.hostname.trim()}`;
 
-            const informationHeading = document.getElementById("information-header");
+            const informationHeading = document.getElementById("information-button");
             informationHeading.innerText = `Information - ${selectedRowData.hostname.trim()}`;
 
-            const tasksHeading = document.getElementById("tasks-header");
+            const tasksHeading = document.getElementById("tasks-button");
             tasksHeading.innerText = `Tasks - ${selectedRowData.hostname.trim()}`;
 
             const hostname = encodeURIComponent(selectedRowData.hostname.trim());
