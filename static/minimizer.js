@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
     screenshotGrid.style.backgroundColor = 'green'; // Change background color to green
   }
 
+  // Modify screenshotHeaderButton to be green when the app starts
+  screenshotHeaderButton.style.backgroundColor = 'green';
+
   // Initial check for station value
   document.dispatchEvent(new CustomEvent('stationValue', { detail: { station: station } }));
 
