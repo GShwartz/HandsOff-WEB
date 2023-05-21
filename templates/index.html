@@ -1,53 +1,122 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/html">
 <head>
 	<title>HandsOff 1.0.0</title>
 	<meta name="author" content="Gil Shwartz">
 	<meta charset="UTF-8">
 	<meta name="description" content="A C&C for IT Admins">
-
 	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-	<link href='https://unpkg.com/css.gg@2.0.0/icons/css/menu-round.css' rel='stylesheet'>
-
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="{{ url_for('static', filename='table_data.js') }}" defer></script>
 	<script src="{{ url_for('static', filename='minimizer.js') }}" defer></script>
 </head>
+
+<html>
 <body>
-	<div class="grid">
-		<div class="TopNav">
-			<div class="top-nav-logo">
-				<img src="static/images/handsoff-low-resolution-logo-color-on-transparent-background.png">
+	<main>
+		<section>
+			<div class="TopNav">
+				<div class="top-nav-logo">
+					<img src="static/images/handsoff-low-resolution-logo-color-on-transparent-background.png">
+				</div>
 			</div>
-		</div>
-
-		<div class="ServerInfo">
-			<h1 id="server-info">Server Information</h1>
-			<div class="server-table">
-				<table>
-					<thead>
-						<tr>
-							<th>serving on</th>
-							<th>boot time</th>
-							<th>server version</th>
-							<th>connected stations</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>{{ serving_on }}</td>
-							<td>{{ boot_time }}</td>
-							<td>{{ server_version }}</td>
-							<td>{{ connected_stations }}</td>
-						</tr>
-					</tbody>
-				</table>
+		</section>
+		<section>
+			<div class="ServerInfo">
+				<div class="server-table">
+					<table>
+						<thead>
+							<tr>
+								<th>serving on</th>
+								<th>boot time</th>
+								<th>server version</th>
+								<th>connected stations</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>{{ serving_on }}</td>
+								<td>{{ boot_time }}</td>
+								<td>{{ server_version }}</td>
+								<td>{{ connected_stations }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="ConnectedStations" id="connectedStations">
+					<h1>Connected Stations</h1>
+					<div class="table-connected">
+						<table>
+							<thead>
+								<tr>
+									<th>Client MAC</th>
+									<th>IP Address</th>
+									<th>Hostname</th>
+									<th>Logged User</th>
+									<th>Boot Time</th>
+									<th>Client Version</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for endpoint in endpoints %}
+								<tr class="table-connected-row-data" data-id="{{ endpoint.client_mac }}" data-ip="{{ endpoint.ip }}" data-hostname="{{ endpoint.ident }}" data-user="{{ endpoint.user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
+									<td>{{ endpoint.client_mac }}</td>
+									<td>{{ endpoint.ip }}</td>
+									<td>{{ endpoint.ident }}</td>
+									<td>{{ endpoint.user }}</td>
+									<td>{{ endpoint.boot_time }}</td>
+									<td>{{ endpoint.client_version }}</td>
+								</tr>
+								{% endfor %}
+								{% if not endpoints %}
+								<tr>
+									<td colspan="6">No endpoints found.</td>
+								</tr>
+								{% endif %}
+							</tbody>
+						</table>
+					</div>
+					<section>
+						<div class="Controller">
+						<div class="controller-buttons-container">
+							<button class="button" data-action="screenshot">SCREENSHOT</button>
+							<button class="button" data-action="anydesk">ANYDESK</button>
+							<button class="button" data-action="sysinfo">SYSTEM</button>
+							<button class="button" data-action="tasks">TASKS</button>
+							<button id="restart" class="button" data-action="restart">RESTART</button>
+							<button class="button" data-action="local">LOCALS</button>
+							<button id="update" class="button" data-action="update">UPDATE</button>
+							<script src="{{ url_for('static', filename='controller.js') }}" defer></script>
+						</div>
+					</div>
+					</section>
+					<section>
+						<div class="Extenders">
+						<div class="extenders-wrapper">
+							<button class="extender-button" id="screenshots-button">Screenshots</button>
+							<button class="extender-button" id="information-button">Information</button>
+							<button class="extender-button" id="tasks-button">Tasks</button>
+						</div>
 			</div>
-		</div>
+					</section>
+				</div>
+			</div>
+		</section>
 
-		<div class="ConnectedStations">
-			<div class="table-connected">
-				<h1 >Connected Stations</h1>
+		<section class="Display">
+			<div class="screenshots-slider-wrapper">
+				<div class="screenshots-slider">
+					<div class="screenshots-slider-nav"></div>
+						<div class="information-container"></div>
+						<div class="tasks-container"></div>
+				</div>
+			</div>
+		</section>
+
+		<section>
+			<div class="ConnectionHistory">
+		<div class="table-history-wrapper">
+			<div class="table-history">
+				<h1>Connection History</h1>
 				<table>
 					<thead>
 						<tr>
@@ -56,21 +125,21 @@
 							<th>Hostname</th>
 							<th>Logged User</th>
 							<th>Boot Time</th>
-							<th>Client Version</th>
+							<th>Connection Time</th>
 						</tr>
 					</thead>
 					<tbody>
-						{% for endpoint in endpoints %}
-						<tr class="table-connected-row-data" data-id="{{ endpoint.client_mac }}" data-ip="{{ endpoint.ip }}" data-hostname="{{ endpoint.ident }}" data-user="{{ endpoint.user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
+						{% for endpoint, time in history.items() %}
+						<tr>
 							<td>{{ endpoint.client_mac }}</td>
 							<td>{{ endpoint.ip }}</td>
 							<td>{{ endpoint.ident }}</td>
 							<td>{{ endpoint.user }}</td>
 							<td>{{ endpoint.boot_time }}</td>
-							<td>{{ endpoint.client_version }}</td>
+							<td>{{ endpoint.connection_time }}</td>
 						</tr>
-						 {% endfor %}
-						 {% if not endpoints %}
+						{% endfor %}
+						{% if not history %}
 						<tr>
 							<td colspan="6">No endpoints found.</td>
 						</tr>
@@ -79,85 +148,17 @@
 				</table>
 			</div>
 		</div>
+	</div>
+		</section>
 
-		<div class="Controller">
-			<div class="middle-container">
-				<div class="controller-buttons-container">
-				<button class="button" data-action="screenshot">SCREENSHOT</button>
-				<button class="button" data-action="anydesk">ANYDESK</button>
-				<button class="button" data-action="sysinfo">SYSTEM</button>
-				<button class="button" data-action="tasks">TASKS</button>
-				<button id="restart" class="button" data-action="restart">RESTART</button>
-				<button class="button" data-action="local">LOCALS</button>
-				<button id="update" class="button" data-action="update">UPDATE</button>
-				<script src="{{ url_for('static', filename='controller.js') }}" defer></script>
-			  </div>
-			</div>
-		</div>
-
-		<div class="Extenders">
-			<div class="extenders-header">
-				<button class="extender-button" id="screenshots-button">Screenshots</button>
-				<button class="extender-button" id="information-button">Information</button>
-				<button class="extender-button" id="tasks-button">Tasks</button>
-			</div>
-		</div>
-
-		<div class="Display">
-			<div class="Screenshots">
-				<div class="screenshots-slider-wrapper">
-					<div class="screenshots-slider">
-						<div class="screenshots-slider-nav"></div>
-					</div>
-				</div>
-			</div>
-			<div class="information-container"></div>
-			<div class="tasks-container"></div>
-		</div>
-
-		<div class="ConnectionHistory">
-			<div class="table-history-wrapper">
-			<h1>Connection History</h1>
-			<div class="table-history">
-			  <table>
-				<thead>
-				  <tr>
-					<th>Client MAC</th>
-					<th>IP Address</th>
-					<th>Hostname</th>
-					<th>Logged User</th>
-					<th>Boot Time</th>
-					<th>Connection Time</th>
-				  </tr>
-				</thead>
-				<tbody>
-				  {% for endpoint, time in history.items() %}
-				  <tr>
-					<td>{{ endpoint.client_mac }}</td>
-					<td>{{ endpoint.ip }}</td>
-					<td>{{ endpoint.ident }}</td>
-					<td>{{ endpoint.user }}</td>
-					<td>{{ endpoint.boot_time }}</td>
-					<td>{{ endpoint.connection_time }}</td>
-				  </tr>
-				   {% endfor %}
-				   {% if not history %}
-				  <tr>
-					<td colspan="6">No endpoints found.</td>
-				  </tr>
-				  {% endif %}
-				</tbody>
-			  </table>
-			</div>
-		  </div>
-		</div>
-
+		<footer>
 		<div class="Footer">
 			<div class="footer-logo">
 				<img src="static/images/handsoff-low-resolution-logo-color-on-transparent-background.png">
 			</div>
 		</div>
-    </div>
-
+	</footer>
+	</main>
 </body>
 </html>
+
