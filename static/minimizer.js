@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const screenshotHeaderButton = document.getElementById('screenshots-button');
-  const screenshotGrid = document.querySelector('.Screenshots');
+  const screenshotGrid = document.querySelector('.screenshots-slider-wrapper');
 
   const informationHeaderButton = document.getElementById('information-button');
   const informationContainer = document.querySelector('.information-container');
