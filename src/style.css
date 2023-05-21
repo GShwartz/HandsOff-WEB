@@ -1,0 +1,519 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* DISPLAY POPUP WINDOW */
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 25%;
+    height: 15%;
+    transform: translate(-50%, -50%);
+    background-color: #DCDCDC;
+    border: 1px solid black;
+    padding: 20px;
+    z-index: 1000;
+    box-shadow: 0 1.5rem 3rem -0.75rem hsla(0, 0%, 0%, 0.25); inset 0 1.5rem 3rem -0.75rem hsla(0, 0%, 0%, 0.25);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.popup-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.popup-buttons button {
+    margin: 0 10px;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* semi-transparent black */
+    z-index: 999; /* ensure it's on top of other elements */
+}
+
+.overlay.visible {
+    display: block;
+}
+
+.fade-in {
+    opacity: 0;
+    transition: opacity 0.05s ease-in-out;
+}
+.fade-in.visible {
+    opacity: 1;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: hsl(221, 100%, 95%);
+  font-family: emoji;
+  justify-content: center;
+}
+
+h1 {
+  margin-top: 1px;
+  color: #333333;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+  background-color: #f2f2f2;
+  border: 2px solid #ccc;
+  padding: 2px;
+}
+
+.Content {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.TopNav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3rem;
+  max-height: 3rem;
+  background-color: #9D0C1E;
+  align-items: center;
+  z-index: 9999;
+}
+
+.top-nav-logo {
+  position: relative;
+  width: 20%;
+  height: 80%;
+  padding: 2px 2px;
+  left: 10px;
+  top: 10px;
+  bottom: 10px;
+}
+
+.top-nav-logo img {
+  height: 80%;
+  width: auto;
+  max-height: 100%;
+}
+
+.middle-container {
+  margin-top: 1px; /* Add margin to push content below the TopNav */
+  position: relative;
+  width: 100%;
+  max-height: 600px;
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  overflow: hidden; /* Add this line to hide content that overflows the container */
+}
+
+.ServerInfo {
+  position: fixed;
+  top: 48px;
+  max-height: 3%;
+  width: 100%;
+  z-index: 10;
+}
+
+.ConnectedStations {
+  position: fixed;
+  top: 10px;
+  width: 100%;
+  z-index: 1;
+  margin-top: 115px;
+  margin-bottom: 20px; /* Adjust the margin-bottom value as needed */
+  min-height: 100px; /* Adjust the min-height value as needed */
+}
+
+.table-connected {
+  margin-top: 0;
+  width: 100%;
+  max-height: 170px; /* Set the initial max-height to a suitable value */
+  border-collapse: collapse;
+  overflow-y: auto;
+  z-index: 1;
+}
+
+.table-connected thead {
+  position: sticky;
+  top: 0;
+  background-color: #f2f2f2;
+}
+
+.Controller {
+  position: sticky;
+  padding: 5px 1px;
+  width: 100%;
+  height: 60px;
+  z-index: 1;
+  top: 10px;
+}
+
+.controller-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
+  padding: 5px;
+}
+
+.controller-buttons-container button {
+  background-color: #191970;
+  border: none;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 10px;
+  width: 150px;
+  height: 35px;
+  left: 200px;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.controller-buttons-container button:hover {
+  color: blue;
+  background-color: white;
+}
+
+.controller-buttons-container button:active {
+  transform: translateY(3px);
+  background-color: blue;
+}
+
+.Extenders {
+  display: flex;
+  position: sticky;
+  height: 60px;
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.extenders-wrapper {
+  display: flex;
+  max-height: 100%;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* Add this line to ensure the wrapper expands to full width */
+}
+
+.extender-button {
+  flex: 0 0 auto;
+  padding: 10px 20px;
+  margin: 5px; /* Adjust the margin value to add space between the buttons */
+  border: none;
+  border-radius: 4px;
+  background-color: #3498db;
+  color: #ffffff;
+  font-size: 16px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.extender-button:hover {
+  background-color: #2980b9;
+}
+
+.extender-button:active {
+  background-color: #1f618d;
+}
+
+.extender-button:focus {
+  outline: none;
+}
+
+.Display {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+  align-items: center;
+  overflow: auto;
+  border: 2px solid black;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+  margin-left: 26%;
+  margin-right: 25%;
+  max-width: 900px;
+  height: 500px;
+  z-index: 1; /* Adjusted z-index */
+}
+
+.ConnectionHistory {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 0; /* Adjusted z-index */
+}
+
+.table-history {
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+  max-height: 8rem; /* Adjust this value to limit the number of rows */
+  margin-top: 5px;
+  overflow-y: auto;
+}
+
+.Footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3rem;
+  background-color: #54040E;
+  z-index: 5; /* Adjusted z-index */
+}
+
+.footer-logo {
+  position: relative;
+  width: 100%;
+  height: 80%;
+  top: 5px;
+  margin-left: 44.5%;
+  margin-right: 50%;
+}
+
+.footer-logo img {
+  height: 100%;
+  width: auto;
+  max-height: 100%;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* SCREENSHOT IMAGE SLIDER */
+.screenshots-slider-wrapper {
+    width: 100%;
+    max-width: 900px;
+    max-height: 600px;
+}
+
+.screenshots-slider-container {
+    width: 100%;
+    display: flex;
+    border-radius: 0.5rem;
+    max-height: 100%;
+    height: 600px;
+    overflow: auto;
+}
+
+.screenshots-slider {
+    width: 100%;
+    display: flex;
+    aspect-ratio: 16 / 9;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    box-shadow: 0 1.5rem 3rem -1.75rem hsla(0, 0%, 0%, 0.25);
+    border-radius: 0.5rem;
+}
+
+.screenshots-slider img {
+    flex: 1 0 100%;
+    scroll-snap-align: start;
+    object-fit: fill;
+    border: 2px solid black;
+}
+
+.screenshots-slider::-webkit-scrollbar {
+  width: 10px; /* Adjust the width as needed */
+}
+
+.screenshots-slider::-webkit-scrollbar-track {
+  background-color: lightgray;
+}
+
+.screenshots-slider::-webkit-scrollbar-thumb {
+  background-color: gray;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* INFORMATION */
+information-container {
+  max-height: 100%;
+  width: 100%;
+  border-radius: 0.5rem;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: gray lightgray;
+  background-color: yellow;
+}
+
+.information-container.minimized {
+  display: none;
+  overflow: hidden;
+}
+
+.information-container::-webkit-scrollbar {
+  width: 10px; /* Adjust the width as needed */
+}
+
+.information-container::-webkit-scrollbar-track {
+  background-color: lightgray;
+}
+
+.information-container::-webkit-scrollbar-thumb {
+  background-color: gray;
+}
+
+/* TASKS */
+.tasks-container {
+  max-height: 100%;
+  width: 100%;
+  display: flex;
+  border-radius: 0.5rem;
+  overflow: auto;
+}
+
+.tasks-container.minimized {
+  display: none;
+  overflow: hidden;
+  border: none;
+}
+
+.tasks-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.tasks-container::-webkit-scrollbar-track {
+  background-color: lightgray;
+}
+
+.tasks-container::-webkit-scrollbar-thumb {
+  background-color: gray;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* TABLES */
+
+
+.table-history tbody tr:hover {
+  background-color: initial;
+}
+
+.table-history tbody tr {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.table-history thead {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  background: #f2f2f2;
+  position: sticky;
+  top: 0;
+}
+
+.table-history th {
+  padding: 5px;
+  text-align: center;
+  border: 1px solid #ccc;
+  background-color: #f2f2f2;
+}
+
+.server-table {
+    top: 2rem;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0 auto;
+    max-height: 100px;
+}
+
+table {
+    top: 2rem;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0 auto;
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+.server-table th {
+    background-color: #f2f2f2;
+}
+.server-table tbody tr{
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    background-color: white;
+}
+
+.server-table tbody tr:hover {
+    background-color: initial;
+}
+
+.table-connected tr {
+    background-color: white;
+}
+
+.table-connected-row-data.selected {
+  background-color: green;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+th,
+td {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+
+table tr:hover {
+  background-color: #EBEBEB; /* Set the background color on hover */
+}
+
+td:nth-child(5) {
+    border-right: 1px solid #ccc;
+}
+
+.content table tbody tr:hover {
+    background-color: #f2f2f2;
+}
+
+.row-data.selected {
+    background-color: green;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* EXTENDERS */
+.counter_badge {
+  background-color: #fa3e3e;
+  border-radius: 2px;
+  color: white;
+
+  padding: 1px 3px;
+  font-size: 10px;
+
+  position: absolute; /* Position the badge within the relatively positioned button */
+  top: 0;
+  right: 0;
+}
