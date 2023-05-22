@@ -189,6 +189,7 @@ async function makeAjaxRequest(data) {
           var fileContent = responseData.fileContent;
 
           var informationContainer = document.querySelector('.information-container');
+          informationContainer.innerHTML = '';
           var preElement = document.createElement('pre');
           preElement.textContent = responseData.fileContent;
           informationContainer.appendChild(preElement);
@@ -202,6 +203,7 @@ async function makeAjaxRequest(data) {
         var fileContent = responseData.fileContent;
 
         var tasksContainer = document.querySelector('.tasks-container');
+        tasksContainer.innerHTML = '';
         var preElement = document.createElement('pre');
         preElement.textContent = responseData.fileContent;
         tasksContainer.appendChild(preElement);
