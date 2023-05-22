@@ -105,11 +105,9 @@
 		<div class="Display">
 			<div class="Screenshots">
 				<div class="screenshots-slider-wrapper">
-					<div class="screenshots-slider">
-						<div class="screenshots-slider-nav"></div>
-					</div>
+					<div class="screenshots-slider"></div>
+					<div class="screenshots-slider-nav"></div>
 				</div>
-
 			</div>
 			<div class="information-container"></div>
 			<div class="tasks-container"></div>
@@ -117,41 +115,41 @@
 
 		<section>
 			<div class="ConnectionHistory">
-		<div class="table-history-wrapper">
-			<div class="table-history">
-				<h1>Connection History</h1>
-				<table>
-					<thead>
-						<tr>
-							<th>Client MAC</th>
-							<th>IP Address</th>
-							<th>Hostname</th>
-							<th>Logged User</th>
-							<th>Boot Time</th>
-							<th>Connection Time</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for endpoint, time in history.items() %}
-						<tr>
-							<td>{{ endpoint.client_mac }}</td>
-							<td>{{ endpoint.ip }}</td>
-							<td>{{ endpoint.ident }}</td>
-							<td>{{ endpoint.user }}</td>
-							<td>{{ endpoint.boot_time }}</td>
-							<td>{{ endpoint.connection_time }}</td>
-						</tr>
-						{% endfor %}
-						{% if not history %}
-						<tr>
-							<td colspan="6">No endpoints found.</td>
-						</tr>
-						{% endif %}
-					</tbody>
-				</table>
+				<div class="table-history-wrapper">
+					<div class="table-history">
+						<h1>Connection History</h1>
+						<table>
+							<thead>
+								<tr>
+									<th>Client MAC</th>
+									<th>IP Address</th>
+									<th>Hostname</th>
+									<th>Logged User</th>
+									<th>Boot Time</th>
+									<th>Connection Time</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for endpoint, time in history.items() %}
+								<tr>
+									<td>{{ endpoint.client_mac }}</td>
+									<td>{{ endpoint.ip }}</td>
+									<td>{{ endpoint.ident }}</td>
+									<td>{{ endpoint.user }}</td>
+									<td>{{ endpoint.boot_time }}</td>
+									<td>{{ endpoint.connection_time }}</td>
+								</tr>
+								{% endfor %}
+								{% if not history %}
+								<tr>
+									<td colspan="6">No endpoints found.</td>
+								</tr>
+								{% endif %}
+							</tbody>
+						</table>
+					</div>
+				</div>
 			</div>
-		</div>
-	</div>
 		</section>
 
 		<footer>
@@ -164,4 +162,3 @@
 	</main>
 </body>
 </html>
-
