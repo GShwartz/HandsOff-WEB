@@ -49,9 +49,10 @@
     opacity: 1;
 }
 
-.container {  display: grid;
+.container {
+  display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 0.3fr 1.2fr 0.3fr 0.3fr 3.6fr 0.3fr;
+  grid-template-rows: 0.3fr 1.2fr 0.3fr 0.3fr 1fr 0.3fr;
   gap: 0px 0px;
   grid-auto-flow: row;
   grid-template-areas:
@@ -61,7 +62,6 @@
     "Extenders"
     "Display"
     "Footer";
-
   overflow-x: hidden;
 }
 
@@ -77,12 +77,120 @@
 
 .TopNav { grid-area: TopNav; }
 
-body {
-  margin: 0;
-  padding: 0;
-  max-width: 850;
-  background-color: hsl(221, 100%, 95%);
-  overflow-x: hidden;
+html, body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.topHalf,
+.bottomHalf {
+    display: flex;
+}
+
+.topHalf {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    background-color: green;
+    overflow-y: auto;
+    align-self: flex-start; /* Added align-self property */
+}
+
+.bottomHalf {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow-y: auto;
+}
+
+.bottomHalf .Display {
+    margin-top: auto;
+}
+
+.ServerInfo,
+.Controller,
+.Extenders {
+    background-color: lightgray;
+    width: 100%;
+}
+
+.TopNav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3rem;
+  max-height: 3rem;
+  background-color: #54040E;
+  align-items: center;
+  z-index: 10;
+}
+
+.ServerInfo {
+  position: fixed;
+  top: 3rem;
+  max-height: 3rem;
+  width: 100%;
+  z-index: 1;
+  margin-bottom: 0; /* Added to remove bottom margin */
+}
+
+.Controller {
+  position: sticky;
+  top: 12rem;
+  width: 100%;
+  height: 100%;
+  background-color: #f2f2f2;
+  border: 2px solid #ccc;
+  z-index: 10;
+  transition: top 0.3s; /* Added transition for smooth movement */
+}
+
+.Extenders {
+    display: flex;
+    height: 65px;
+    width: 100%;
+    background-color: #f2f2f2;
+    z-index: 5;
+    border: 2px solid #ccc;
+}
+
+.Display {
+    display: flex;
+    flex-grow: 1;
+    border: 2px solid black;
+    box-shadow: 0 0 5px #54040E;
+    width: 850px;
+    height: 400px;
+    z-index: 1;
+}
+
+.connectionHistory {
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  background-color: purple;
+  padding: 5px;
+  font-weight: bold;
+  z-index: 2;
+}
+
+.Footer {
+  position: fixed;
+  flex-shrink: 0;
+  margin-top: auto;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3rem;
+  background-color: #54040E;
+  z-index: 2;
 }
 
 h1 {
@@ -100,17 +208,7 @@ h1 {
   padding: 2px;
 }
 
-.TopNav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3rem;
-  max-height: 3rem;
-  background-color: #54040E;
-  align-items: center;
-  z-index: 1;
-}
+
 
 .top-nav-logo {
   position: relative;
@@ -128,14 +226,7 @@ h1 {
   max-height: 100%;
 }
 
-.ServerInfo {
-  position: fixed;
-  top: 3rem;
-  max-height: 3rem;
-  width: 100%;
-  z-index: 2;
-  margin-bottom: 0; /* Added to remove bottom margin */
-}
+
 
 .server-table, table {
     margin-top: 0;
@@ -157,22 +248,23 @@ h1 {
     background-color: white;
 }
 
-.ConnectedStations {
+.connectedStations {
   position: fixed;
+  top: 3rem;
+  margin-top: 3rem; /* Added to create space for ServerInfo */
+  flex-grow: 1;
   width: 100%;
-  z-index: 2;
-  margin-top: 1;
-  margin-bottom: 0;
-  min-height: 100px; /* Adjust the min-height value as needed */
+  transition: max-height 0.3s; /* Added transition for smooth height change */
+  overflow: hidden; /* Hide overflowing content */
 }
 
 .table-connected {
-  margin-top: 0;
   width: 100%;
-  max-height: 170px; /* Set the initial max-height to a suitable value */
+  max-height: 250px;
   border-collapse: collapse;
   overflow-y: auto;
   z-index: 1;
+  box-shadow: 0 2px 2px -2px rgba(0, 0, 0, 0.2);
 }
 
 .table-connected thead {
@@ -208,18 +300,7 @@ td {
     border: 1px solid #ccc;
 }
 
-.Controller {
-  margin-bottom: 0;
-  margin-top: 0;
-  top 0;
-  position: relative;
-  padding: 10px 1px;
-  width: 100%;
-  height: 40px;
-  z-index: 2;
-  background-color: #f2f2f2;
-  border: 2px solid #ccc;
-}
+
 
 .controller-buttons-container {
   display: flex;
@@ -252,32 +333,19 @@ td {
   background-color: #191970;
 }
 
-.Extenders {
-  position: relative;
-  margin-bottom: 0;
-  display: flex;
-  height: 60px;
-  width: 100%;
-  background-color: #f2f2f2;
-  z-index: 5;
-  border: 2px solid #ccc;
-}
+
 
 .extenders-wrapper {
+  position: sticky;
   display: flex;
-  bottom: 1px;
-  max-height: 100%;
-  justify-content: center;
-  align-items: center;
-  width: 100%; /* Add this line to ensure the wrapper expands to full width */
+  justify-content: center; /* Add this line to horizontally center the buttons */
+  width: 100%;
 }
 
 .extender-button {
-  flex: 0 0 auto;
-  padding: 10px 20px;
-  margin: 5px; /* Adjust the margin value to add space between the buttons */
+  margin: 10px; /* Adjust the margin value to add space between the buttons */
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   background-color: #3498db;
   color: #ffffff;
   font-size: 16px;
@@ -299,42 +367,27 @@ td {
   outline: none;
 }
 
-.Display {
-  position: relative;
-  margin: 1rem auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid black;
-  box-shadow: 0 0 5px #54040E;
-  overflow-x: hidden;
-  top: 350px;
-  width: 60%;
-  height: 500px;
-  z-index: 1;
-}
+
 
 .screenshots-slider-wrapper {
     display: flex;
-    width: 1150px;
-    height: 500px;
+    width: 100%;
+    height: 400px;
     overflow-y: hidden;
     flex-grow: 1;
 }
 
 .screenshots-slider-container {
     display: flex;
-    width: 1150px;
+    width: 100%;
     height: 100%;
     overflow-y: hidden;
 }
 
 .screenshots-slider {
-    width: 1150px;
+    width: 100%;
     height: 100%;
     display: flex;
-    aspect-ratio: 16 / 9;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     flex-direction: row;
@@ -344,7 +397,7 @@ td {
 
 .screenshots-slider img {
     width: 100%;
-    flex: 1 0 100%;
+    height: 100%;
     scroll-snap-align: start;
     object-fit: fill;
     border: 2px solid black;
@@ -376,7 +429,7 @@ td {
 .screenshots-slider-nav a {
     width: 0.5rem;
     height: 3rem;
-    border-radius: 50%;
+    border-radius: 80%;
     opacity: 0.75;
     transition: opacity ease 250ms;
 }
@@ -389,7 +442,7 @@ td {
   width: 100%;
   display: flex;
   height: 500px;
-  overflow: auto;
+  overflow-y: auto;
   padding-left: 10px;
 }
 
@@ -412,19 +465,19 @@ td {
   overflow: hidden;
 }
 
-.ConnectionHistory {
-  position: relative;
-  margin-top: 25rem;
-  width: 100%;
-  z-index: 1; /* Adjusted z-index */
+
+
+.history-wrapper {
+    position: relative;
+    z-index: 1;
 }
 
 .table-history {
   text-align: center;
   border-collapse: collapse;
   max-height: 8rem; /* Adjust this value to limit the number of rows */
-  margin-top: 1px;
   overflow-y: auto;
+  margin-bottom: 3rem;
 }
 
 .table-history tbody tr {
@@ -450,15 +503,7 @@ td {
   background-color: #f2f2f2;
 }
 
-.Footer {
-  position: relative;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 3rem;
-  background-color: #54040E;
-  z-index: 5; /* Adjusted z-index */
-}
+
 
 .footer-logo {
   position: relative;

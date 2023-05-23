@@ -40,6 +40,16 @@ fetch('/shell_data', {
 const updateSlider = (images, hostname) => {
     slider.innerHTML = '';
     sliderNav.innerHTML = '';
+     // Get the number of images in the slider
+    const sliderImages = document.querySelectorAll('.screenshots-slider img');
+    const imageCount = sliderImages.length;
+
+    // Add the 'centered' class to the Display if there is only one image
+    if (imageCount === 1) {
+      const displayElement = document.querySelector('.Display');
+      displayElement.classList.add('centered');
+    }
+
     for (let i = images.length - 1; i >= 0; i--) {
         const image = images[i];
         const img = document.createElement('img');
@@ -102,6 +112,8 @@ rows.forEach((row) => {
                     console.error('Error while getting images:', error);
                 });
 
+
+
             // Send selected row data to server
             fetch('/shell_data', {
                 method: 'POST',
@@ -124,3 +136,5 @@ rows.forEach((row) => {
         }
     });
 });
+
+
