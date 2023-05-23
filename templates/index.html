@@ -4,6 +4,7 @@
 	<meta name="author" content="Gil Shwartz">
 	<meta charset="UTF-8">
 	<meta name="description" content="A C&C for IT Admins">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="{{ url_for('static', filename='table_data.js') }}" defer></script>
@@ -12,154 +13,156 @@
 
 <html>
 <body>
-	<main>
-		<section>
-			<div class="TopNav">
-				<div class="top-nav-logo">
-					<img src="static/images/handsoff-low-resolution-logo-color-on-transparent-background.png">
-				</div>
-			</div>
-		</section>
-		<section>
-			<div class="ServerInfo">
-				<div class="server-table">
-					<table>
-						<thead>
-							<tr>
-								<th>serving on</th>
-								<th>boot time</th>
-								<th>server version</th>
-								<th>connected stations</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>{{ serving_on }}</td>
-								<td>{{ boot_time }}</td>
-								<td>{{ server_version }}</td>
-								<td>{{ connected_stations }}</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<div class="ConnectedStations" id="connectedStations">
-					<h1>Connected Stations</h1>
-					<div class="table-connected">
-						<table>
-							<thead>
-								<tr>
-									<th>Client MAC</th>
-									<th>IP Address</th>
-									<th>Hostname</th>
-									<th>Logged User</th>
-									<th>Boot Time</th>
-									<th>Client Version</th>
-								</tr>
-							</thead>
-							<tbody>
-								{% for endpoint in endpoints %}
-								<tr class="table-connected-row-data" data-id="{{ endpoint.client_mac }}" data-ip="{{ endpoint.ip }}" data-hostname="{{ endpoint.ident }}" data-user="{{ endpoint.user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
-									<td>{{ endpoint.client_mac }}</td>
-									<td>{{ endpoint.ip }}</td>
-									<td>{{ endpoint.ident }}</td>
-									<td>{{ endpoint.user }}</td>
-									<td>{{ endpoint.boot_time }}</td>
-									<td>{{ endpoint.client_version }}</td>
-								</tr>
-								{% endfor %}
-								{% if not endpoints %}
-								<tr>
-									<td colspan="6">No endpoints found.</td>
-								</tr>
-								{% endif %}
-							</tbody>
-						</table>
-					</div>
-					<section>
-						<div class="Controller">
-						<div class="controller-buttons-container">
-							<button class="button" data-action="screenshot">SCREENSHOT</button>
-							<button class="button" data-action="anydesk">ANYDESK</button>
-							<button class="button" data-action="sysinfo">SYSTEM</button>
-							<button class="button" data-action="tasks">TASKS</button>
-							<button id="restart" class="button" data-action="restart">RESTART</button>
-							<button class="button" data-action="local">LOCALS</button>
-							<button id="update" class="button" data-action="update">UPDATE</button>
-							<script src="{{ url_for('static', filename='controller.js') }}" defer></script>
-						</div>
-					</div>
-					</section>
-					<section>
-						<div class="Extenders">
-						<div class="extenders-wrapper">
-							<button class="extender-button" id="screenshots-button">Screenshots</button>
-							<button class="extender-button" id="information-button">Information</button>
-							<button class="extender-button" id="tasks-button">Tasks</button>
-						</div>
-			</div>
-					</section>
-				</div>
-			</div>
-			<div class="Display">
-				<div class="Screenshots">
-					<div class="screenshots-slider-wrapper">
-						<div class="screenshots-slider"></div>
-						<div class="screenshots-slider-nav"></div>
-					</div>
-				</div>
-				<div class="information-container"></div>
-				<div class="tasks-container"></div>
-			</div>
-		</section>
-
-
-
-		<section>
-			<div class="ConnectionHistory">
-				<h1>Connection History</h1>
-				<div class="table-history-wrapper">
-					<div class="table-history">
-						<table>
-							<thead>
-								<tr>
-									<th>Client MAC</th>
-									<th>IP Address</th>
-									<th>Hostname</th>
-									<th>Logged User</th>
-									<th>Boot Time</th>
-									<th>Connection Time</th>
-								</tr>
-							</thead>
-							<tbody>
-								{% for endpoint, time in history.items() %}
-								<tr>
-									<td>{{ endpoint.client_mac }}</td>
-									<td>{{ endpoint.ip }}</td>
-									<td>{{ endpoint.ident }}</td>
-									<td>{{ endpoint.user }}</td>
-									<td>{{ endpoint.boot_time }}</td>
-									<td>{{ endpoint.connection_time }}</td>
-								</tr>
-								{% endfor %}
-								{% if not history %}
-								<tr>
-									<td colspan="6">No endpoints found.</td>
-								</tr>
-								{% endif %}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</section>
-
-		<footer>
-		<div class="Footer">
-			<div class="footer-logo">
+	<div class="topHalf">
+		<div class="TopNav">
+			<div class="top-nav-logo">
 				<img src="static/images/handsoff-low-resolution-logo-color-on-transparent-background.png">
 			</div>
 		</div>
-	</footer>
-	</main>
+
+		<div class="ServerInfo">
+			<div class="server-table">
+				<table>
+					<thead>
+						<tr>
+							<th>serving on</th>
+							<th>boot time</th>
+							<th>server version</th>
+							<th>connected stations</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>{{ serving_on }}</td>
+							<td>{{ boot_time }}</td>
+							<td>{{ server_version }}</td>
+							<td>{{ connected_stations }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="connectedStations" id="connectedStations">
+			<h1>Connected Stations</h1>
+			<div class="table-connected">
+				<table>
+					<thead>
+						<tr>
+							<th>Client MAC</th>
+							<th>IP Address</th>
+							<th>Hostname</th>
+							<th>Logged User</th>
+							<th>Boot Time</th>
+							<th>Client Version</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for endpoint in endpoints %}
+						<tr class="table-connected-row-data" data-id="{{ endpoint.client_mac }}" data-ip="{{ endpoint.ip }}" data-hostname="{{ endpoint.ident }}" data-user="{{ endpoint.user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
+							<td>{{ endpoint.client_mac }}</td>
+							<td>{{ endpoint.ip }}</td>
+							<td>{{ endpoint.ident }}</td>
+							<td>{{ endpoint.user }}</td>
+							<td>{{ endpoint.boot_time }}</td>
+							<td>{{ endpoint.client_version }}</td>
+						</tr>
+						{% endfor %}
+						{% if not endpoints %}
+						<tr>
+							<td colspan="6">No endpoints found.</td>
+						</tr>
+						{% endif %}
+					</tbody>
+				</table>
+			</div>
+			<div class="Controller">
+				<div class="controller-buttons-container">
+					<button class="button" data-action="screenshot">SCREENSHOT</button>
+					<button class="button" data-action="anydesk">ANYDESK</button>
+					<button class="button" data-action="sysinfo">SYSTEM</button>
+					<button class="button" data-action="tasks">TASKS</button>
+					<button id="restart" class="button" data-action="restart">RESTART</button>
+					<button class="button" data-action="local">LOCALS</button>
+					<button id="update" class="button" data-action="update">UPDATE</button>
+					<script src="{{ url_for('static', filename='controller.js') }}" defer></script>
+				</div>
+				<div class="Extenders" id="extenders">
+					<div class="extenders-wrapper" id="ex-wrapper">
+						<button class="extender-button" id="screenshots-button">Screenshots</button>
+						<button class="extender-button" id="information-button">Information</button>
+						<button class="extender-button" id="tasks-button">Tasks</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="bottomHalf">
+		<div class="Display">
+			<div class="screenshots-slider-wrapper">
+				<div class="screenshots-slider"></div>
+				<div class="screenshots-slider-nav"></div>
+			</div>
+			<div class="information-container"></div>
+			<div class="tasks-container"></div>
+		</div>
+
+		<div class="ConnectionHistory">
+			<div class="table-history-wrapper">
+				<h1>Connection History</h1>
+				<div class="table-history">
+					<table>
+						<thead>
+							<tr>
+								<th>Client MAC</th>
+								<th>IP Address</th>
+								<th>Hostname</th>
+								<th>Logged User</th>
+								<th>Boot Time</th>
+								<th>Connection Time</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for endpoint, time in history.items() %}
+							<tr>
+								<td>{{ endpoint.client_mac }}</td>
+								<td>{{ endpoint.ip }}</td>
+								<td>{{ endpoint.ident }}</td>
+								<td>{{ endpoint.user }}</td>
+								<td>{{ endpoint.boot_time }}</td>
+								<td>{{ endpoint.connection_time }}</td>
+							</tr>
+							{% endfor %}
+							{% if not history %}
+							<tr>
+								<td colspan="6">No endpoints found.</td>
+							</tr>
+							{% endif %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="Footer">
+				<div class="footer-logo">
+					<img src="static/images/handsoff-low-resolution-logo-color-on-transparent-background.png">
+				</div>
+		</div>
+	</div>
+	<script>
+		window.addEventListener('DOMContentLoaded', adjustTopHalfHeight);
+
+		function adjustTopHalfHeight() {
+			const topHalf = document.querySelector('.topHalf');
+			const nestedBottom = document.querySelector('.Extenders');
+
+			if (nestedBottom) {
+				const topHalfHeight = nestedBottom.getBoundingClientRect().bottom;
+				topHalf.style.height = `${topHalfHeight}px`;
+			}
+		}
+	</script>
 </body>
 </html>
