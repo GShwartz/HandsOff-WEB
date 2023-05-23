@@ -162,13 +162,14 @@ html, body {
 }
 
 .Display {
-    display: flex;
-    flex-grow: 1;
-    border: 2px solid black;
-    box-shadow: 0 0 5px #54040E;
-    width: 850px;
-    height: 400px;
-    z-index: 1;
+  display: flex;
+  flex-grow: 1;
+  border: 2px solid black;
+  box-shadow: 0 0 5px #54040E;
+  width: 850px;
+  height: 400px;
+  z-index: 1;
+  margin: 0 auto; /* Add margin: 0 auto; to center the display */
 }
 
 .connectionHistory {
@@ -250,7 +251,7 @@ h1 {
 
 .connectedStations {
   position: fixed;
-  top: 3rem;
+  top: 3.1rem;
   margin-top: 3rem; /* Added to create space for ServerInfo */
   flex-grow: 1;
   width: 100%;
@@ -260,7 +261,7 @@ h1 {
 
 .table-connected {
   width: 100%;
-  max-height: 250px;
+  max-height: 200px;
   border-collapse: collapse;
   overflow-y: auto;
   z-index: 1;
@@ -441,8 +442,9 @@ td {
 .information-container {
   width: 100%;
   display: flex;
-  height: 500px;
-  overflow-y: auto;
+  border-radius: 0.5rem;
+  max-height: 400px; /* Set max-height to match the height of the Display */
+  overflow: auto;
   padding-left: 10px;
 }
 
@@ -455,7 +457,7 @@ td {
   width: 100%;
   display: flex;
   border-radius: 0.5rem;
-  height: 500px;
+  max-height: 400px; /* Set max-height to match the height of the Display */
   overflow: auto;
   padding-left: 10px;
 }
@@ -464,8 +466,6 @@ td {
   display: none;
   overflow: hidden;
 }
-
-
 
 .history-wrapper {
     position: relative;
@@ -502,8 +502,6 @@ td {
   border: 1px solid #ccc;
   background-color: #f2f2f2;
 }
-
-
 
 .footer-logo {
   position: relative;
