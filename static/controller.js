@@ -175,13 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (data === 'error') {
         console.log('error', data);
       }
-      if (responseData.message === 'missing') {
-        console.log('data', responseData);
-        openInstallPopup();
-      }
-      if (responseData.message === 'skipped') {
-        closePopup();
-      }
+
       if (responseData.type === 'system' || responseData.type === 'tasks') {
         if (responseData.type === 'system') {
           var fileName = responseData.fileName;

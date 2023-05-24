@@ -167,6 +167,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   z-index: 1;
+  margin-top: 1rem;
 }
 
 .display-header {
