@@ -83,15 +83,12 @@
 					<button class="button" data-action="sysinfo">SYSTEM</button>
 					<button class="button" data-action="tasks">TASKS</button>
 					<button id="restart" class="button" data-action="restart">RESTART</button>
-					<button class="button" data-action="local">LOCALS</button>
+					<button class="button" data-action="local">LOCAL FILES</button>
 					<button id="update" class="button" data-action="update">UPDATE</button>
 					<script src="{{ url_for('static', filename='controller.js') }}" defer></script>
 				</div>
 				<div class="Extenders" id="extenders">
 					<div class="extenders-wrapper" id="ex-wrapper">
-						<button class="screenshots-button" id="screenshots-button">Screenshots</button>
-						<button class="information-button" id="information-button">Information</button>
-						<button class="tasks-button" id="tasks-button">Tasks</button>
 					</div>
 				</div>
 			</div>
@@ -99,6 +96,16 @@
 	</div>
 
 	<div class="bottomHalf">
+		<div class="headers-wrapper">
+			<div class="display-header">
+				<button class="screenshots-button" id="screenshots-button">Screenshots</button>
+			</div>
+			<div class="information-header">
+				<button class="information-button" id="information-button">Information</button>
+				<button class="tasks-button" id="tasks-button">Tasks</button>
+			</div>
+		</div>
+
 		<div class="display-container">
 			<div class="Display">
 				<div class="screenshots-slider-wrapper">
