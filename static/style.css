@@ -43,7 +43,7 @@
 
 .fade-in {
     opacity: 0;
-    transition: opacity 0.05s ease-in-out;
+    transition: opacity 0.02s ease-in-out;
 }
 .fade-in.visible {
     opacity: 1;
@@ -107,8 +107,6 @@ html, body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
     overflow-y: auto;
     align-self: flex-start;
     width: 100%;
@@ -157,25 +155,35 @@ html, body {
   transition: top 0.3s; /* Added transition for smooth movement */
 }
 
-.Extenders {
+.display-container {
+  position: relative;
   display: flex;
   justify-content: center;
-  gap: 15px;
+  gap: 50px;
+  padding: 1rem 1rem;
 }
 
-.Extenders button:first-child {
-  margin-right: 600px;
+.headers-wrapper {
+  display: flex;
+  justify-content: space-between;
+  z-index: 1;
 }
 
-.Extenders button:nth-child(2) {
-  margin-right: 15px; /* Adjust the value as per your needs */
+.display-header {
+  flex: 1;
+  text-align: center;
+  z-index: 1;
 }
 
-.Extenders button:last-child {
-  margin-left: 15px; /* Adjust the value as per your needs */
+.information-header {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  z-index: 1;
 }
 
 .Display {
+  position: relative;
   display: flex;
   flex-grow: 0;
   border: 3px solid black;
@@ -185,14 +193,8 @@ html, body {
   z-index: 1;
 }
 
-.display-container {
-  display: flex;
-  justify-content: center;
-  gap: 50px;
-  padding: 2rem 2rem;
-}
-
 .Information {
+  position: relative;
   display: flex;
   flex-grow: 0;
   border: 3px solid black;
@@ -203,10 +205,11 @@ html, body {
 }
 
 .information-container {
+  position: relative;
   width: 100%;
   display: flex;
   border-radius: 0.5rem;
-  max-height: calc(100% - 10px); /* Subtract the padding-left value */
+  max-height: 100%;
   overflow: auto;
   padding-left: 10px;
 }
@@ -362,20 +365,12 @@ td {
 
 .controller-buttons-container button:hover {
   color: white;
-  background-color: #54040E;
+  background-color: #DAA520;
 }
 
 .controller-buttons-container button:active {
   transform: translateY(3px);
   background-color: #191970;
-}
-
-.extenders-wrapper {
-  position: sticky;
-  display: flex;
-  justify-content: center; /* Add this line to horizontally center the buttons */
-  width: 100%;
-  height: 90%;
 }
 
 .screenshots-button,
@@ -401,18 +396,12 @@ td {
   -webkit-user-select: none;
   touch-action: manipulation;
   width: auto;
-  padding: 2px 2px; /* Adjust top and bottom padding as needed */
+  padding: 5px 5px; /* Adjust top and bottom padding as needed */
   margin: 5px; /* Add margin for gaps between buttons */
 }
 
-.button-40:hover {
-  background-color: #374151;
-}
-
-.button-40:focus {
-  box-shadow: none;
-  outline: 2px solid transparent;
-  outline-offset: 2px;
+.screenshots-button:hover {
+    cursor: initial;
 }
 
 .screenshots-slider-wrapper {
