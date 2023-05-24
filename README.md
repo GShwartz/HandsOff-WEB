@@ -53,3 +53,5 @@ docker run -p host_port:container_port -e MAIN_PATH=/custom_path -e WEB_PORT=cus
 
 
 <img src="https://github.com/GShwartz/HandsOff-WEB/blob/main/src/01-startup.JPG?raw=true" alt="Startup" width="600" height="400">
+
+<img src="https://github.com/GShwartz/HandsOff-WEB/blob/main/src/02-connected_stations.JPG" alt="Startup" width="600" height="400">
