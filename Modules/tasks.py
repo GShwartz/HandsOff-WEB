@@ -162,7 +162,7 @@ class Tasks:
 
         src = os.path.join(self.tasks_file_path, self.filenameRecv)
         if self.endpoint.conn == self.shell_target:
-            shutil.copy(src, self.local_dir)
+            shutil.move(src, self.local_dir)
 
         # self.logger.debug(f"Calling display_text...")
         # self.display_text()
