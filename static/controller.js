@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8'
         },
-        body: JSON.stringify({ data })
+        body: JSON.stringify({ data, station })
       });
       const responseData = await response.json();
       console.log('Received response from Flask backend:', responseData);
@@ -176,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('error', data);
       }
       if (responseData.message === 'missing') {
+        console.log('data', responseData);
         openInstallPopup();
       }
       if (responseData.message === 'skipped') {
@@ -192,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
           preElement.textContent = responseData.fileContent;
           informationContainer.appendChild(preElement);
 
-          const screenshotsSlider = document.querySelector('screenshots-slider');
+          refreshImageSlider();
           console.log('responseData', fileName);
         } else if (responseData.type === 'tasks') {
           var fileName = responseData.fileName;

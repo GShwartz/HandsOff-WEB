@@ -99,7 +99,6 @@ html, body {
     flex-direction: column;
     justify-content: flex-start;
     align-items: stretch;
-    background-color: green;
     overflow-y: auto;
     align-self: flex-start; /* Added align-self property */
 }
@@ -111,6 +110,8 @@ html, body {
     justify-content: flex-start;
     align-items: stretch;
     overflow-y: auto;
+    align-self: flex-start;
+    width: 100%;
 }
 
 .bottomHalf .Display {
@@ -159,28 +160,27 @@ html, body {
 .Extenders {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  padding: 10px 10px;
+  gap: 15px;
 }
 
 .Extenders button:first-child {
-  margin-right: 400px;
+  margin-right: 600px;
 }
 
 .Extenders button:nth-child(2) {
-  margin-right: 5px; /* Adjust the value as per your needs */
+  margin-right: 15px; /* Adjust the value as per your needs */
 }
 
 .Extenders button:last-child {
-  margin-left: 5px; /* Adjust the value as per your needs */
+  margin-left: 15px; /* Adjust the value as per your needs */
 }
 
 .Display {
   display: flex;
-  flex-grow: 1;
+  flex-grow: 0;
   border: 3px solid black;
   box-shadow: 0 0 5px #54040E;
-  width: 400px;
+  width: 600px;
   height: 400px;
   z-index: 1;
 }
@@ -189,17 +189,26 @@ html, body {
   display: flex;
   justify-content: center;
   gap: 50px;
-  padding: 1rem 1rem;
+  padding: 2rem 2rem;
 }
 
 .Information {
   display: flex;
-  flex-grow: 1;
+  flex-grow: 0;
   border: 3px solid black;
   box-shadow: 0 0 5px #54040E;
-  width: 400px;
+  width: 900px;
   height: 400px;
   z-index: 1;
+}
+
+.information-container {
+  width: 100%;
+  display: flex;
+  border-radius: 0.5rem;
+  max-height: calc(100% - 10px); /* Subtract the padding-left value */
+  overflow: auto;
+  padding-left: 10px;
 }
 
 .connectionHistory {
@@ -217,14 +226,11 @@ html, body {
 
 .Footer {
   position: relative;
-  margin-bottom: 1px;
-
   bottom: 0;
   width: 100%;
   height: 3rem;
   background-color: #54040E;
   z-index: 10;
-  margin-top: 1px;
 }
 
 h1 {
@@ -308,7 +314,7 @@ h1 {
 }
 
 .table-connected tr:hover {
-  background-color: lightgray;
+  background-color: #FFF8DC;
 }
 .table-connected tr.selected {
   background-color: green;
@@ -409,18 +415,6 @@ td {
   outline-offset: 2px;
 }
 
-.extender-button:hover {
-  background-color: #2980b9;
-}
-
-.extender-button:active {
-  background-color: #1f618d;
-}
-
-.extender-button:focus {
-  outline: none;
-}
-
 .screenshots-slider-wrapper {
     width: 100%;
     height: 100%;
@@ -438,6 +432,7 @@ td {
   width:100%;
   height: 100%;
   display: flex;
+  flex-grow: 1;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   flex-direction: row;
@@ -489,14 +484,7 @@ td {
     opacity: 1;
 }
 
-.information-container {
-  width: 100%;
-  display: flex;
-  border-radius: 0.5rem;
-  max-height: 100%; /* Set max-height to match the height of the Display */
-  overflow: auto;
-  padding-left: 10px;
-}
+
 
 .information-container.minimized {
   display: none;
