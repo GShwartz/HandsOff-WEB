@@ -2,9 +2,6 @@
 
 ## Dockerfile Manual
 
-### Introduction
-This Dockerfile sets up a Python 3.11 environment for running an application. It copies the application code into the container, installs the required dependencies, and configures the container to run the application      with customizable parameters.
-
 ### Base Image
 The base image used in this Dockerfile is `python:3.11`. This ensures that the container has Python 3.11 installed as the runtime environment.
 
