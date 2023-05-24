@@ -92,7 +92,7 @@ class Backend:
                 return jsonify({'error': f'No row selected'})
 
             self.logger.debug(f"Calling self.commands.call_anydesk()...")
-            if self.commands.call_anydesk() == 'missing':
+            if self.commands.call_anydesk():
                 self.logger.debug(f"Anydesk missing.")
                 return jsonify({'message': f'missing'})
 
