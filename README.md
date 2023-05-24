@@ -51,3 +51,5 @@ docker run -p host_port:container_port -e MAIN_PATH=/custom_path -e WEB_PORT=cus
 - Replace `/host/path` with the path on the host machine that you want to map to the `/app/static` directory in the container.
 - Finally, provide the name and tag of the Docker image you built with `your_image_name:tag`.
 
+
+<img src="https://github.com/GShwartz/HandsOff-WEB/blob/main/src/01-startup.JPG?raw=true" alt="Startup" width="600" height="400">
