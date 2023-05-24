@@ -92,38 +92,13 @@ class Backend:
                 return jsonify({'error': f'No row selected'})
 
             self.logger.debug(f"Calling self.commands.call_anydesk()...")
-            if self.commands.call_anydesk():
+            if not self.commands.call_anydesk():
                 self.logger.debug(f"Anydesk missing.")
                 return jsonify({'message': f'missing'})
 
-            elif self.commands.call_anydesk() == 'running':
+            else:
                 self.logger.debug(f"Anydesk running.")
-                return jsonify({'message': f'Anydesk running'})
-
-            else:
-                self.logger.debug(f"Anydesk canceled.")
                 return jsonify({'message': 'Anydesk installed & running'})
-
-        if data == 'skip_anydesk':
-            self.logger.debug(f"Calling self.commands.skip_anydesk_install()...")
-            if self.commands.skip_anydesk_install() == 'skipped':
-                self.logger.debug(f"Anydesk skipped.")
-                return jsonify({'message': 'Anydesk install skipped'})
-
-            else:
-                self.logger.debug(f"Skip anydesk failed.")
-                return jsonify({'message': f'skip_failed'})
-
-        if data == 'install_anydesk':
-            self.logger.debug(f"Calling self.commands.install_anydesk()...")
-            if self.commands.install_anydesk() == 'running':
-                running = 'anydesk_running'
-                self.logger.debug(f"sending {running}...")
-                return jsonify({'message': f'{running}'})
-
-            else:
-                self.logger.debug(f"Install anydesk failed.")
-                return jsonify({'message': f'install_failed'})
 
         if data == 'sysinfo':
             latest_file = self.commands.call_sysinfo()
@@ -292,6 +267,9 @@ class Backend:
     def get_ident(self) -> jsonify:
         self.logger.info(f'Running get_ident...')
         for endpoint in self.server.endpoints:
+            if isinstance(self.commands.shell_target, list):
+                continue
+
             if endpoint.conn == self.commands.shell_target:
                 endpoint_ident = endpoint.ident
 
@@ -306,6 +284,9 @@ class Backend:
         self.commands.shell_target = []
         self.logger.debug(fr'shell_target: {self.commands.shell_target}')
         boot_time = last_boot()
+        for endpoint in self.server.endpoints:
+            self.server.check_vital_signs(endpoint)
+
         connected_stations = len(self.server.endpoints)
         self.logger.debug(fr'connected stations: {len(self.server.endpoints)}')
 
