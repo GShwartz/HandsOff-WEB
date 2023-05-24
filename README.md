@@ -51,9 +51,6 @@ docker run -p host_port:container_port -e MAIN_PATH=/custom_path -e WEB_PORT=cus
 - Replace `/host/path` with the path on the host machine that you want to map to the `/app/static` directory in the container.
 - Finally, provide the name and tag of the Docker image you built with `your_image_name:tag`.
 
-### Conclusion
-This Dockerfile provides a customizable environment for running a Python 3.11 application. By adjusting the environment variables during container runtime, you can configure the application's main path, web server       port, server IP address, and server port according to your requirements.
-
 
 <details>
   <summary></summary>
