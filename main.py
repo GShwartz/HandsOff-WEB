@@ -54,7 +54,8 @@ class Backend:
         self.app.errorhandler(404)(self.page_not_found)
 
         self.app.route('/reload')(self.reload)
-        self.app.route('/get_images', methods=['GET'])(self.get_images)
+        self.app.route('/get_images', methods=['GET'])(self.get_files)
+        self.app.route('/get_file_content', methods=['GET'])(self.get_file_content)
         self.app.route('/controller', methods=['POST'])(self.controller)
         self.app.route('/shell_data', methods=['POST', 'GET'])(self.shell_data)
         self.app.route('/kill_task', methods=['POST'])(self.commands.tasks_post_run)
@@ -229,12 +230,21 @@ class Backend:
         self.logger.info(fr'Error 404: Directory not found.')
         return jsonify({'error': 'Directory not found'}), 404
 
-    def get_images(self) -> jsonify:
+    def get_file_content(self):
+        filename = request.args.get('filename')
+        with open(filename, 'r') as file:
+            file_content = file.read()
+
+        return jsonify({'fileContent': file_content})
+
+    def get_files(self) -> jsonify:
         self.logger.info(f'Running get_images...')
         self.logger.debug(fr'Waiting for directory from the frontend...')
         directory = request.args.get('directory')
         self.logger.debug(fr'directory: {directory}')
         images = []
+        sysinfo_files = []
+        tasks_files = []
 
         if os.path.isdir(directory):
             file_names = [os.path.join(directory, f) for f in os.listdir(directory)]
@@ -244,7 +254,13 @@ class Backend:
                 if filename.endswith('.jpg') or filename.endswith('.png'):
                     images.append({'path': filename})
 
-        return jsonify({'images': images})
+                if filename.endswith('txt') and 'systeminfo' in filename:
+                    sysinfo_files.append(filename)
+
+                if filename.endswith('txt') and 'tasks' in filename:
+                    tasks_files.append(filename)
+
+        return jsonify({'images': images, 'info': sysinfo_files, 'tasks': tasks_files})
 
     def shell_data(self) -> jsonify:
         self.logger.info(f'Running shell_data...')
