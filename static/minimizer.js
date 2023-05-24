@@ -8,18 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const tasksHeaderButton = document.getElementById('tasks-button');
   const tasksContainer = document.querySelector('.tasks-container');
 
-  // Apply minimized effect initially if no row is selected or station is false
-  if (!isRowSelected()) {
-//    screenshotGrid.classList.add('minimized');
-    informationContainer.classList.add('minimized');
-    tasksContainer.classList.add('minimized');
-  } else {
-    screenshotGrid.style.backgroundColor = 'green'; // Change background color to green
-  }
-
-  // Modify screenshotHeaderButton to be green when the app starts
-  screenshotHeaderButton.style.backgroundColor = 'green';
-
   // Initial check for station value
   document.dispatchEvent(new CustomEvent('stationValue', { detail: { station: station } }));
 
@@ -32,25 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  screenshotHeaderButton.addEventListener('click', () => {
-    screenshotGrid.classList.toggle('minimized');
-    screenshotHeaderButton.style.backgroundColor = screenshotGrid.classList.contains('minimized') ? '' : 'green';
-    screenshotGrid.style.display = screenshotGrid.classList.contains('minimized') ? 'none' : 'flex';
-//    screenshotGrid.style.backgroundColor = isRowSelected() ? 'green' : '';
-
-    informationContainer.classList.add('minimized');
-    tasksContainer.classList.add('minimized');
-    informationHeaderButton.style.backgroundColor = '';
-    tasksHeaderButton.style.backgroundColor = '';
-  });
-
   informationHeaderButton.addEventListener('click', () => {
     informationContainer.classList.toggle('minimized');
     informationHeaderButton.style.backgroundColor = informationContainer.classList.contains('minimized') ? '' : 'green';
 
-    screenshotGrid.classList.add('minimized');
     tasksContainer.classList.add('minimized');
-    screenshotGrid.style.display = 'none';
+    informationContainer.style.height = informationContainer.classList.contains('minimized') ? '20px' : '';
 
     screenshotHeaderButton.style.backgroundColor = '';
     tasksHeaderButton.style.backgroundColor = '';
@@ -60,13 +35,18 @@ document.addEventListener('DOMContentLoaded', () => {
     tasksContainer.classList.toggle('minimized');
     tasksHeaderButton.style.backgroundColor = tasksContainer.classList.contains('minimized') ? '' : 'green';
 
-    screenshotGrid.classList.add('minimized');
     informationContainer.classList.add('minimized');
-    screenshotGrid.style.display = 'none';
+    tasksContainer.style.height = tasksContainer.classList.contains('minimized') ? '20px' : '';
 
     screenshotHeaderButton.style.backgroundColor = '';
     informationHeaderButton.style.backgroundColor = '';
   });
+
+  // Set initial state for informationContainer and tasksContainer
+  informationContainer.classList.remove('minimized');
+  informationHeaderButton.style.backgroundColor = 'green';
+
+  tasksContainer.classList.add('minimized');
 });
 
 // Function to check if any row is selected

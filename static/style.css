@@ -83,11 +83,15 @@ html, body {
     display: flex;
     flex-direction: column;
     height: 100%;
+    width: 203vh;
+    background-color: #FFF8DC;
+    overflow-x: hidden;
 }
 
 .topHalf,
 .bottomHalf {
     display: flex;
+    overflow-x: hidden;
 }
 
 .topHalf {
@@ -111,6 +115,7 @@ html, body {
 
 .bottomHalf .Display {
     margin-top: auto;
+    margin-bottom: auto;
 }
 
 .ServerInfo,
@@ -126,7 +131,6 @@ html, body {
   left: 0;
   width: 100%;
   height: 3rem;
-  max-height: 3rem;
   background-color: #54040E;
   align-items: center;
   z-index: 10;
@@ -153,45 +157,74 @@ html, body {
 }
 
 .Extenders {
-    display: flex;
-    height: 65px;
-    width: 100%;
-    background-color: #f2f2f2;
-    z-index: 5;
-    border: 2px solid #ccc;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 10px;
+}
+
+.Extenders button:first-child {
+  margin-right: 400px;
+}
+
+.Extenders button:nth-child(2) {
+  margin-right: 5px; /* Adjust the value as per your needs */
+}
+
+.Extenders button:last-child {
+  margin-left: 5px; /* Adjust the value as per your needs */
 }
 
 .Display {
   display: flex;
   flex-grow: 1;
-  border: 2px solid black;
+  border: 3px solid black;
   box-shadow: 0 0 5px #54040E;
-  width: 850px;
+  width: 400px;
   height: 400px;
   z-index: 1;
-  margin: 0 auto; /* Add margin: 0 auto; to center the display */
+}
+
+.display-container {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  padding: 1rem 1rem;
+}
+
+.Information {
+  display: flex;
+  flex-grow: 1;
+  border: 3px solid black;
+  box-shadow: 0 0 5px #54040E;
+  width: 400px;
+  height: 400px;
+  z-index: 1;
 }
 
 .connectionHistory {
   position: relative;
+  display: flex;
   flex-shrink: 0;
   width: 100%;
   background-color: purple;
   padding: 5px;
   font-weight: bold;
   z-index: 2;
+  margin-bottom: auto;
+  bottom: 0;
 }
 
 .Footer {
-  position: fixed;
-  flex-shrink: 0;
-  margin-top: auto;
+  position: relative;
+  margin-bottom: 1px;
+
   bottom: 0;
-  left: 0;
   width: 100%;
   height: 3rem;
   background-color: #54040E;
-  z-index: 2;
+  z-index: 10;
+  margin-top: 1px;
 }
 
 h1 {
@@ -209,8 +242,6 @@ h1 {
   padding: 2px;
 }
 
-
-
 .top-nav-logo {
   position: relative;
   width: 20%;
@@ -226,8 +257,6 @@ h1 {
   width: auto;
   max-height: 100%;
 }
-
-
 
 .server-table, table {
     margin-top: 0;
@@ -278,7 +307,9 @@ h1 {
     background-color: white;
 }
 
-.table-connected tr:hover,
+.table-connected tr:hover {
+  background-color: lightgray;
+}
 .table-connected tr.selected {
   background-color: green;
 }
@@ -301,8 +332,6 @@ td {
     border: 1px solid #ccc;
 }
 
-
-
 .controller-buttons-container {
   display: flex;
   flex-wrap: wrap;
@@ -321,6 +350,7 @@ td {
   width: 150px;
   height: 35px;
   left: 200px;
+  padding: 2px 2px;
   transition: background-color 0.2s, transform 0.3s;
 }
 
@@ -334,26 +364,49 @@ td {
   background-color: #191970;
 }
 
-
-
 .extenders-wrapper {
   position: sticky;
   display: flex;
   justify-content: center; /* Add this line to horizontally center the buttons */
   width: 100%;
+  height: 90%;
 }
 
-.extender-button {
-  margin: 10px; /* Adjust the margin value to add space between the buttons */
-  border: none;
-  border-radius: 10px;
-  background-color: #3498db;
-  color: #ffffff;
-  font-size: 16px;
-  text-align: center;
-  text-decoration: none;
+.screenshots-button,
+ .information-button,
+ .tasks-button {
+  background-color: #111827;
+  border: 1px solid transparent;
+  border-radius: .75rem;
+  box-sizing: border-box;
+  color: #FFFFFF;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  flex: 0 0 auto;
+  font-family: Arial, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none #6B7280 solid;
+  text-decoration-thickness: auto;
+  transition-duration: .2s;
+  transition-property: background-color,border-color,color,fill,stroke;
+  transition-timing-function: cubic-bezier(.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: auto;
+  padding: 2px 2px; /* Adjust top and bottom padding as needed */
+  margin: 5px; /* Add margin for gaps between buttons */
+}
+
+.button-40:hover {
+  background-color: #374151;
+}
+
+.button-40:focus {
+  box-shadow: none;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
 }
 
 .extender-button:hover {
@@ -368,44 +421,41 @@ td {
   outline: none;
 }
 
-
-
 .screenshots-slider-wrapper {
-    display: flex;
     width: 100%;
-    height: 400px;
+    height: 100%;
     overflow-y: hidden;
-    flex-grow: 1;
 }
 
 .screenshots-slider-container {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    overflow-y: hidden;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow-y: hidden;
 }
 
 .screenshots-slider {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    flex-direction: row;
-    box-shadow: 0 1.5rem 3rem -1.75rem hsla(0, 0%, 0%, 0.25);
-    border-radius: 0.5rem;
+  width:100%;
+  height: 100%;
+  display: flex;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  flex-direction: row;
+  box-shadow: 0 1.5rem 3rem -1.75rem hsla(0, 0%, 0%, 0.25);
+  border-radius: 0.5rem;
+  padding: 0; /* Remove any padding to ensure proper image stretching */
 }
 
 .screenshots-slider img {
-    width: 100%;
-    height: 100%;
-    scroll-snap-align: start;
-    object-fit: fill;
-    border: 2px solid black;
+  width: 100%;
+  height: 100%;
+  scroll-snap-align: start;
+  object-fit: fill;
+  border: 1px solid black;
 }
 
 .screenshots-slider::-webkit-scrollbar {
-  width: 10px; /* Adjust the width as needed */
+  width: 10px;
 }
 
 .screenshots-slider::-webkit-scrollbar-track {
@@ -443,7 +493,7 @@ td {
   width: 100%;
   display: flex;
   border-radius: 0.5rem;
-  max-height: 400px; /* Set max-height to match the height of the Display */
+  max-height: 100%; /* Set max-height to match the height of the Display */
   overflow: auto;
   padding-left: 10px;
 }
@@ -455,9 +505,9 @@ td {
 
 .tasks-container {
   width: 100%;
+  max-height: 100%; /* Set max-height to match the height of the Display */
   display: flex;
   border-radius: 0.5rem;
-  max-height: 400px; /* Set max-height to match the height of the Display */
   overflow: auto;
   padding-left: 10px;
 }
@@ -477,7 +527,6 @@ td {
   border-collapse: collapse;
   max-height: 8rem; /* Adjust this value to limit the number of rows */
   overflow-y: auto;
-  margin-bottom: 3rem;
 }
 
 .table-history tbody tr {
@@ -504,7 +553,7 @@ td {
 }
 
 .footer-logo {
-  position: relative;
+  position: sticky;
   width: 100%;
   height: 80%;
   top: 5px;

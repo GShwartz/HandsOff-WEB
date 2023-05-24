@@ -191,9 +191,8 @@ document.addEventListener('DOMContentLoaded', function() {
           var preElement = document.createElement('pre');
           preElement.textContent = responseData.fileContent;
           informationContainer.appendChild(preElement);
+
           const screenshotsSlider = document.querySelector('screenshots-slider');
-          screenshotsSlider.classList.add('minimized');
-          screenshotsSlider.style.display = 'none';
           console.log('responseData', fileName);
         } else if (responseData.type === 'tasks') {
           var fileName = responseData.fileName;

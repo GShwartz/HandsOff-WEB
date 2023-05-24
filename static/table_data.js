@@ -37,18 +37,10 @@ fetch('/shell_data', {
 });
 
 // Update image slider
-const updateSlider = (images, hostname) => {
+const updateSlider = (images, hostname, sysinfoFiles) => {
+    // Update the slider with the new images
     slider.innerHTML = '';
     sliderNav.innerHTML = '';
-     // Get the number of images in the slider
-    const sliderImages = document.querySelectorAll('.screenshots-slider img');
-    const imageCount = sliderImages.length;
-
-    // Add the 'centered' class to the Display if there is only one image
-    if (imageCount === 1) {
-      const displayElement = document.querySelector('.Display');
-      displayElement.classList.add('centered');
-    }
 
     for (let i = images.length - 1; i >= 0; i--) {
         const image = images[i];
@@ -61,7 +53,33 @@ const updateSlider = (images, hostname) => {
         navLink.href = `#${image.alt}`;
         sliderNav.appendChild(navLink);
     }
-}
+
+    // Display sysinfo files and fetch the content of the newest sysinfo file
+    const informationContainer = document.getElementById('information-container');
+    informationContainer.innerHTML = '';
+
+    if (sysinfoFiles.length > 0) {
+        const newestSysinfoFile = sysinfoFiles[sysinfoFiles.length - 1];
+
+        // Fetch the content of the newest sysinfo file
+        fetch(`/get_file_content?filename=${newestSysinfoFile}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                const fileContent = data.fileContent;
+                const fileContentElement = document.createElement('pre');
+                fileContentElement.innerText = fileContent;
+                informationContainer.appendChild(fileContentElement);
+            })
+            .catch(error => {
+                console.error('Error while getting file content:', error);
+            });
+    }
+};
 
 // Add event listeners to buttons and rows
 rows.forEach((row) => {
@@ -106,13 +124,11 @@ rows.forEach((row) => {
                 .then(data => {
                     console.log('Received row response from server:', data);
                     // Update the slider with the new images
-                    updateSlider(data.images, hostname);
+                    updateSlider(data.images, hostname, data.info);
                 })
                 .catch(error => {
                     console.error('Error while getting images:', error);
                 });
-
-
 
             // Send selected row data to server
             fetch('/shell_data', {
