@@ -53,7 +53,7 @@ class Commands:
         self.logger.debug(f'End of OK in msg loop.')
         self.logger.info(f'anydesk_command completed.')
         running = 'running'
-        return running
+        return True
 
     def call_anydesk(self) -> bool:
         self.logger.info(f'Running anydesk_command...')
@@ -69,7 +69,7 @@ class Commands:
 
                 if "OK" not in msg:
                     missing = 'missing'
-                    return missing
+                    self.install_anydesk()
 
                 else:
                     return jsonify({'message': f'Anydesk running on {matching_endpoint}'}), 200
