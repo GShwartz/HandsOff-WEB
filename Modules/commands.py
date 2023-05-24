@@ -69,10 +69,22 @@ class Commands:
 
                 if "OK" not in msg:
                     missing = 'missing'
-                    self.install_anydesk()
+                    matching_endpoint = self.find_matching_endpoint()
+                    self.logger.debug(f'Sending install command to {matching_endpoint.conn}')
+                    matching_endpoint.conn.send('y'.encode())
+                    msg = matching_endpoint.conn.recv(1024).decode()
+                    while "OK" not in msg:
+                        self.logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
+                        msg = matching_endpoint.conn.recv(1024).decode()
+                        self.logger.debug(f'{matching_endpoint.ip}: {msg}...')
+
+                    self.logger.debug(f'End of OK in msg loop.')
+                    self.logger.info(f'anydesk_command completed.')
+                    running = 'running'
+                    return True
 
                 else:
-                    return jsonify({'message': f'Anydesk running on {matching_endpoint}'}), 200
+                    return True
 
             except (WindowsError, ConnectionError, socket.error, RuntimeError) as e:
                 self.logger.error(f'Connection Error: {e}.')

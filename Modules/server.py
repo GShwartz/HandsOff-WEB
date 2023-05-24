@@ -173,9 +173,7 @@ class Server:
 
         if str(ans) == str(self.callback):
             try:
-                self.app.update_statusbar_messages_thread(
-                    msg=f'Station IP: {endpoint.ip} | Station Name: {endpoint.ident} - ALIVE!')
-
+                self.logger.debug(f'Station IP: {endpoint.ip} | Station Name: {endpoint.ident} - ALIVE!')
             except (IndexError, RuntimeError):
                 return
 
@@ -197,7 +195,6 @@ class Server:
 
         self.callback = 'yes'
         self.logger.debug(f'Updating statusbar message: running vitals check....')
-        self.app.update_statusbar_messages_thread(msg=f'running vitals check...')
         threads = []
         for endpoint in self.endpoints:
             thread = Thread(target=self.check_vital_signs, args=(endpoint,))
