@@ -59,10 +59,11 @@ docker run -p host_port:container_port -e MAIN_PATH=/custom_path -e WEB_PORT=cus
 
 or if you chose the .env way
 ```
-sudo docker run -p <host_web_port:container_port> -p <host_server_port>:<container_server_port> -v <host_dir>:/static/images <image-name:tag>
+docker run -p <host_web_port:container_port> -p <host_server_port>:<container_server_port> -v <host_dir>:/static/images <image-name:tag>
 ```
 
-
+After running the container, you can access the application by opening a web browser and visiting http://url:<host_web_port>. 
+The application should be up and running, allowing you to interact with it. <br /> <br />
 
 <img src="https://github.com/GShwartz/HandsOff-WEB/blob/main/src/01-startup.JPG?raw=true" alt="Startup" width="600" height="400">
 
