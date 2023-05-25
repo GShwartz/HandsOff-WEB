@@ -9,7 +9,7 @@ eventlet
 pwinput
 pyftpdlib
 six
-python-socketio
+flask-socketio
 Flask
 requests
 psutil
