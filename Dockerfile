@@ -25,5 +25,4 @@ VOLUME ["/app/static"]
 
 EXPOSE $WEB_PORT $SERVER_PORT
 
-# Run main.py when the container launches
-CMD ["python", "main.py", "$WEB_PORT", "$SERVER_PORT", "$MAIN_PATH", "$SERVER_IP"]
+CMD python main.py $WEB_PORT $SERVER_PORT $MAIN_PATH $SERVER_IP
