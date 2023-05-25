@@ -347,6 +347,8 @@ def main():
     server_version = os.getenv('SERVER_VERSION')
     logger = init_logger(log_path, __name__)
 
+    check_platform(main_path)
+    
     try:
         os.makedirs(str(main_path))
 
