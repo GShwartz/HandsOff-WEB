@@ -81,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
       makeAjaxRequest('tasks');
+
     } else {
       makeAjaxRequest(action);
     }
@@ -175,7 +176,16 @@ document.addEventListener('DOMContentLoaded', function() {
       if (data === 'error') {
         console.log('error', data);
       }
-
+      if (responseData.message === 'missing') {
+        console.log('data', responseData);
+        openInstallPopup();
+      }
+      if (responseData.message === 'skipped') {
+        closePopup();
+      }
+      if (responseData.files.length > 0) {
+        console.log('Local:', responseData.files)
+      }
       if (responseData.type === 'system' || responseData.type === 'tasks') {
         if (responseData.type === 'system') {
           var fileName = responseData.fileName;
