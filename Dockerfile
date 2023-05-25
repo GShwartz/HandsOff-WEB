@@ -23,6 +23,8 @@ RUN pip install --no-cache-dir --trusted-host pypi.python.org -r requirements.tx
 
 VOLUME ["/app/static"]
 
+RUN mkdir -p $MAIN_PATH
+
 EXPOSE $WEB_PORT $SERVER_PORT
 
 CMD python main.py -wp $WEB_PORT -sp $SERVER_PORT -mp $MAIN_PATH -ip $SERVER_IP
