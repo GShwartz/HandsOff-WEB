@@ -338,7 +338,7 @@ def main():
     parser.add_argument('-ip', '--server_ip', type=str, help='Server IP')
     args = parser.parse_args()
 
-    load_dotenv('.env')
+    load_dotenv()
     web_port = args.web_port if args.web_port else int(os.getenv('WEB_PORT'))
     server_port = args.server_port if args.server_port else int(os.getenv('SERVER_PORT'))
     main_path = args.main_path if args.main_path else str(os.getenv('MAIN_PATH'))
