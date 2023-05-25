@@ -74,7 +74,7 @@ class Server:
                 self.get_boot_time()
                 self.logger.debug(f'Client Boot time: {self.boot_time}.')
 
-            except (WindowsError, socket.error, UnicodeDecodeError) as e:
+            except (Exception, socket.error, UnicodeDecodeError) as e:
                 self.logger.debug(f'Connection Error: {e}.')
                 return  # Restart The Loop
 
@@ -109,7 +109,7 @@ class Server:
             self.logger.debug(f'{self.welcome} sent to {self.ident}.')
             return True
 
-        except (WindowsError, socket.error) as e:
+        except (Exception, socket.error) as e:
             self.logger.error(f'Connection Error: {e}.')
             if self.fresh_endpoint in self.endpoints:
                 self.logger.debug(f'Calling remove_lost_connection({self.fresh_endpoint})...')
@@ -166,7 +166,7 @@ class Server:
             endpoint.conn.send('alive'.encode())
             ans = endpoint.conn.recv(1024).decode()
 
-        except (WindowsError, socket.error, UnicodeDecodeError) as e:
+        except (Exception, socket.error, UnicodeDecodeError) as e:
             self.logger.debug(f'removing {endpoint}...')
             self.remove_lost_connection(endpoint)
             return
