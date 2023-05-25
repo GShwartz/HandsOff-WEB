@@ -180,7 +180,7 @@ class Backend:
 
                 if file_list is not None:
                     self.logger.debug(f"Local files completed.")
-                    return jsonify({'message': 'Local message sent.', 'files': file_list})
+                    return jsonify({'message': 'local_linux', 'files': file_list})
 
                 else:
                     self.logger.warning("Failed to access local files.")
