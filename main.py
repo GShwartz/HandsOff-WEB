@@ -20,6 +20,7 @@ import os
 from Modules.logger import init_logger
 from Modules.commands import Commands
 from Modules.server import Server
+from Modules.utils import Handlers
 
 
 class Backend:
@@ -30,6 +31,7 @@ class Backend:
         self.server = server
         self.version = version
         self.port = port
+        self.app_path = 'static\images'
 
         self.station = False
         self.images = {}
@@ -172,8 +174,9 @@ class Backend:
             self.logger.debug(f"{matching_endpoint}")
             if matching_endpoint:
                 self.logger.debug(f"Calling self.browse_local_files({matching_endpoint.ident})...")
-                self.browse_local_files(matching_endpoint.ident)
-                self.logger.debug(f"Local completed.")
+                self.local_dir = os.path.join('static', 'images', matching_endpoint.ident)
+                self.browse_local_files()
+                self.logger.debug(f"Local files completed.")
                 return jsonify({'message': 'Local message sent.'})
 
             else:
@@ -186,11 +189,10 @@ class Backend:
                 return endpoint
         return None
 
-    def browse_local_files(self, ident) -> subprocess:
+    def browse_local_files(self) -> subprocess:
         self.logger.info(f'Running browse_local_files_command...')
-        directory = os.path.join(self.main_path, ident)
-        self.logger.debug(fr'Opening {directory}...')
-        return subprocess.Popen(rf"explorer {directory}")
+        self.logger.debug(fr'Opening {self.local_dir}...')
+        return subprocess.Popen(rf"explorer {self.local_dir}")
 
     def reload(self):
         return redirect(url_for('index'))
@@ -336,7 +338,7 @@ def main():
     parser.add_argument('-ip', '--server_ip', type=str, help='Server IP')
     args = parser.parse_args()
 
-    load_dotenv()
+    load_dotenv('.env')
     web_port = args.web_port if args.web_port else int(os.getenv('WEB_PORT'))
     server_port = args.server_port if args.server_port else int(os.getenv('SERVER_PORT'))
     main_path = args.main_path if args.main_path else str(os.getenv('MAIN_PATH'))
