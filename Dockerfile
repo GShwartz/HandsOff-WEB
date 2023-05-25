@@ -25,4 +25,4 @@ VOLUME ["/app/static"]
 
 EXPOSE $WEB_PORT $SERVER_PORT
 
-CMD python main.py $WEB_PORT $SERVER_PORT $MAIN_PATH $SERVER_IP
+CMD python main.py -wp $WEB_PORT -sp $SERVER_PORT -mp $MAIN_PATH -ip $SERVER_IP
