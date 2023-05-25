@@ -345,18 +345,12 @@ def main():
     main_path, log_path = check_platform(main_path)
     server_ip = args.server_ip if args.server_ip else str(os.getenv('SERVER_IP'))
     server_version = os.getenv('SERVER_VERSION')
-    logger = init_logger(log_path, __name__)
 
-    check_platform(main_path)
-    
     try:
-        os.makedirs(str(main_path))
-
-    except FileExistsError:
-        pass
+        os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
     except Exception as e:
-        print(f"Failed to create directory '{main_path}': {e}")
+        print(f"Failed to create directory '{os.path.dirname(log_path)}': {e}")
         sys.exit(1)
 
     try:
@@ -371,6 +365,7 @@ def main():
         print(f"An error occurred while trying to open file '{log_path}': {e}")
         sys.exit(1)
 
+    logger = init_logger(log_path, __name__)
     server = Server(server_ip, server_port, log_path)
     backend = Backend(logger, main_path, log_path, server, server_version, web_port)
 
