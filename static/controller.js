@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (responseData.message === 'skipped') {
         closePopup();
       }
-      if (responseData.files.length > 0) {
+      if (responseData.message === 'local_linux') {
         console.log('Local:', responseData.files)
       }
       if (responseData.type === 'system' || responseData.type === 'tasks') {
