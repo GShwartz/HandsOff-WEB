@@ -1,7 +1,5 @@
 # HandsOff-Web
 
-## Dockerfile Manual
-
 ### Base Image
 The base image used in this Dockerfile is `python:3.11`. This ensures that the container has Python 3.11 installed as the runtime environment.
 
@@ -17,19 +15,10 @@ The Dockerfile defines several environment variables that can be customized duri
 
 - `SERVER_PORT`: Specifies the server port number. The default value is `55400`. You can customize this value by setting the `SERVER_PORT` environment variable during container runtime.
 
-### Volume
-The Dockerfile defines a volume at `/app/static`. Volumes are used for persisting data between container instances. By using this volume, you can map a directory on the host machine to the `/app/static` directory 
-within the container. Any data written to this directory will be saved outside the container and preserved between container runs.
-
 ### Exposing Ports
 The Dockerfile exposes the ports specified by the `WEB_PORT` and `SERVER_PORT` environment variables. This allows inbound connections to the container on these ports.
 
-### Container Execution
-The final command specified in the Dockerfile is the entry point for the container. It uses the `CMD` instruction to define the command to be executed when the container starts. The command is set to `["python", 
-"main.py", "$WEB_PORT", "$SERVER_PORT", "$MAIN_PATH", "$SERVER_IP"]`. This runs the `main.py` script with the provided parameters. The environment variables are used to pass the customizable values into the 
-application.
-
-### Donload App
+### Clone App
 ```
 git clone https://github.com/GShwartz/HandsOff-WEB.git
 ```
