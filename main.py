@@ -181,6 +181,7 @@ class Backend:
                 if file_list is not None:
                     self.logger.debug(f"Local files completed.")
                     return jsonify({'message': 'Local message sent.', 'files': file_list})
+
                 else:
                     self.logger.warning("Failed to access local files.")
                     return jsonify({'message': 'Local failed.'})
@@ -213,10 +214,12 @@ class Backend:
                     for file in files:
                         file_path = os.path.join(root, file)
                         file_list.append(file_path)
+
             except Exception as e:
                 self.logger.error(f'Error accessing local files: {e}')
                 return []
 
+            print(file_list)
             return file_list
 
         else:
