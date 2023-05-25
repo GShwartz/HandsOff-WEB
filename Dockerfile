@@ -1,4 +1,4 @@
-FROM python:3.11 AS base
+FROM python:3.11-slim AS base
 
 LABEL maintainer="Gil Shwartz <https://www.linkedin.com/in/gilshwartz/>"
 LABEL version="1.0.0"
@@ -25,26 +25,15 @@ VOLUME ["/app/static"]
 
 EXPOSE $WEB_PORT $SERVER_PORT
 
+# Create an entrypoint script
+RUN echo '#!/bin/sh' > /entrypoint.sh && \
+    echo 'if [ "$(uname -s)" = "Linux" ]; then' >> /entrypoint.sh && \
+    echo '    exec python main.py -wp "$WEB_PORT" -sp "$SERVER_PORT" -mp "$MAIN_PATH" -ip "$SERVER_IP"' >> /entrypoint.sh && \
+    echo 'else' >> /entrypoint.sh && \
+    echo '    exec python main.py -wp "$WEB_PORT" -sp "$SERVER_PORT" -mp "$MAIN_PATH" -ip "$SERVER_IP"' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh
 
-# Build stage for Linux
-FROM base AS linux
+RUN chmod +x /entrypoint.sh
 
-CMD python main.py -wp $WEB_PORT -sp $SERVER_PORT -mp $MAIN_PATH -ip $SERVER_IP
-
-
-# Build stage for Windows
-FROM base AS windows
-
-SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-
-CMD python main.py -wp $env:WEB_PORT -sp $env:SERVER_PORT -mp $env:MAIN_PATH -ip $env:SERVER_IP
-
-
-# Determine the build stage based on the OS
-FROM linux AS final
-RUN echo "Linux"
-COPY --from=linux /app /app
-
-FROM windows AS final
-RUN echo "Windows"
-COPY --from=windows /app /app
+# Set the entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
