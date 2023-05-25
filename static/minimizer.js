@@ -21,25 +21,53 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   informationHeaderButton.addEventListener('click', () => {
-    informationContainer.classList.toggle('minimized');
-    informationHeaderButton.style.backgroundColor = informationContainer.classList.contains('minimized') ? '' : 'green';
+    if (informationHeaderButton.style.backgroundColor !== 'green') {
+      informationContainer.classList.toggle('minimized');
+      informationHeaderButton.style.backgroundColor = informationContainer.classList.contains('minimized') ? '' : 'green';
 
-    tasksContainer.classList.add('minimized');
-    informationContainer.style.height = informationContainer.classList.contains('minimized') ? '20px' : '';
+      tasksContainer.classList.add('minimized');
+      informationContainer.style.height = informationContainer.classList.contains('minimized') ? '20px' : '';
 
-    screenshotHeaderButton.style.backgroundColor = '';
-    tasksHeaderButton.style.backgroundColor = '';
+      screenshotHeaderButton.style.backgroundColor = '';
+      tasksHeaderButton.style.backgroundColor = '';
+
+      if (informationHeaderButton.style.backgroundColor === 'green') {
+        informationHeaderButton.disabled = true;
+      } else {
+        informationHeaderButton.disabled = false;
+      }
+
+      if (tasksHeaderButton.style.backgroundColor === 'green') {
+        tasksHeaderButton.disabled = true;
+      } else {
+        tasksHeaderButton.disabled = false;
+      }
+    }
   });
 
   tasksHeaderButton.addEventListener('click', () => {
-    tasksContainer.classList.toggle('minimized');
-    tasksHeaderButton.style.backgroundColor = tasksContainer.classList.contains('minimized') ? '' : 'green';
+    if (tasksHeaderButton.style.backgroundColor !== 'green') {
+      tasksContainer.classList.toggle('minimized');
+      tasksHeaderButton.style.backgroundColor = tasksContainer.classList.contains('minimized') ? '' : 'green';
 
-    informationContainer.classList.add('minimized');
-    tasksContainer.style.height = tasksContainer.classList.contains('minimized') ? '20px' : '';
+      informationContainer.classList.add('minimized');
+      tasksContainer.style.height = tasksContainer.classList.contains('minimized') ? '20px' : '';
 
-    screenshotHeaderButton.style.backgroundColor = '';
-    informationHeaderButton.style.backgroundColor = '';
+      screenshotHeaderButton.style.backgroundColor = '';
+      informationHeaderButton.style.backgroundColor = '';
+
+      if (informationHeaderButton.style.backgroundColor === 'green') {
+        informationHeaderButton.disabled = true;
+      } else {
+        informationHeaderButton.disabled = false;
+      }
+
+      if (tasksHeaderButton.style.backgroundColor === 'green') {
+        tasksHeaderButton.disabled = true;
+      } else {
+        tasksHeaderButton.disabled = false;
+      }
+    }
   });
 
   // Set initial state for informationContainer and tasksContainer
@@ -47,6 +75,15 @@ document.addEventListener('DOMContentLoaded', () => {
   informationHeaderButton.style.backgroundColor = 'green';
 
   tasksContainer.classList.add('minimized');
+
+  // Disable buttons initially if background color is green
+  if (informationHeaderButton.style.backgroundColor === 'green') {
+    informationHeaderButton.disabled = true;
+  }
+
+  if (tasksHeaderButton.style.backgroundColor === 'green') {
+    tasksHeaderButton.disabled = true;
+  }
 });
 
 // Function to check if any row is selected
