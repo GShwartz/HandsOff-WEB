@@ -21,7 +21,7 @@ ENV SERVER_PORT=${SERVER_PORT:-$DEFAULT_SERVER_PORT}
 
 RUN pip install --no-cache-dir --trusted-host pypi.python.org -r requirements.txt
 
-VOLUME ["/app/static"]
+VOLUME ["/static"]
 
 EXPOSE $WEB_PORT $SERVER_PORT
 
