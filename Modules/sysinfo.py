@@ -35,7 +35,7 @@ class Sysinfo:
             self.file_path = os.path.join(self.ident_path, self.filename)
             self.logger.debug(f"File path: {self.ident_path}")
 
-        except (WindowsError, socket.error) as e:
+        except (Exception, socket.error) as e:
             self.logger.debug(f"Connection error: {e}")
             self.logger.debug(f"server.remove_lost_connection({self.endpoint})...")
             self.server.remove_lost_connection(self.endpoint)
