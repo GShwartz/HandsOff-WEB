@@ -348,7 +348,7 @@ def main():
     logger = init_logger(log_path, __name__)
 
     try:
-        os.makedirs(str(main_path), exist_ok=True)
+        os.makedirs(str(main_path))
 
     except Exception as e:
         print(f"Failed to create directory '{main_path}': {e}")
