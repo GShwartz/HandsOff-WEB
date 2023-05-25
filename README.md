@@ -29,6 +29,24 @@ The final command specified in the Dockerfile is the entry point for the contain
 "main.py", "$WEB_PORT", "$SERVER_PORT", "$MAIN_PATH", "$SERVER_IP"]`. This runs the `main.py` script with the provided parameters. The environment variables are used to pass the customizable values into the 
 application.
 
+### Donload App
+```
+git clone https://github.com/GShwartz/HandsOff-WEB.git
+```
+
+### Defining Environment
+Create a new .env file inside the app's dir.
+copy & paste the following:
+```
+LOG_FILE="logfileName.txt"
+SERVER_IP="0.0.0.0"
+SERVER_PORT=55400
+WEB_PORT=8000
+SERVER_URL="http://"
+MAIN_PATH=""
+```
+add & change the values to fit your needs.
+
 ### Building the Image
 To build the Docker image using this Dockerfile, run the following command in the directory where
 
@@ -47,6 +65,12 @@ docker run -p host_port:container_port -e MAIN_PATH=/custom_path -e WEB_PORT=cus
 - Specify any custom values for `MAIN_PATH`, `WEB_PORT`, `SERVER_IP`, and `SERVER_PORT` using the `-e` flag followed by the environment variable name and value.
 - Replace `/host/path` with the path on the host machine that you want to map to the `/app/static` directory in the container.
 - Finally, provide the name and tag of the Docker image you built with `your_image_name:tag`.
+
+or if you chose the .env way
+```
+sudo docker run -p <host_web_port:container_port> -p <host_server_port>:<container_server_port> -v <host_dir>:/static/images <image-name:tag>
+```
+
 
 
 <img src="https://github.com/GShwartz/HandsOff-WEB/blob/main/src/01-startup.JPG?raw=true" alt="Startup" width="600" height="400">
