@@ -4,6 +4,10 @@
 
 ### Base Image
 The base image used in this Dockerfile is `python:3.11`. This ensures that the container has Python 3.11 installed as the runtime environment.
+```
+sudo apt install python3.11
+sudo apt install python3-pip
+```
 
 ### Environment Variables
 The Dockerfile defines several environment variables that can be customized during container runtime:
