@@ -350,6 +350,9 @@ def main():
     try:
         os.makedirs(str(main_path))
 
+    except FileExistsError:
+        pass
+
     except Exception as e:
         print(f"Failed to create directory '{main_path}': {e}")
         sys.exit(1)
