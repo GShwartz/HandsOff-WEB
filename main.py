@@ -293,9 +293,9 @@ class Backend:
         self.logger.debug(fr'connected stations: {len(self.server.endpoints)}')
 
         kwargs = {
-            "serving_on": os.getenv('SERVER_URL'),
-            "server_ip": os.getenv('SERVER_IP'),
-            "server_port": os.getenv('SERVER_PORT'),
+            "serving_on": os.environ['SERVER_URL'],
+            "server_ip": os.environ['SERVER_IP'],
+            "server_port": os.environ['SERVER_PORT'],
             "boot_time": boot_time,
             "connected_stations": connected_stations,
             "endpoints": self.server.endpoints,
@@ -306,7 +306,7 @@ class Backend:
         return render_template('index.html', **kwargs)
 
     def run(self):
-        self.sio.run(self.app, host=os.getenv('SERVER_IP'), port=self.port)
+        self.sio.run(self.app, host=os.environ['SERVER_IP'], port=self.port)
 
 
 def last_boot(format_str='%d/%b/%y %H:%M:%S %p'):
@@ -318,11 +318,11 @@ def last_boot(format_str='%d/%b/%y %H:%M:%S %p'):
 def check_platform(main_path):
     if platform.system() == 'Windows':
         main_path = main_path.replace('/', '\\')
-        log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
+        log_path = os.path.join(main_path, os.environ['LOG_FILE'])
         return main_path, log_path
 
     elif platform.system() == 'Linux':
-        log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
+        log_path = os.path.join(main_path, os.environ['LOG_FILE'])
         return main_path, log_path
 
     else:
@@ -339,12 +339,12 @@ def main():
     args = parser.parse_args()
 
     load_dotenv()
-    web_port = args.web_port if args.web_port else int(os.getenv('WEB_PORT'))
-    server_port = args.server_port if args.server_port else int(os.getenv('SERVER_PORT'))
-    main_path = args.main_path if args.main_path else str(os.getenv('MAIN_PATH'))
+    web_port = args.web_port if args.web_port else int(os.environ['WEB_PORT'])
+    server_port = args.server_port if args.server_port else int(os.environ['SERVER_PORT'])
+    main_path = args.main_path if args.main_path else str(os.environ['MAIN_PATH'])
     main_path, log_path = check_platform(main_path)
-    server_ip = args.server_ip if args.server_ip else str(os.getenv('SERVER_IP'))
-    server_version = os.getenv('SERVER_VERSION')
+    server_ip = args.server_ip if args.server_ip else str(os.environ['SERVER_IP'])
+    server_version = os.environ['SERVER_VERSION']
 
     try:
         os.makedirs(os.path.dirname(log_path), exist_ok=True)
