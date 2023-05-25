@@ -172,13 +172,18 @@ class Backend:
             self.logger.debug(f"Calling self.find_matching_endpoint()...")
             matching_endpoint = self.find_matching_endpoint()
             self.logger.debug(f"{matching_endpoint}")
+
             if matching_endpoint:
                 self.logger.debug(f"Calling self.browse_local_files({matching_endpoint.ident})...")
                 self.local_dir = os.path.join('static', 'images', matching_endpoint.ident)
-                self.browse_local_files()
-                self.logger.debug(f"Local files completed.")
-                return jsonify({'message': 'Local message sent.'})
+                file_list = self.browse_local_files()
 
+                if file_list is not None:
+                    self.logger.debug(f"Local files completed.")
+                    return jsonify({'message': 'Local message sent.', 'files': file_list})
+                else:
+                    self.logger.warning("Failed to access local files.")
+                    return jsonify({'message': 'Local failed.'})
             else:
                 return jsonify({'message': 'Local failed.'})
 
@@ -189,10 +194,34 @@ class Backend:
                 return endpoint
         return None
 
-    def browse_local_files(self) -> subprocess:
-        self.logger.info(f'Running browse_local_files_command...')
-        self.logger.debug(fr'Opening {self.local_dir}...')
-        return subprocess.Popen(rf"explorer {self.local_dir}")
+    def browse_local_files(self) -> list:
+        self.logger.info('Running browse_local_files_command...')
+        self.logger.debug(f'Opening {self.local_dir}...')
+
+        if platform.system() == 'Windows':
+            try:
+                subprocess.Popen(['explorer', self.local_dir])
+                return []
+            except Exception as e:
+                self.logger.error(f'Error opening Windows Explorer: {e}')
+                return []
+
+        elif platform.system() == 'Linux':
+            file_list = []
+            try:
+                for root, dirs, files in os.walk(self.local_dir):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        file_list.append(file_path)
+            except Exception as e:
+                self.logger.error(f'Error accessing local files: {e}')
+                return []
+
+            return file_list
+
+        else:
+            self.logger.warning('Unsupported operating system. Cannot open file explorer.')
+            return []
 
     def reload(self):
         return redirect(url_for('index'))
@@ -344,7 +373,7 @@ def main():
     main_path = args.main_path if args.main_path else str(os.environ['MAIN_PATH'])
     main_path, log_path = check_platform(main_path)
     server_ip = args.server_ip if args.server_ip else str(os.environ['SERVER_IP'])
-    server_version = os.environ['SERVER_VERSION']
+    server_version = '1.0.0'
 
     try:
         os.makedirs(os.path.dirname(log_path), exist_ok=True)
