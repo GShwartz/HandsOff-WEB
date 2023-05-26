@@ -77,14 +77,19 @@
 			</div>
 			<div class="Controller">
 				<div class="controller-buttons-container">
-					<button class="button" data-action="screenshot">SCREENSHOT</button>
-					<button class="button" data-action="anydesk">ANYDESK</button>
-					<button class="button" data-action="sysinfo">SYSTEM</button>
-					<button class="button" data-action="tasks">TASKS</button>
-					<button id="restart" class="button" data-action="restart">RESTART</button>
-					<button class="button" data-action="local">LOCAL FILES</button>
-					<button id="update" class="button" data-action="update">UPDATE</button>
-					<script src="{{ url_for('static', filename='controller.js') }}" defer></script>
+				  <button class="button" data-action="screenshot">SCREENSHOT</button>
+				  <button class="button" data-action="anydesk">ANYDESK</button>
+				  <button class="button" data-action="sysinfo">SYSTEM</button>
+				  <button class="button" data-action="tasks">TASKS</button>
+				  <button id="restart" class="button" data-action="restart">RESTART</button>
+
+				  <div class="local-files-container">
+					<span class="notification-badge" id="file-notification-badge"></span>
+					<button class="button" data-action="local" id="local-files-button">LOCAL FILES</button>
+				  </div>
+
+				  <button id="update" class="button" data-action="update">UPDATE</button>
+				  <script src="{{ url_for('static', filename='controller.js') }}" defer></script>
 				</div>
 				<div class="Extenders" id="extenders">
 					<div class="extenders-wrapper" id="ex-wrapper">
