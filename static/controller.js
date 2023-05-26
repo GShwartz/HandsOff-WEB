@@ -10,39 +10,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const action = button.dataset.action;
     if (action === 'screenshot') {
-      const overlay = document.createElement('div');
-      const popup = document.createElement('container');
-      popup.classList.add('popup', 'fade-in');
-      setTimeout(() => {
-        popup.classList.remove('visible');
-        void popup.offsetWidth; // Trigger reflow to restart the animation
-        popup.classList.add('visible');
-      }, 50);
-      overlay.classList.add('overlay');
-      document.body.appendChild(overlay);
-      popup.innerHTML = `
-        <h1>Working...</h1>
-        <div class="popup-loading">
-          <div class="loading-spinner"></div>
-        </div>`;
-      document.body.appendChild(popup);
+        const overlay = document.createElement('div');
+        const popup = document.createElement('div');
+        popup.classList.add('popup', 'fade-in', 'visible');
+        popup.innerHTML = `
+          <h1>Working...</h1>
+          <div class="popup-loading">
+            <div class="loading-spinner"></div>
+          </div>`;
+        overlay.classList.add('overlay', 'visible');
+        document.body.appendChild(overlay);
+        document.body.appendChild(popup);
 
-      try {
-          overlay.style.display = 'none'; // Hide the overlay
-          loadingSpinner.style.display = 'block'; // Show the loading spinner
-          document.body.style.cursor = 'wait'; // Set cursor to 'working'
-
+        try {
+          overlay.style.display = 'block';
           await makeAjaxRequest(action);
           refreshImageSlider();
-
-          // Close the popup after the screenshot routine is done
-          popup.remove();
-          overlay.remove();
         } catch (error) {
           console.error('Error during AJAX request:', error);
         } finally {
-          loadingSpinner.style.display = 'none'; // Hide the loading spinner
-          document.body.style.cursor = 'default'; // Reset cursor to default
+          overlay.remove();
+          popup.remove();
         }
 
     } else if (action === 'update') {

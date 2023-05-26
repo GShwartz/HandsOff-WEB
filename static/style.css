@@ -16,17 +16,6 @@
     justify-content: center;
 }
 
-.popup-buttons {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    margin-top: 10px;
-}
-
-.popup-buttons button {
-    margin: 0 10px;
-}
-
 .overlay {
     position: fixed;
     top: 0;
@@ -47,6 +36,17 @@
 }
 .fade-in.visible {
     opacity: 1;
+}
+
+.popup-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.popup-buttons button {
+    margin: 0 10px;
 }
 
 .container {
