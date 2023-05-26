@@ -30,3 +30,9 @@ class Handlers:
                 sys.exit(1)
 
         return self.local_dir
+
+    def clear_locals(self):
+        pass
+
+    def clear_static(self):
+        pass
