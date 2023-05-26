@@ -20,7 +20,6 @@ import os
 from Modules.logger import init_logger
 from Modules.commands import Commands
 from Modules.server import Server
-from Modules.utils import Handlers
 
 
 class Backend:
@@ -31,7 +30,6 @@ class Backend:
         self.server = server
         self.version = version
         self.port = port
-        self.app_path = 'static\images'
 
         self.station = False
         self.images = {}
@@ -144,19 +142,6 @@ class Backend:
             else:
                 return jsonify({'error': 'local dir not found'})
 
-        if data == 'kill_task':
-            self.commands.call_tasks()
-            task_name = request.json.get('taskName')
-            if str(task_name).endswith('.exe') and self.commands.shell_target:
-                self.commands.shell_target.send('kill'.encode())
-                self.commands.shell_target.send(f'{task_name}'.encode())
-                msg = self.commands.shell_target.recv(1024).decode()
-                self.commands.shell_target.send('OK'.encode())
-                return jsonify({'message': f'{msg}'})
-
-            else:
-                return jsonify({'error': 'No target or task name provided'})
-
         if data == 'restart':
             self.logger.debug(f"Calling self.commands.call_restart()...")
             if self.commands.call_restart():
@@ -185,19 +170,12 @@ class Backend:
             self.logger.debug(f"Calling self.find_matching_endpoint()...")
             matching_endpoint = self.find_matching_endpoint()
             self.logger.debug(f"{matching_endpoint}")
-
             if matching_endpoint:
                 self.logger.debug(f"Calling self.browse_local_files({matching_endpoint.ident})...")
-                self.local_dir = os.path.join('static', 'images', matching_endpoint.ident)
-                file_list = self.browse_local_files()
+                self.browse_local_files(matching_endpoint.ident)
+                self.logger.debug(f"Local completed.")
+                return jsonify({'message': 'Local message sent.'})
 
-                if file_list is not None:
-                    self.logger.debug(f"Local files completed.")
-                    return jsonify({'message': 'local_linux', 'files': file_list})
-
-                else:
-                    self.logger.warning("Failed to access local files.")
-                    return jsonify({'message': 'Local failed.'})
             else:
                 return jsonify({'message': 'Local failed.'})
 
@@ -208,36 +186,11 @@ class Backend:
                 return endpoint
         return None
 
-    def browse_local_files(self) -> list:
-        self.logger.info('Running browse_local_files_command...')
-        self.logger.debug(f'Opening {self.local_dir}...')
-
-        if platform.system() == 'Windows':
-            try:
-                subprocess.Popen(['explorer', self.local_dir])
-                return []
-            except Exception as e:
-                self.logger.error(f'Error opening Windows Explorer: {e}')
-                return []
-
-        elif platform.system() == 'Linux':
-            file_list = []
-            try:
-                for root, dirs, files in os.walk(self.local_dir):
-                    for file in files:
-                        file_path = os.path.join(root, file)
-                        file_list.append(file_path)
-
-            except Exception as e:
-                self.logger.error(f'Error accessing local files: {e}')
-                return []
-
-            print(file_list)
-            return file_list
-
-        else:
-            self.logger.warning('Unsupported operating system. Cannot open file explorer.')
-            return []
+    def browse_local_files(self, ident) -> subprocess:
+        self.logger.info(f'Running browse_local_files_command...')
+        directory = os.path.join('static', 'images', ident)
+        self.logger.debug(fr'Opening {directory}...')
+        return subprocess.Popen(rf"explorer {directory}")
 
     def reload(self):
         return redirect(url_for('index'))
@@ -299,10 +252,14 @@ class Backend:
                 for endpoint in self.server.endpoints:
                     if endpoint.client_mac == selected_row_data['id']:
                         self.commands.shell_target = endpoint.conn
+                        dir_path = os.path.join('static', 'images', endpoint.ident)
+                        file_list = os.listdir(dir_path)
+                        num_files = len(file_list)
 
                 self.logger.info(fr'row: {selected_row_data}')
                 return jsonify({'row': selected_row_data,
-                                'station': self.station})
+                                'station': self.station,
+                                'num_files': num_files})
 
             else:
                 self.logger.info(fr'No connected stations.')
@@ -331,16 +288,16 @@ class Backend:
         self.commands.shell_target = []
         self.logger.debug(fr'shell_target: {self.commands.shell_target}')
         boot_time = last_boot()
-        # for endpoint in self.server.endpoints:
-        #     self.server.check_vital_signs(endpoint)
+        for endpoint in self.server.endpoints:
+            self.server.check_vital_signs(endpoint)
 
         connected_stations = len(self.server.endpoints)
         self.logger.debug(fr'connected stations: {len(self.server.endpoints)}')
 
         kwargs = {
-            "serving_on": os.environ['SERVER_URL'],
-            "server_ip": os.environ['SERVER_IP'],
-            "server_port": os.environ['SERVER_PORT'],
+            "serving_on": os.getenv('SERVER_URL'),
+            "server_ip": os.getenv('SERVER_IP'),
+            "server_port": os.getenv('SERVER_PORT'),
             "boot_time": boot_time,
             "connected_stations": connected_stations,
             "endpoints": self.server.endpoints,
@@ -351,7 +308,7 @@ class Backend:
         return render_template('index.html', **kwargs)
 
     def run(self):
-        self.sio.run(self.app, host=os.environ['SERVER_IP'], port=self.port)
+        self.sio.run(self.app, host=os.getenv('SERVER_IP'), port=self.port)
 
 
 def last_boot(format_str='%d/%b/%y %H:%M:%S %p'):
@@ -363,11 +320,11 @@ def last_boot(format_str='%d/%b/%y %H:%M:%S %p'):
 def check_platform(main_path):
     if platform.system() == 'Windows':
         main_path = main_path.replace('/', '\\')
-        log_path = os.path.join(main_path, os.environ['LOG_FILE'])
+        log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
         return main_path, log_path
 
     elif platform.system() == 'Linux':
-        log_path = os.path.join(main_path, os.environ['LOG_FILE'])
+        log_path = os.path.join(main_path, os.getenv('LOG_FILE'))
         return main_path, log_path
 
     else:
@@ -384,18 +341,19 @@ def main():
     args = parser.parse_args()
 
     load_dotenv()
-    web_port = args.web_port if args.web_port else int(os.environ['WEB_PORT'])
-    server_port = args.server_port if args.server_port else int(os.environ['SERVER_PORT'])
-    main_path = args.main_path if args.main_path else str(os.environ['MAIN_PATH'])
+    web_port = args.web_port if args.web_port else int(os.getenv('WEB_PORT'))
+    server_port = args.server_port if args.server_port else int(os.getenv('SERVER_PORT'))
+    main_path = args.main_path if args.main_path else str(os.getenv('MAIN_PATH'))
     main_path, log_path = check_platform(main_path)
-    server_ip = args.server_ip if args.server_ip else str(os.environ['SERVER_IP'])
-    server_version = '1.0.0'
+    server_ip = args.server_ip if args.server_ip else str(os.getenv('SERVER_IP'))
+    server_version = os.getenv('SERVER_VERSION')
+    logger = init_logger(log_path, __name__)
 
     try:
-        os.makedirs(os.path.dirname(log_path), exist_ok=True)
+        os.makedirs(str(main_path), exist_ok=True)
 
     except Exception as e:
-        print(f"Failed to create directory '{os.path.dirname(log_path)}': {e}")
+        print(f"Failed to create directory '{main_path}': {e}")
         sys.exit(1)
 
     try:
@@ -410,7 +368,6 @@ def main():
         print(f"An error occurred while trying to open file '{log_path}': {e}")
         sys.exit(1)
 
-    logger = init_logger(log_path, __name__)
     server = Server(server_ip, server_port, log_path)
     backend = Backend(logger, main_path, log_path, server, server_version, web_port)
 
