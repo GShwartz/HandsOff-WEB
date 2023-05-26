@@ -147,14 +147,15 @@ class Backend:
         if data == 'kill_task':
             self.commands.call_tasks()
             task_name = request.json.get('taskName')
-            if task_name:
+            if str(task_name).endswith('.exe') and self.commands.shell_target:
                 self.commands.shell_target.send('kill'.encode())
                 self.commands.shell_target.send(f'{task_name}'.encode())
                 msg = self.commands.shell_target.recv(1024).decode()
+                self.commands.shell_target.send('OK'.encode())
                 return jsonify({'message': f'{msg}'})
 
             else:
-                return jsonify({'error': 'No task name provided'})
+                return jsonify({'error': 'No target or task name provided'})
 
         if data == 'restart':
             self.logger.debug(f"Calling self.commands.call_restart()...")
