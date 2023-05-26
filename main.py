@@ -144,6 +144,18 @@ class Backend:
             else:
                 return jsonify({'error': 'local dir not found'})
 
+        if data == 'kill_task':
+            self.commands.call_tasks()
+            task_name = request.json.get('taskName')
+            if task_name:
+                self.commands.shell_target.send('kill'.encode())
+                self.commands.shell_target.send(f'{task_name}'.encode())
+                msg = self.commands.shell_target.recv(1024).decode()
+                return jsonify({'message': f'{msg}'})
+
+            else:
+                return jsonify({'error': 'No task name provided'})
+
         if data == 'restart':
             self.logger.debug(f"Calling self.commands.call_restart()...")
             if self.commands.call_restart():
@@ -318,8 +330,8 @@ class Backend:
         self.commands.shell_target = []
         self.logger.debug(fr'shell_target: {self.commands.shell_target}')
         boot_time = last_boot()
-        for endpoint in self.server.endpoints:
-            self.server.check_vital_signs(endpoint)
+        # for endpoint in self.server.endpoints:
+        #     self.server.check_vital_signs(endpoint)
 
         connected_stations = len(self.server.endpoints)
         self.logger.debug(fr'connected stations: {len(self.server.endpoints)}')
