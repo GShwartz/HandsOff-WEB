@@ -1,41 +1,31 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
   const btnsContainer = document.querySelector('.controller-buttons-container');
   btnsContainer.addEventListener('click', handleButtonClick);
 
   const tasksBtn = document.getElementById('tasksBtn');
-  const inputBox = document.getElementById('inp')
-  tasksBtn.addEventListener('click', () => {
-  const taskName = inputBox.value.trim();
+  const inputBox = document.getElementById('inp');
+  tasksBtn.addEventListener('click', handleTasksBtnClick);
 
-  if (taskName) {
-    makeRequest('kill_task', { taskName }); // Updated AJAX request
+  async function makeRequest(dataType, requestData) {
+    try {
+      const response = await fetch('/controller', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data: dataType, ...requestData })
+      });
 
-  } else {
-    console.log('No task name provided');
-  }
-    });
-
-  function makeRequest(dataType, requestData) {
-    const xhr = new XMLHttpRequest();
-    const url = '/controller';
-
-    xhr.open('POST', url);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === XMLHttpRequest.DONE) {
-        if (xhr.status === 200) {
-          const response = JSON.parse(xhr.responseText);
-          console.log(response);
-          // Process the response as needed
-        } else {
-          console.error('Request failed.');
-        }
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('Received response:', responseData);
+        handleResponse(responseData);
+      } else {
+        console.error('Request failed.');
       }
-    };
-
-    const data = JSON.stringify({ data: dataType, ...requestData });
-    xhr.send(data);
+    } catch (error) {
+      console.error('Error in makeRequest:', error);
+    }
   }
 
   function handleButtonClick(event) {
@@ -44,115 +34,95 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const action = button.dataset.action;
     if (action === 'screenshot') {
-      makeAjaxRequest(action);
+      makeRequest(action);
       refreshImageSlider();
     } else if (action === 'update') {
       if (!lastSelectedRow) {
         console.log('No row selected');
         return;
       }
-      const overlay = document.createElement('div');
-      const popup = document.createElement('container');
-      popup.classList.add('popup', 'fade-in');
-      setTimeout(() => {
-        popup.classList.remove('visible');
-        void popup.offsetWidth; // Trigger reflow to restart the animation
-        popup.classList.add('visible');
-      }, 50);
-      overlay.classList.add('overlay');
-      document.body.appendChild(overlay);
-      popup.innerHTML = `
-        <h1>Update ${lastSelectedRow.cells[2].innerText}?</h1>
-        <div class="popup-buttons">
-          <button id="yes-button">Yes</button>
-          <button id="no-button">No</button>
-        </div>`;
-      document.body.appendChild(popup);
-      const yesButton = document.getElementById('yes-button');
-      const noButton = document.getElementById('no-button');
-      yesButton.addEventListener('click', handleUpdateConfirmation);
-      noButton.addEventListener('click', () => {
-        popup.remove();
-        overlay.classList.remove('visible');
-        document.body.removeChild(overlay);
-      });
-      button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
+      showConfirmationPopup(`Update ${lastSelectedRow.cells[2].innerText}?`, handleUpdateConfirmation);
     } else if (action === 'sysinfo') {
-      button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
-      makeAjaxRequest('sysinfo');
+      makeRequest('sysinfo');
     } else if (action === 'restart') {
       if (!lastSelectedRow) {
         console.log('No row selected');
         return;
       }
-      const overlay = document.createElement('div');
-      const popup = document.createElement('container');
-      popup.classList.add('popup', 'fade-in');
-      setTimeout(() => {
-        popup.classList.remove('visible');
-        void popup.offsetWidth; // Trigger reflow to restart the animation
-        popup.classList.add('visible');
-      }, 50);
-      overlay.classList.add('overlay');
-      document.body.appendChild(overlay);
-      popup.innerHTML = `
-        <h1>Restart ${lastSelectedRow.cells[2].innerText}?</h1>
-        <div class="popup-buttons">
-          <button id="yes-button">Yes</button>
-          <button id="no-button">No</button>
-        </div>`;
-      document.body.appendChild(popup);
-      const yesButton = document.getElementById('yes-button');
-      const noButton = document.getElementById('no-button');
-      yesButton.addEventListener('click', handleRestartConfirmation);
-      noButton.addEventListener('click', () => {
-        popup.remove();
-        overlay.classList.remove('visible');
-        document.body.removeChild(overlay);
-      });
+      showConfirmationPopup(`Restart ${lastSelectedRow.cells[2].innerText}?`, handleRestartConfirmation);
     } else if (action === 'tasks') {
       if (!lastSelectedRow) {
         console.log('No row selected');
         return;
       }
-      button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
-      makeAjaxRequest('tasks');
-
+      makeRequest('tasks');
     } else {
-      makeAjaxRequest(action);
+      makeRequest(action);
     }
   }
 
-  function killTask(taskName) {
-    // Send taskName data to server
-    fetch('/kill_task', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ 'taskName': taskName })
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Received response from server:', data);
-      })
-      .catch(error => {
-        console.error('Error while sending selected row data to server:', error);
-      });
+  function handleTasksBtnClick() {
+    const taskName = inputBox.value.trim();
+    if (taskName) {
+      makeRequest('kill_task', { taskName });
+    } else {
+      console.log('No task name provided');
+    }
   }
 
   function handleRestartConfirmation() {
-    makeAjaxRequest('restart');
-    const popup = document.querySelector('.popup');
-    popup.remove();
+    makeRequest('restart');
+    closePopup();
     location.reload();
   }
 
   function handleUpdateConfirmation() {
-    makeAjaxRequest('update');
-    const popup = document.querySelector('.popup');
-    popup.remove();
+    makeRequest('update');
+    closePopup();
     location.reload();
+  }
+
+  function handleResponse(responseData) {
+    const { type, message, fileName, fileContent, error, files } = responseData;
+
+    if (message === 'missing') {
+      openInstallPopup();
+    } else if (message === 'skipped') {
+      closePopup();
+    } else if (message === 'local_linux') {
+      console.log('Local:', files);
+    } else if (type === 'system') {
+      displayFileContent(fileName, fileContent, '.information-container');
+      refreshImageSlider();
+    } else if (type === 'tasks') {
+      displayFileContent(fileName, fileContent, '.tasks-container');
+    } else if (type === 'error') {
+      console.log('Error:', error);
+    }
+  }
+
+  function makeAjaxRequest(data) {
+    return fetch('/controller', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8'
+      },
+      body: JSON.stringify({ data, station })
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Request failed.');
+        }
+      })
+      .then(responseData => {
+        console.log('Received response:', responseData);
+        handleResponse(responseData);
+      })
+      .catch(error => {
+        console.error('Error in makeAjaxRequest:', error);
+      });
   }
 
   function openInstallPopup() {
@@ -180,78 +150,56 @@ document.addEventListener('DOMContentLoaded', function() {
       const skipButton = popup.querySelector('#skip-button');
       installButton.addEventListener('click', () => {
         makeAjaxRequest('install_anydesk');
-        popup.remove();
-        overlay.classList.remove('visible');
-        document.body.removeChild(overlay);
+        closePopup();
       });
       skipButton.addEventListener('click', () => {
         makeAjaxRequest('skip_anydesk');
-        popup.remove();
-        overlay.classList.remove('visible');
-        document.body.removeChild(overlay);
+        closePopup();
       });
       document.body.appendChild(popup);
-      function closePopup() {
-        overlay.classList.remove('visible');
-        document.body.removeChild(overlay);
-      }
     });
   }
 
-  async function makeAjaxRequest(data) {
-    try {
-      const response = await fetch('/controller', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8'
-        },
-        body: JSON.stringify({ data, station })
-      });
-      const responseData = await response.json();
-      console.log('Received response from Flask backend:', responseData);
-      if (data === 'error') {
-        console.log('error', data);
-      }
-      if (responseData.message === 'missing') {
-        console.log('data', responseData);
-        openInstallPopup();
-      }
-      if (responseData.message === 'skipped') {
-        closePopup();
-      }
-      if (responseData.message === 'local_linux') {
-        console.log('Local:', responseData.files)
-      }
-      if (responseData.type === 'system' || responseData.type === 'tasks') {
-        if (responseData.type === 'system') {
-          var fileName = responseData.fileName;
-          var fileContent = responseData.fileContent;
+  function displayFileContent(fileName, fileContent, containerSelector) {
+    const container = document.querySelector(containerSelector);
+    container.innerHTML = '';
+    const preElement = document.createElement('pre');
+    preElement.textContent = fileContent;
+    container.appendChild(preElement);
+    console.log('Response Data:', fileName);
+  }
 
-          var informationContainer = document.querySelector('.information-container');
-          informationContainer.innerHTML = '';
-          var preElement = document.createElement('pre');
-          preElement.textContent = responseData.fileContent;
-          informationContainer.appendChild(preElement);
+  function showConfirmationPopup(message, confirmationCallback) {
+    const overlay = document.createElement('div');
+    const popup = document.createElement('container');
+    popup.classList.add('popup', 'fade-in');
+    setTimeout(() => {
+      popup.classList.remove('visible');
+      void popup.offsetWidth; // Trigger reflow to restart the animation
+      popup.classList.add('visible');
+    }, 50);
+    overlay.classList.add('overlay');
+    document.body.appendChild(overlay);
+    popup.innerHTML = `
+      <h1>${message}</h1>
+      <div class="popup-buttons">
+        <button id="yes-button">Yes</button>
+        <button id="no-button">No</button>
+      </div>`;
+    document.body.appendChild(popup);
+    const yesButton = document.getElementById('yes-button');
+    const noButton = document.getElementById('no-button');
+    yesButton.addEventListener('click', confirmationCallback);
+    noButton.addEventListener('click', () => {
+      closePopup();
+    });
+  }
 
-          refreshImageSlider();
-          console.log('responseData', fileName);
-        } else if (responseData.type === 'tasks') {
-          var fileName = responseData.fileName;
-          var fileContent = responseData.fileContent;
-
-          var tasksContainer = document.querySelector('.tasks-container');
-          tasksContainer.innerHTML = '';
-          var preElement = document.createElement('pre');
-          preElement.textContent = responseData.fileContent;
-          tasksContainer.appendChild(preElement);
-
-          console.log('responseData', fileName);
-        } else if (responseData.type === 'error') {
-          console.log('error', responseData.error);
-        }
-      }
-    } catch (error) {
-      console.error('Error in makeAjaxRequest:', error);
-    }
+  function closePopup() {
+    const popup = document.querySelector('.popup');
+    popup.remove();
+    const overlay = document.querySelector('.overlay');
+    overlay.classList.remove('visible');
+    document.body.removeChild(overlay);
   }
 });
