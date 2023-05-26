@@ -81,8 +81,10 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
       makeAjaxRequest('tasks');
+
     } else {
       makeAjaxRequest(action);
+
     }
   }
 
@@ -199,7 +201,9 @@ document.addEventListener('DOMContentLoaded', function() {
           preElement.textContent = responseData.fileContent;
           tasksContainer.appendChild(preElement);
 
+          refreshImageSlider();
           console.log('responseData', fileName);
+
         } else if (responseData.type === 'error') {
           console.log('error', responseData.error);
         }
@@ -208,4 +212,12 @@ document.addEventListener('DOMContentLoaded', function() {
       console.error('Error in makeAjaxRequest:', error);
     }
   }
+
+  function updateNotificationBadge() {
+      const badge = document.getElementById('file-notification-badge');
+      if (badge) {
+        badge.textContent = fileNum; // Update the badge content with the fileNum variable
+        badge.style.display = fileNum > 0 ? 'block' : 'none'; // Show or hide the badge based on the fileNum value
+      }
+    }
 });
