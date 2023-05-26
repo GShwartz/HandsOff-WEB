@@ -77,30 +77,31 @@
 
 .TopNav { grid-area: TopNav; }
 
-html, body {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 203vh;
-    background-color: #FFF8DC;
-    overflow-x: hidden;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%; /* Set body width to 100% */
+  background-color: #fff8dc;
+  overflow-x: hidden;
 }
 
 .topHalf,
 .bottomHalf {
-    display: flex;
-    overflow-x: hidden;
 }
 
 .topHalf {
     display: flex;
+    flex: 1;
     flex-direction: column;
     justify-content: flex-start;
     align-items: stretch;
     overflow-y: auto;
-    align-self: flex-start; /* Added align-self property */
+    align-self: flex-start;
+    flex: 0 0 auto;
 }
 
 .bottomHalf {
@@ -110,6 +111,7 @@ html, body {
     overflow-y: auto;
     align-self: flex-start;
     width: 100%;
+    height: 100%
 }
 
 .bottomHalf .Display {
@@ -153,6 +155,7 @@ html, body {
   border: 2px solid #ccc;
   z-index: 10;
   transition: top 0.3s; /* Added transition for smooth movement */
+
 }
 
 .display-container {
@@ -167,7 +170,6 @@ html, body {
   display: flex;
   justify-content: space-between;
   z-index: 1;
-  margin-top: 1rem;
 }
 
 .display-header {
@@ -544,3 +546,4 @@ td {
   width: auto;
   max-height: 100%;
 }
+

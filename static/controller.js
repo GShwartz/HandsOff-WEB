@@ -2,6 +2,42 @@ document.addEventListener('DOMContentLoaded', function() {
   const btnsContainer = document.querySelector('.controller-buttons-container');
   btnsContainer.addEventListener('click', handleButtonClick);
 
+  const tasksBtn = document.getElementById('tasksBtn');
+  const inputBox = document.getElementById('inp')
+  tasksBtn.addEventListener('click', () => {
+  const taskName = inputBox.value.trim();
+
+  if (taskName) {
+    makeRequest('kill_task', { taskName }); // Updated AJAX request
+
+  } else {
+    console.log('No task name provided');
+  }
+    });
+
+  function makeRequest(dataType, requestData) {
+    const xhr = new XMLHttpRequest();
+    const url = '/controller';
+
+    xhr.open('POST', url);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          console.log(response);
+          // Process the response as needed
+        } else {
+          console.error('Request failed.');
+        }
+      }
+    };
+
+    const data = JSON.stringify({ data: dataType, ...requestData });
+    xhr.send(data);
+  }
+
   function handleButtonClick(event) {
     const button = event.target.closest('.button');
     if (!button) return;
