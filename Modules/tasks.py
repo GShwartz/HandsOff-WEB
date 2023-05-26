@@ -35,7 +35,7 @@ class Tasks:
             self.logger.debug(f"Sending kill command to {self.endpoint.ip}...")
             self.endpoint.conn.send('kill'.encode())
 
-        except (Exception, socket.error) as e:
+        except (WindowsError, socket.error) as e:
             self.handle_error(e)
             return False
 
@@ -43,7 +43,7 @@ class Tasks:
             self.logger.debug(f"Sending {str(taskname)} to {self.endpoint.ip}...")
             self.endpoint.conn.send(str(taskname).encode())
 
-        except (Exception, socket.error) as e:
+        except (WindowsError, socket.error) as e:
             self.handle_error(e)
             return False
 
@@ -53,7 +53,7 @@ class Tasks:
             self.logger.debug(f"{self.endpoint.ip}: {msg}")
             return True
 
-        except (Exception, socket.error) as e:
+        except (WindowsError, socket.error) as e:
             self.handle_error(e)
             return False
 
@@ -67,7 +67,7 @@ class Tasks:
             self.endpoint.conn.settimeout(None)
             self.logger.debug(f"Filename: {self.filenameRecv}")
 
-        except (Exception, socket.error) as e:
+        except (WindowsError, socket.error) as e:
             self.handle_error(e)
             return False
 
@@ -81,7 +81,7 @@ class Tasks:
             self.size = self.bytes_to_number(self.size)
             self.logger.debug(f"Size: {self.size}")
 
-        except (Exception, socket.error) as e:
+        except (WindowsError, socket.error) as e:
             self.handle_error(e)
             return False
 
@@ -109,7 +109,7 @@ class Tasks:
 
                 self.endpoint.conn.settimeout(None)
 
-            except (Exception, socket.error) as e:
+            except (WindowsError, socket.error) as e:
                 self.handle_error(e)
                 return False
 
@@ -119,7 +119,7 @@ class Tasks:
         try:
             self.endpoint.conn.send(f"Received file: {self.filenameRecv}\n".encode())
 
-        except (Exception, socket.error) as e:
+        except (WindowsError, socket.error) as e:
             self.handle_error(e)
             return False
 
@@ -129,7 +129,7 @@ class Tasks:
             self.endpoint.conn.settimeout(None)
             self.logger.debug(f"{self.endpoint.ip}: {msg}")
 
-        except (Exception, socket.error) as e:
+        except (WindowsError, socket.error) as e:
             self.handle_error(e)
             return False
 
@@ -145,7 +145,7 @@ class Tasks:
             self.logger.debug(f"Sending tasks command to {self.endpoint.ip}...")
             self.endpoint.conn.send('tasks'.encode())
 
-        except (Exception, socket.error) as e:
+        except (WindowsError, socket.error) as e:
             self.logger.debug(f"Error: {e}")
             self.logger.debug(f"Calling server.remove_lost_connection({self.endpoint})")
             self.server.remove_lost_connection(self.endpoint)
@@ -162,7 +162,7 @@ class Tasks:
 
         src = os.path.join(self.tasks_file_path, self.filenameRecv)
         if self.endpoint.conn == self.shell_target:
-            shutil.move(src, self.local_dir)
+            shutil.copy(src, self.local_dir)
 
         # self.logger.debug(f"Calling display_text...")
         # self.display_text()
