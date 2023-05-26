@@ -1,15 +1,6 @@
-pip
-wheel
-setuptools
-future
-PySimpleGUI
 python-dotenv
-scapy
-eventlet
-pwinput
-pyftpdlib
-six
 flask-socketio
 Flask
 requests
 psutil
+eventlet
