@@ -567,3 +567,22 @@ td {
 #local-files-button {
   margin-left: 10px;
 }
+
+.loading-spinner {
+  /* Define the styles for the loading spinner */
+  /* Example styles for a rotating spinner */
+  width: 25px;
+  height: 25px;
+  margin-left: 50%;
+  right: 50%;
+  border: 2px solid black;
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

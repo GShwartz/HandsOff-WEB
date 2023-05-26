@@ -1,15 +1,50 @@
 document.addEventListener('DOMContentLoaded', function() {
   const btnsContainer = document.querySelector('.controller-buttons-container');
   btnsContainer.addEventListener('click', handleButtonClick);
+  const loadingSpinner = document.querySelector('.loading-spinner');
+  loadingSpinner.style.display = 'none';
 
-  function handleButtonClick(event) {
+  async function handleButtonClick(event) {
     const button = event.target.closest('.button');
     if (!button) return;
 
     const action = button.dataset.action;
     if (action === 'screenshot') {
-      makeAjaxRequest(action);
-      refreshImageSlider();
+      const overlay = document.createElement('div');
+      const popup = document.createElement('container');
+      popup.classList.add('popup', 'fade-in');
+      setTimeout(() => {
+        popup.classList.remove('visible');
+        void popup.offsetWidth; // Trigger reflow to restart the animation
+        popup.classList.add('visible');
+      }, 50);
+      overlay.classList.add('overlay');
+      document.body.appendChild(overlay);
+      popup.innerHTML = `
+        <h1>Working...</h1>
+        <div class="popup-loading">
+          <div class="loading-spinner"></div>
+        </div>`;
+      document.body.appendChild(popup);
+
+      try {
+          overlay.style.display = 'none'; // Hide the overlay
+          loadingSpinner.style.display = 'block'; // Show the loading spinner
+          document.body.style.cursor = 'wait'; // Set cursor to 'working'
+
+          await makeAjaxRequest(action);
+          refreshImageSlider();
+
+          // Close the popup after the screenshot routine is done
+          popup.remove();
+          overlay.remove();
+        } catch (error) {
+          console.error('Error during AJAX request:', error);
+        } finally {
+          loadingSpinner.style.display = 'none'; // Hide the loading spinner
+          document.body.style.cursor = 'default'; // Reset cursor to default
+        }
+
     } else if (action === 'update') {
       if (!lastSelectedRow) {
         console.log('No row selected');
@@ -81,29 +116,9 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
       makeAjaxRequest('tasks');
-
     } else {
       makeAjaxRequest(action);
-
     }
-  }
-
-  function killTask(taskName) {
-    // Send taskName data to server
-    fetch('/kill_task', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ 'taskName': taskName })
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Received response from server:', data);
-      })
-      .catch(error => {
-        console.error('Error while sending selected row data to server:', error);
-      });
   }
 
   function handleRestartConfirmation() {
@@ -118,49 +133,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const popup = document.querySelector('.popup');
     popup.remove();
     location.reload();
-  }
-
-  function openInstallPopup() {
-    return new Promise((resolve, reject) => {
-      const overlay = document.createElement('div');
-      const popup = document.createElement('container');
-      popup.classList.add('popup', 'fade-in');
-      setTimeout(() => {
-        popup.classList.remove('visible');
-        void popup.offsetWidth; // Trigger reflow to restart the animation
-        popup.classList.add('visible');
-      }, 50);
-      overlay.classList.add('overlay');
-      document.body.appendChild(overlay);
-      popup.innerHTML = `
-        <h1>Install Anydesk on ${lastSelectedRow.cells[2].innerText}</h1>
-        <form>
-          <div class="popup-buttons">
-            <button type="button" id="install-button">Install</button>
-            <button type="button" id="skip-button">Skip</button>
-          </div>
-        </form>
-      `;
-      const installButton = popup.querySelector('#install-button');
-      const skipButton = popup.querySelector('#skip-button');
-      installButton.addEventListener('click', () => {
-        makeAjaxRequest('install_anydesk');
-        popup.remove();
-        overlay.classList.remove('visible');
-        document.body.removeChild(overlay);
-      });
-      skipButton.addEventListener('click', () => {
-        makeAjaxRequest('skip_anydesk');
-        popup.remove();
-        overlay.classList.remove('visible');
-        document.body.removeChild(overlay);
-      });
-      document.body.appendChild(popup);
-      function closePopup() {
-        overlay.classList.remove('visible');
-        document.body.removeChild(overlay);
-      }
-    });
   }
 
   async function makeAjaxRequest(data) {
@@ -212,12 +184,4 @@ document.addEventListener('DOMContentLoaded', function() {
       console.error('Error in makeAjaxRequest:', error);
     }
   }
-
-  function updateNotificationBadge() {
-      const badge = document.getElementById('file-notification-badge');
-      if (badge) {
-        badge.textContent = fileNum; // Update the badge content with the fileNum variable
-        badge.style.display = fileNum > 0 ? 'block' : 'none'; // Show or hide the badge based on the fileNum value
-      }
-    }
 });
