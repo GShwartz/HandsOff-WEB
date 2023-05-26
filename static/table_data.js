@@ -149,6 +149,10 @@ function setupScript() {
           console.log('Row data sent to backend.');
           console.log('fileNum:', fileNum);
 
+          const fileNotificationBadge = document.getElementById('file-notification-badge');
+          fileNotificationBadge.textContent = fileNum;
+          fileNotificationBadge.style.display = fileNum > 0 ? 'block' : 'none';
+
         })
         .catch(error => {
           console.error('Error while sending selected row data to server:', error);
