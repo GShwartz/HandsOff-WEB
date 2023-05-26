@@ -72,6 +72,9 @@ class Backend:
     def serve_table_data_js(self):
         return self.app.send_static_file('table_data.js'), 200, {'Content-Type': 'application/javascript'}
 
+    def count_files(self):
+        pass
+
     def controller(self) -> jsonify:
         self.logger.info(f"Waiting for command from the Frontend...")
         data = request.json.get('data')
@@ -103,6 +106,7 @@ class Backend:
         if data == 'sysinfo':
             latest_file = self.commands.call_sysinfo()
             if latest_file:
+                count = self.count_files()
                 try:
                     with open(latest_file, 'r') as file:
                         file_content = file.read()
@@ -111,6 +115,7 @@ class Backend:
                         'type': 'system',
                         'fileName': f'{latest_file}',
                         'fileContent': f'{file_content}',
+                        'notificationCount': f'{count}',
                     }
 
                     return jsonify(data)
@@ -124,6 +129,7 @@ class Backend:
         if data == 'tasks':
             latest_file = self.commands.call_tasks()
             if latest_file:
+                count = self.count_files()
                 try:
                     with open(latest_file, 'r') as file:
                         file_content = file.read()
@@ -132,7 +138,9 @@ class Backend:
                         'type': 'tasks',
                         'fileName': f'{latest_file}',
                         'fileContent': f'{file_content}',
+                        'notificationCount': f'{count}',
                     }
+
                     self.commands.shell_target.send('n'.encode())
                     return jsonify(data)
 
@@ -192,6 +200,16 @@ class Backend:
         self.logger.debug(fr'Opening {directory}...')
         return subprocess.Popen(rf"explorer {directory}")
 
+    def count_files(self):
+        if self.server.endpoints:
+            for endpoint in self.server.endpoints:
+                if endpoint.client_mac == self.selected_row_data['id']:
+                    self.commands.shell_target = endpoint.conn
+                    dir_path = os.path.join('static', 'images', endpoint.ident)
+                    file_list = os.listdir(dir_path)
+                    number_of_files = len(file_list)
+                    return number_of_files
+
     def reload(self):
         return redirect(url_for('index'))
 
@@ -242,24 +260,28 @@ class Backend:
         if self.server.endpoints:
             self.station = True
 
-        selected_row_data = request.get_json()
-        if selected_row_data:
+        self.selected_row_data = request.get_json()
+        if self.selected_row_data:
             if isinstance(self.commands.shell_target, list) or self.images:
                 self.logger.debug(fr'resetting shell_target...')
                 self.commands.shell_target = []
 
             if self.server.endpoints:
                 for endpoint in self.server.endpoints:
-                    if endpoint.client_mac == selected_row_data['id']:
+                    if endpoint.client_mac == self.selected_row_data['id']:
                         self.commands.shell_target = endpoint.conn
                         dir_path = os.path.join('static', 'images', endpoint.ident)
                         file_list = os.listdir(dir_path)
-                        num_files = len(file_list)
+                        # self.num_files = len(file_list)
+                        self.num_files = self.count_files()
 
-                self.logger.info(fr'row: {selected_row_data}')
-                return jsonify({'row': selected_row_data,
+                self.logger.info(f'row: {self.selected_row_data}\n'
+                                 f'station: {self.station}\n'
+                                 f'num_files: {self.num_files}')
+
+                return jsonify({'row': self.selected_row_data,
                                 'station': self.station,
-                                'num_files': num_files})
+                                'num_files': self.num_files})
 
             else:
                 self.logger.info(fr'No connected stations.')
