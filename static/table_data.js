@@ -1,5 +1,6 @@
 let lastSelectedRow = null;
 let station = null;
+let fileNum = null;
 
 function setupScript() {
   const rows = document.querySelectorAll(".table-connected-row-data");
@@ -144,7 +145,10 @@ function setupScript() {
         .then(response => response.json())
         .then(data => {
           station = data.station;
+          const fileNum = data.num_files;
           console.log('Row data sent to backend.');
+          console.log('fileNum:', fileNum);
+
         })
         .catch(error => {
           console.error('Error while sending selected row data to server:', error);

@@ -1,32 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
   const btnsContainer = document.querySelector('.controller-buttons-container');
   btnsContainer.addEventListener('click', handleButtonClick);
-
-  const tasksBtn = document.getElementById('tasksBtn');
-  const inputBox = document.getElementById('inp');
-  tasksBtn.addEventListener('click', handleTasksBtnClick);
-
-  async function makeRequest(dataType, requestData) {
-    try {
-      const response = await fetch('/controller', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ data: dataType, ...requestData })
-      });
-
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log('Received response:', responseData);
-        handleResponse(responseData);
-      } else {
-        console.error('Request failed.');
-      }
-    } catch (error) {
-      console.error('Error in makeRequest:', error);
-    }
-  }
 
   function handleButtonClick(event) {
     const button = event.target.closest('.button');
@@ -34,95 +8,114 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const action = button.dataset.action;
     if (action === 'screenshot') {
-      makeRequest(action);
+      makeAjaxRequest(action);
       refreshImageSlider();
     } else if (action === 'update') {
       if (!lastSelectedRow) {
         console.log('No row selected');
         return;
       }
-      showConfirmationPopup(`Update ${lastSelectedRow.cells[2].innerText}?`, handleUpdateConfirmation);
+      const overlay = document.createElement('div');
+      const popup = document.createElement('container');
+      popup.classList.add('popup', 'fade-in');
+      setTimeout(() => {
+        popup.classList.remove('visible');
+        void popup.offsetWidth; // Trigger reflow to restart the animation
+        popup.classList.add('visible');
+      }, 50);
+      overlay.classList.add('overlay');
+      document.body.appendChild(overlay);
+      popup.innerHTML = `
+        <h1>Update ${lastSelectedRow.cells[2].innerText}?</h1>
+        <div class="popup-buttons">
+          <button id="yes-button">Yes</button>
+          <button id="no-button">No</button>
+        </div>`;
+      document.body.appendChild(popup);
+      const yesButton = document.getElementById('yes-button');
+      const noButton = document.getElementById('no-button');
+      yesButton.addEventListener('click', handleUpdateConfirmation);
+      noButton.addEventListener('click', () => {
+        popup.remove();
+        overlay.classList.remove('visible');
+        document.body.removeChild(overlay);
+      });
+      button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
     } else if (action === 'sysinfo') {
-      makeRequest('sysinfo');
+      button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
+      makeAjaxRequest('sysinfo');
     } else if (action === 'restart') {
       if (!lastSelectedRow) {
         console.log('No row selected');
         return;
       }
-      showConfirmationPopup(`Restart ${lastSelectedRow.cells[2].innerText}?`, handleRestartConfirmation);
+      const overlay = document.createElement('div');
+      const popup = document.createElement('container');
+      popup.classList.add('popup', 'fade-in');
+      setTimeout(() => {
+        popup.classList.remove('visible');
+        void popup.offsetWidth; // Trigger reflow to restart the animation
+        popup.classList.add('visible');
+      }, 50);
+      overlay.classList.add('overlay');
+      document.body.appendChild(overlay);
+      popup.innerHTML = `
+        <h1>Restart ${lastSelectedRow.cells[2].innerText}?</h1>
+        <div class="popup-buttons">
+          <button id="yes-button">Yes</button>
+          <button id="no-button">No</button>
+        </div>`;
+      document.body.appendChild(popup);
+      const yesButton = document.getElementById('yes-button');
+      const noButton = document.getElementById('no-button');
+      yesButton.addEventListener('click', handleRestartConfirmation);
+      noButton.addEventListener('click', () => {
+        popup.remove();
+        overlay.classList.remove('visible');
+        document.body.removeChild(overlay);
+      });
     } else if (action === 'tasks') {
       if (!lastSelectedRow) {
         console.log('No row selected');
         return;
       }
-      makeRequest('tasks');
+      button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
+      makeAjaxRequest('tasks');
     } else {
-      makeRequest(action);
+      makeAjaxRequest(action);
     }
   }
 
-  function handleTasksBtnClick() {
-    const taskName = inputBox.value.trim();
-    if (taskName) {
-      makeRequest('kill_task', { taskName });
-    } else {
-      console.log('No task name provided');
-    }
+  function killTask(taskName) {
+    // Send taskName data to server
+    fetch('/kill_task', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 'taskName': taskName })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Received response from server:', data);
+      })
+      .catch(error => {
+        console.error('Error while sending selected row data to server:', error);
+      });
   }
 
   function handleRestartConfirmation() {
-    makeRequest('restart');
-    closePopup();
+    makeAjaxRequest('restart');
+    const popup = document.querySelector('.popup');
+    popup.remove();
     location.reload();
   }
 
   function handleUpdateConfirmation() {
-    makeRequest('update');
-    closePopup();
+    makeAjaxRequest('update');
+    const popup = document.querySelector('.popup');
+    popup.remove();
     location.reload();
-  }
-
-  function handleResponse(responseData) {
-    const { type, message, fileName, fileContent, error, files } = responseData;
-
-    if (message === 'missing') {
-      openInstallPopup();
-    } else if (message === 'skipped') {
-      closePopup();
-    } else if (message === 'local_linux') {
-      console.log('Local:', files);
-    } else if (type === 'system') {
-      displayFileContent(fileName, fileContent, '.information-container');
-      refreshImageSlider();
-    } else if (type === 'tasks') {
-      displayFileContent(fileName, fileContent, '.tasks-container');
-    } else if (type === 'error') {
-      console.log('Error:', error);
-    }
-  }
-
-  function makeAjaxRequest(data) {
-    return fetch('/controller', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8'
-      },
-      body: JSON.stringify({ data, station })
-    })
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Request failed.');
-        }
-      })
-      .then(responseData => {
-        console.log('Received response:', responseData);
-        handleResponse(responseData);
-      })
-      .catch(error => {
-        console.error('Error in makeAjaxRequest:', error);
-      });
   }
 
   function openInstallPopup() {
@@ -150,56 +143,69 @@ document.addEventListener('DOMContentLoaded', () => {
       const skipButton = popup.querySelector('#skip-button');
       installButton.addEventListener('click', () => {
         makeAjaxRequest('install_anydesk');
-        closePopup();
+        popup.remove();
+        overlay.classList.remove('visible');
+        document.body.removeChild(overlay);
       });
       skipButton.addEventListener('click', () => {
         makeAjaxRequest('skip_anydesk');
-        closePopup();
+        popup.remove();
+        overlay.classList.remove('visible');
+        document.body.removeChild(overlay);
       });
       document.body.appendChild(popup);
+      function closePopup() {
+        overlay.classList.remove('visible');
+        document.body.removeChild(overlay);
+      }
     });
   }
 
-  function displayFileContent(fileName, fileContent, containerSelector) {
-    const container = document.querySelector(containerSelector);
-    container.innerHTML = '';
-    const preElement = document.createElement('pre');
-    preElement.textContent = fileContent;
-    container.appendChild(preElement);
-    console.log('Response Data:', fileName);
-  }
+  async function makeAjaxRequest(data) {
+    try {
+      const response = await fetch('/controller', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: JSON.stringify({ data, station })
+      });
+      const responseData = await response.json();
+      console.log('Received response from Flask backend:', responseData);
+      if (data === 'error') {
+        console.log('error', data);
+      }
 
-  function showConfirmationPopup(message, confirmationCallback) {
-    const overlay = document.createElement('div');
-    const popup = document.createElement('container');
-    popup.classList.add('popup', 'fade-in');
-    setTimeout(() => {
-      popup.classList.remove('visible');
-      void popup.offsetWidth; // Trigger reflow to restart the animation
-      popup.classList.add('visible');
-    }, 50);
-    overlay.classList.add('overlay');
-    document.body.appendChild(overlay);
-    popup.innerHTML = `
-      <h1>${message}</h1>
-      <div class="popup-buttons">
-        <button id="yes-button">Yes</button>
-        <button id="no-button">No</button>
-      </div>`;
-    document.body.appendChild(popup);
-    const yesButton = document.getElementById('yes-button');
-    const noButton = document.getElementById('no-button');
-    yesButton.addEventListener('click', confirmationCallback);
-    noButton.addEventListener('click', () => {
-      closePopup();
-    });
-  }
+      if (responseData.type === 'system' || responseData.type === 'tasks') {
+        if (responseData.type === 'system') {
+          var fileName = responseData.fileName;
+          var fileContent = responseData.fileContent;
 
-  function closePopup() {
-    const popup = document.querySelector('.popup');
-    popup.remove();
-    const overlay = document.querySelector('.overlay');
-    overlay.classList.remove('visible');
-    document.body.removeChild(overlay);
+          var informationContainer = document.querySelector('.information-container');
+          informationContainer.innerHTML = '';
+          var preElement = document.createElement('pre');
+          preElement.textContent = responseData.fileContent;
+          informationContainer.appendChild(preElement);
+
+          refreshImageSlider();
+          console.log('responseData', fileName);
+        } else if (responseData.type === 'tasks') {
+          var fileName = responseData.fileName;
+          var fileContent = responseData.fileContent;
+
+          var tasksContainer = document.querySelector('.tasks-container');
+          tasksContainer.innerHTML = '';
+          var preElement = document.createElement('pre');
+          preElement.textContent = responseData.fileContent;
+          tasksContainer.appendChild(preElement);
+
+          console.log('responseData', fileName);
+        } else if (responseData.type === 'error') {
+          console.log('error', responseData.error);
+        }
+      }
+    } catch (error) {
+      console.error('Error in makeAjaxRequest:', error);
+    }
   }
 });
