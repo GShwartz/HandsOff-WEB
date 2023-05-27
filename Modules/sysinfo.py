@@ -122,7 +122,7 @@ class Sysinfo:
 
         for endpoint in self.server.endpoints:
             if endpoint.conn == self.shell_target:
-                shutil.copy(self.file_path, self.local_dir)
+                shutil.move(self.file_path, self.local_dir)
 
         # self.logger.debug(f"Calling display_text...")
         # self.display_text()

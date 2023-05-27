@@ -1,4 +1,5 @@
 from Modules.logger import init_logger
+import platform
 import sys
 import os
 
@@ -31,8 +32,33 @@ class Handlers:
 
         return self.local_dir
 
-    def clear_locals(self):
-        pass
+    def clear_local(self):
+        path = os.path.join('static', 'images', self.endpoint.ident)
+        if os.path.isdir(path):
+            files = os.listdir(path)
+            for file_name in files:
+                file_path = os.path.join(path, file_name)
+                print(file_path)
+                # Use platform-specific file removal
+                # remove_file(file_path)
+            return True
 
-    def clear_static(self):
-        pass
+        else:
+            return False
+
+    def remove_file(self, file_path):
+        if platform.system() == 'Windows':
+            try:
+                os.remove(file_path)
+
+            except OSError as e:
+                print(f"Error deleting file: {e}")
+
+        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
+            try:
+                os.unlink(file_path)
+
+            except OSError as e:
+                print(f"Error deleting file: {e}")
+        else:
+            print("Unsupported platform")
