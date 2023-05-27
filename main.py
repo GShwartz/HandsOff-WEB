@@ -215,7 +215,21 @@ class Backend:
         self.logger.info(f'Running browse_local_files_command...')
         directory = os.path.join('static', 'images', ident)
         self.logger.debug(fr'Opening {directory}...')
-        return subprocess.Popen(rf"explorer {directory}")
+        if os.path.isdir(directory):
+            if platform.system() == 'Windows':
+                return subprocess.Popen(rf"explorer {directory}")
+
+            elif platform.system() == 'Linux':
+                files = os.listdir(directory)
+                for file_name in files:
+                    file_path = os.path.join(directory, file_name)
+                    files.append(file_path)
+
+                return print(files)
+
+            else:
+                print("Unsupported operating system.")
+                sys.exit(1)
 
     def count_files(self):
         if self.server.endpoints:
@@ -388,7 +402,7 @@ def main():
     main_path, log_path = check_platform(main_path)
     server_ip = args.server_ip if args.server_ip else str(os.getenv('SERVER_IP'))
     server_version = os.getenv('SERVER_VERSION')
-    logger = init_logger(log_path, __name__)
+    logger = init_logger(log_path, __name__, main_path)
 
     try:
         os.makedirs(str(main_path), exist_ok=True)
@@ -409,7 +423,7 @@ def main():
         print(f"An error occurred while trying to open file '{log_path}': {e}")
         sys.exit(1)
 
-    server = Server(server_ip, server_port, log_path)
+    server = Server(server_ip, server_port, log_path, main_path)
     backend = Backend(logger, main_path, log_path, server, server_version, web_port)
 
     server.listener()
