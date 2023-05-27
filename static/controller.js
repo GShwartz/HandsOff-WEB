@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-  const informationContainer = document.querySelector('.information-container');
   const btnsContainer = document.querySelector('.controller-buttons-container');
   btnsContainer.addEventListener('click', handleButtonClick);
   const loadingSpinner = document.querySelector('.loading-spinner');
@@ -8,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const localFilesButton = document.getElementById('local-files-button');
   const localClearButton = document.getElementById('local-clear-button');
   const localViewButton = document.getElementById('local-view-button');
+  let localFilesClicked = false;
 
   localFilesButton.addEventListener('click', () => {
     if (!lastSelectedRow) {
@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     localClearButton.classList.toggle('hidden');
     localViewButton.classList.toggle('hidden');
+    localFilesClicked = true;
   });
 
   localViewButton.addEventListener('click', handleViewButtonClick);
@@ -143,7 +144,12 @@ document.addEventListener('DOMContentLoaded', function() {
       button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
       makeAjaxRequest('tasks');
     } else {
-      makeAjaxRequest(action);
+        if (localFilesClicked) {
+            // If "Local Files" button is clicked, don't send any request
+            localFilesClicked = false; // Reset the flag
+            return;
+          }
+        makeAjaxRequest(action);
     }
   }
 
@@ -160,19 +166,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  async function handleClearButtonClick() {
-    if (!lastSelectedRow) {
-      console.log('No row selected');
-      return;
-    }
+  function handleClearButtonClick() {
+      if (!lastSelectedRow) {
+        console.log('No row selected');
+        return;
+      }
 
-    try {
-      makeAjaxRequest('local'); // Send AJAX request with action 'view'
-      refreshImageSlider();
-
-    } catch (error) {
-      console.error('Error during AJAX request:', error);
-    }
+      try {
+        makeAjaxRequest('clear_local'); // Send AJAX request with action 'clear_local'
+        refreshImageSlider();
+      } catch (error) {
+        console.error('Error during AJAX request:', error);
+      }
   }
 
   function handleRestartConfirmation() {
@@ -208,18 +213,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (responseData.type === 'system') {
           var fileName = responseData.fileName;
           var fileContent = responseData.fileContent;
+
+          var informationContainer = document.querySelector('information-container');
+          informationContainer.innerHTML = '';
           var preElement = document.createElement('pre');
           preElement.textContent = responseData.fileContent;
-
-          // Clear the information container before updating
-          while (informationContainer.firstChild) {
-            informationContainer.firstChild.remove();
-          }
-
           informationContainer.appendChild(preElement);
 
           refreshImageSlider();
           console.log('responseData', fileName);
+
         } else if (responseData.type === 'tasks') {
           var fileName = responseData.fileName;
           var fileContent = responseData.fileContent;
