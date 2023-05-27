@@ -188,13 +188,17 @@ class Backend:
                 self.logger.debug(f"Calling self.browse_local_files({matching_endpoint.ident})...")
                 self.browse_local_files(matching_endpoint.ident)
                 self.logger.debug(f"Local completed.")
-                return jsonify({'message': 'Local message sent.'})
+                return jsonify({'message': 'View message sent.'})
 
             else:
-                return jsonify({'message': 'Local failed.'})
+                return jsonify({'message': 'View failed.'})
 
-        if data == 'clear_local':
-            pass
+        if data == 'local':
+            if self.handlers.clear_local():
+                return jsonify({'message': 'Files cleared'})
+
+            else:
+                return jsonify({'error': 'Error while clearing dir'})
 
     def find_matching_endpoint(self) -> str:
         self.logger.debug(f"Finding matching endpoint...")
