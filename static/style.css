@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap');
+
 .popup {
     position: fixed;
     top: 50%;
@@ -5,11 +7,11 @@
     width: 25%;
     height: 15%;
     transform: translate(-50%, -50%);
-    background-color: #DCDCDC;
+    background-color: #fff8dc;
     border: 1px solid black;
     padding: 20px;
     z-index: 1000;
-    box-shadow: 0 1.5rem 3rem -0.75rem hsla(0, 0%, 0%, 0.25); inset 0 1.5rem 3rem -0.75rem hsla(0, 0%, 0%, 0.25);
+    box-shadow: 0 1.5rem 3rem -1.75rem hsla(0, 0%, 0%, 0.25); inset 0 1.5rem 3rem -0.75rem hsla(0, 0%, 0%, 0.25);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -569,13 +571,11 @@ td {
 }
 
 .loading-spinner {
-  /* Define the styles for the loading spinner */
-  /* Example styles for a rotating spinner */
   width: 25px;
   height: 25px;
   margin-left: 50%;
   right: 50%;
-  border: 2px solid black;
+  border: 5px solid black;
   border-top-color: white;
   border-radius: 50%;
   animation: spin 1s infinite linear;
@@ -586,3 +586,25 @@ td {
     transform: rotate(360deg);
   }
 }
+
+.waviy {
+  position: relative;
+}
+
+.waviy span {
+  position: relative;
+  display: inline-block;
+  font-size: 20px;
+  color: black;
+  text-transform: uppercase;
+  text-color: white;
+  animation: flip 2s infinite;
+  animation-delay: calc(.2s * var(--i))
+}
+
+@keyframes flip {
+  10%, 80% {
+    transform: scaleY(1.5);
+  }
+}
+

@@ -14,7 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const popup = document.createElement('div');
         popup.classList.add('popup', 'fade-in', 'visible');
         popup.innerHTML = `
-          <h1>Working...</h1>
+          <div class="waviy">
+            <span>Grabbing Screenshot...</span>
+          </div>
           <div class="popup-loading">
             <div class="loading-spinner"></div>
           </div>`;
