@@ -5,16 +5,13 @@ LABEL version="1.0.0"
 
 WORKDIR /app
 
-# Copy only necessary files
-COPY requirements.txt .
+# Copy the entire project
+COPY . .
 
 # Install dependencies
 RUN apk add --no-cache gcc musl-dev libffi-dev openssl-dev && \
     pip install --no-cache-dir --trusted-host pypi.python.org -r requirements.txt && \
     apk del gcc musl-dev libffi-dev openssl-dev
-
-# Copy the rest of the files
-COPY . .
 
 # Set environment variables
 ARG DEFAULT_MAIN_PATH="/server"
@@ -26,7 +23,7 @@ ENV SERVER_IP=${SERVER_IP:-$DEFAULT_SERVER_IP}
 ARG DEFAULT_SERVER_PORT=55400
 ENV SERVER_PORT=${SERVER_PORT:-$DEFAULT_SERVER_PORT}
 
-VOLUME ["static"]
+VOLUME ["/static/images"]
 
 # Expose ports
 EXPOSE $WEB_PORT $SERVER_PORT
