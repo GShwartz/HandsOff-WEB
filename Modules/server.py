@@ -24,8 +24,7 @@ class Endpoints:
 
 
 class Server:
-    def __init__(self, ip, port, log_path, main_path):
-        self.main_path = main_path
+    def __init__(self, ip, port, log_path):
         self.log_path = log_path
         self.port = port
         self.serverIP = ip
@@ -33,7 +32,7 @@ class Server:
         self.connHistory = {}
         self.endpoints = []
 
-        self.logger = init_logger(self.log_path, __name__, self.main_path)
+        self.logger = init_logger(self.log_path, __name__)
 
     # Server listener
     def listener(self) -> None:
