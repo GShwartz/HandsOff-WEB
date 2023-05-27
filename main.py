@@ -59,7 +59,7 @@ class Backend:
         self.app.route('/controller', methods=['POST'])(self.controller)
         self.app.route('/shell_data', methods=['POST', 'GET'])(self.shell_data)
         self.app.route('/kill_task', methods=['POST'])(self.commands.tasks_post_run)
-        # self.app.route('/clear_local')(self.clear_local)
+        self.app.route('/clear_local', methods=['POST'])(self.clear_local)
 
     def serve_static(self, path):
         return send_from_directory('static', path)
@@ -74,7 +74,12 @@ class Backend:
         return self.app.send_static_file('table_data.js'), 200, {'Content-Type': 'application/javascript'}
 
     def clear_local(self):
-        self.handlers.clear_local()
+        path = self.handlers.clear_local()
+        if path:
+            return jsonify({'message': f'Local dir cleared'})
+
+        else:
+            return jsonify({'error': f'Something went wrong'})
 
     def controller(self) -> jsonify:
         self.logger.info(f"Waiting for command from the Frontend...")
@@ -175,7 +180,7 @@ class Backend:
                 self.logger.debug(f"Update failed.")
                 return jsonify({'message': 'Update failed.'})
 
-        if data == 'local':
+        if data == 'view':
             self.logger.debug(f"Calling self.find_matching_endpoint()...")
             matching_endpoint = self.find_matching_endpoint()
             self.logger.debug(f"{matching_endpoint}")
@@ -187,6 +192,9 @@ class Backend:
 
             else:
                 return jsonify({'message': 'Local failed.'})
+
+        if data == 'clear_local':
+            pass
 
     def find_matching_endpoint(self) -> str:
         self.logger.debug(f"Finding matching endpoint...")
