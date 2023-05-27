@@ -4,6 +4,8 @@ import sys
 import os
 from Modules.logger import init_logger
 from Modules.utils import Handlers
+
+
 class Tasks:
     def __init__(self, path, log_path, endpoint, server, shell_target):
         self.endpoint = endpoint
@@ -15,14 +17,17 @@ class Tasks:
         self.logger = init_logger(self.log_path, __name__)
         self.handlers = Handlers(self.log_path, self.path, self.endpoint)
         self.local_dir = self.handlers.handle_local_dir()
+
     def bytes_to_number(self, b: int) -> int:
         res = 0
         for i in range(4):
             res += b[i] << (i * 8)
         return res
+
     def display_text(self):
         self.logger.info(f"Running display_text...")
         os.startfile(self.full_file_path)
+
     def kill_task(self, taskname):
         self.logger.debug(f"Running kill_task...")
         try:
@@ -128,6 +133,7 @@ class Tasks:
         self.logger.debug(f"Calling server.remove_lost_connection({self.endpoint})...")
         self.server.remove_lost_connection(self.endpoint)
         return False
+
     def run(self):
         self.logger.info(f"Running tasks.run()...")
         try:

@@ -104,7 +104,7 @@ class Screenshot:
 
             if self.endpoint.conn == self.shell_target:
                 src = os.path.join(self.screenshot_path, self.last_screenshot)
-                shutil.move(src, self.local_dir)
+                shutil.copy(src, self.local_dir)
 
             # os.startfile(self.last_sc_path)
             self.logger.info(f"Screenshot completed.")
