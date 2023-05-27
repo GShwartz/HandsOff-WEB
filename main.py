@@ -343,6 +343,9 @@ class Backend:
         self.commands.shell_target = []
         self.logger.debug(fr'shell_target: {self.commands.shell_target}')
         boot_time = last_boot()
+        server_platform = platform.system()
+        print(server_platform)
+
         for endpoint in self.server.endpoints:
             self.server.check_vital_signs(endpoint)
 
@@ -358,6 +361,7 @@ class Backend:
             "endpoints": self.server.endpoints,
             "history": self.server.connHistory,
             "server_version": self.version,
+            "server_platform": server_platform,
         }
 
         return render_template('index.html', **kwargs)
