@@ -11,26 +11,21 @@ def init_logger(log_path, name):
 
     logger = logging.getLogger(name)
     if not logger.handlers:
-        logger.setLevel(logging.DEBUG)  # Set the log level for the logger
+        logger.setLevel(logging.DEBUG)
         logger.propagate = False
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         try:
-            if platform.system() == 'Windows':
-                # Convert forward slashes to backslashes for Windows file path
-                log_path = log_path.replace('/', '\\')
-                info = logging.FileHandler(log_path)
-            else:
-                info = logging.FileHandler(log_path)
+            info = logging.FileHandler(log_path)
 
         except FileNotFoundError:
-            os.makedirs(os.path.dirname(log_path), exist_ok=True)
             with open(log_path, 'w') as file:
                 pass
 
         except FileExistsError:
             pass
 
-        info.setFormatter(formatter)  # Set the formatter for the file handler
+        info.setLevel(logging.DEBUG)
+        info.setFormatter(formatter)
         logger.addHandler(info)
 
     return logger
