@@ -86,8 +86,10 @@
 				  <button id="restart" class="button" data-action="restart">RESTART</button>
 
 				  <div class="local-files-container">
-					<span class="notification-badge" id="file-notification-badge"></span>
-					<button class="button" data-action="local" id="local-files-button">LOCAL FILES</button>
+				    <span class="notification-badge" id="file-notification-badge"></span>
+				    <button class="button" data-action="local" id="local-files-button">LOCAL FILES</button>
+				    <button class="local-view hidden" data-action="view" id="local-view-button">View</button>
+				    <button class="clear-button hidden" data-action="clear" id="local-clear-button">Clear</button>
 				  </div>
 
 				  <button id="update" class="button" data-action="update">UPDATE</button>
@@ -131,8 +133,8 @@
 				<div class="tasks-container" id="tasks-container"></div>
 			</div>
 		</div>
-
-		<div class="ConnectionHistory">
+	</div>
+	<div class="ConnectionHistory">
 				<h1>Connection History</h1>
 				<div class="table-history">
 					<table>
@@ -165,11 +167,11 @@
 						</tbody>
 					</table>
 				</div>
-				<div class="Footer">
-					<div class="footer-logo">
-						<img src="static/images/handsoff-low-resolution-logo-color-on-transparent-background.png">
-					</div>
-				</div>
+
+		</div>
+	<div class="Footer">
+		<div class="footer-logo">
+			<img src="static/images/handsoff-low-resolution-logo-color-on-transparent-background.png">
 		</div>
 	</div>
 	<script>
