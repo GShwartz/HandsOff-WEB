@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
       localViewButton.classList.toggle('hidden');
 
     });
+
   localViewButton.addEventListener('click', handleViewButtonClick);
   localClearButton.addEventListener('click', handleClearButtonClick);
 
@@ -35,7 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class="waviy">
             <span>Grabbing Screenshot...</span>
           </div>
-          <div class="loading-spinner"></div>`;
+          <div class="popup-loading">
+            <div class="loading-spinner"></div>
+          </div>`;
         overlay.classList.add('overlay', 'visible');
         document.body.appendChild(overlay);
         document.body.appendChild(popup);
@@ -43,12 +46,12 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
           overlay.style.display = 'block';
           await makeAjaxRequest(action);
-          refreshImageSlider();
         } catch (error) {
           console.error('Error during AJAX request:', error);
         } finally {
           overlay.remove();
           popup.remove();
+          refreshImageSlider();
         }
 
     } else if (action === 'update') {
@@ -99,12 +102,12 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
           overlay.style.display = 'block';
           await makeAjaxRequest(action);
-          refreshImageSlider();
         } catch (error) {
           console.error('Error during AJAX request:', error);
         } finally {
           overlay.remove();
           popup.remove();
+          refreshImageSlider();
         }
     } else if (action === 'restart') {
       if (!lastSelectedRow) {
@@ -143,6 +146,9 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
       makeAjaxRequest('tasks');
+    } else if (action === 'local') {
+        return;
+
     } else {
         if (localFilesClicked) {
             // If "Local Files" button is clicked, don't send any request
@@ -214,13 +220,10 @@ document.addEventListener('DOMContentLoaded', function() {
           var fileName = responseData.fileName;
           var fileContent = responseData.fileContent;
 
-          var informationContainer = document.querySelector('information-container');
-          informationContainer.innerHTML = '';
+          var informationContainer = document.querySelector('.information-container');
           var preElement = document.createElement('pre');
           preElement.textContent = responseData.fileContent;
           informationContainer.appendChild(preElement);
-
-          refreshImageSlider();
           console.log('responseData', fileName);
 
         } else if (responseData.type === 'tasks') {
