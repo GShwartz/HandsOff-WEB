@@ -66,9 +66,6 @@ class Tasks:
             self.endpoint.conn.settimeout(10)
             self.filenameRecv = self.endpoint.conn.recv(1024).decode()
             self.full_file_path = os.path.join(self.tasks_file_path, self.filenameRecv)
-            if not os.path.exists(self.full_file_path):
-                os.makedirs(self.full_file_path, exist_ok=True)
-
             self.endpoint.conn.settimeout(None)
             self.logger.debug(f"Filename: {self.filenameRecv}")
 
