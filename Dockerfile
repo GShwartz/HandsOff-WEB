@@ -38,3 +38,7 @@ RUN echo '#!/bin/sh' > /entrypoint.sh && \
 
 # Set the entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
+
+# Debugging statements
+RUN echo "LOG_PATH=$LOG_PATH"
+RUN echo "NAME=$NAME"
