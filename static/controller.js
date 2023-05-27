@@ -4,6 +4,21 @@ document.addEventListener('DOMContentLoaded', function() {
   const loadingSpinner = document.querySelector('.loading-spinner');
   loadingSpinner.style.display = 'none';
 
+  const localFilesButton = document.getElementById('local-files-button');
+  const localConfirmButton = document.getElementById('local-clear-button');
+  const localViewButton = document.getElementById('local-view-button');
+
+  localFilesButton.addEventListener('click', () => {
+    if (!lastSelectedRow) {
+      console.log('No row selected');
+      return;
+    }
+    localConfirmButton.classList.toggle('hidden');
+    localViewButton.classList.toggle('hidden');
+  });
+
+  localViewButton.addEventListener('click', handleViewButtonClick); // Updated event listener
+
   async function handleButtonClick(event) {
     const button = event.target.closest('.button');
     if (!button) return;
@@ -17,9 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class="waviy">
             <span>Grabbing Screenshot...</span>
           </div>
-          <div class="popup-loading">
-            <div class="loading-spinner"></div>
-          </div>`;
+          <div class="loading-spinner"></div>`;
         overlay.classList.add('overlay', 'visible');
         document.body.appendChild(overlay);
         document.body.appendChild(popup);
@@ -129,6 +142,19 @@ document.addEventListener('DOMContentLoaded', function() {
       makeAjaxRequest('tasks');
     } else {
       makeAjaxRequest(action);
+    }
+  }
+
+  async function handleViewButtonClick() {
+    if (!lastSelectedRow) {
+      console.log('No row selected');
+      return;
+    }
+
+    try {
+      await makeAjaxRequest('view'); // Send AJAX request with action 'view'
+    } catch (error) {
+      console.error('Error during AJAX request:', error);
     }
   }
 
