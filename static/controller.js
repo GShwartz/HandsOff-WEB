@@ -10,15 +10,15 @@ document.addEventListener('DOMContentLoaded', function() {
   let localFilesClicked = false;
 
   localFilesButton.addEventListener('click', () => {
-    if (!lastSelectedRow) {
-      console.log('No row selected');
-      return;
-    }
-    localClearButton.classList.toggle('hidden');
-    localViewButton.classList.toggle('hidden');
-    localFilesClicked = true;
-  });
+      if (!lastSelectedRow) {
+        console.log('No row selected');
+        return;
+      }
 
+      localClearButton.classList.toggle('hidden');
+      localViewButton.classList.toggle('hidden');
+
+    });
   localViewButton.addEventListener('click', handleViewButtonClick);
   localClearButton.addEventListener('click', handleClearButtonClick);
 
