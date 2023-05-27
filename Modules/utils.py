@@ -38,10 +38,10 @@ class Handlers:
             files = os.listdir(path)
             for file_name in files:
                 file_path = os.path.join(path, file_name)
-                print(file_path)
+
                 # Use platform-specific file removal
-                # remove_file(file_path)
-            return str(path)
+                self.remove_file(file_path)
+            return True
 
         else:
             return False
@@ -53,6 +53,7 @@ class Handlers:
 
             except OSError as e:
                 print(f"Error deleting file: {e}")
+                return False
 
         elif platform.system() == 'Linux' or platform.system() == 'Darwin':
             try:
@@ -60,5 +61,7 @@ class Handlers:
 
             except OSError as e:
                 print(f"Error deleting file: {e}")
+                return False
         else:
             print("Unsupported platform")
+            return False
