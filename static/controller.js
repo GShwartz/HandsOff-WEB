@@ -1,11 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
+  const informationContainer = document.querySelector('.information-container');
   const btnsContainer = document.querySelector('.controller-buttons-container');
   btnsContainer.addEventListener('click', handleButtonClick);
   const loadingSpinner = document.querySelector('.loading-spinner');
   loadingSpinner.style.display = 'none';
 
   const localFilesButton = document.getElementById('local-files-button');
-  const localConfirmButton = document.getElementById('local-clear-button');
+  const localClearButton = document.getElementById('local-clear-button');
   const localViewButton = document.getElementById('local-view-button');
 
   localFilesButton.addEventListener('click', () => {
@@ -13,11 +14,12 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('No row selected');
       return;
     }
-    localConfirmButton.classList.toggle('hidden');
+    localClearButton.classList.toggle('hidden');
     localViewButton.classList.toggle('hidden');
   });
 
-  localViewButton.addEventListener('click', handleViewButtonClick); // Updated event listener
+  localViewButton.addEventListener('click', handleViewButtonClick);
+  localClearButton.addEventListener('click', handleClearButtonClick);
 
   async function handleButtonClick(event) {
     const button = event.target.closest('.button');
@@ -153,6 +155,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     try {
       await makeAjaxRequest('view'); // Send AJAX request with action 'view'
+    } catch (error) {
+      console.error('Error during AJAX request:', error);
+    }
+  }
+
+  async function handleClearButtonClick() {
+    if (!lastSelectedRow) {
+      console.log('No row selected');
+      return;
+    }
+
+    try {
+      makeAjaxRequest('local'); // Send AJAX request with action 'view'
+      refreshImageSlider();
+
     } catch (error) {
       console.error('Error during AJAX request:', error);
     }
