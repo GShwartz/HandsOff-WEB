@@ -193,7 +193,7 @@ class Backend:
             else:
                 return jsonify({'message': 'View failed.'})
 
-        if data == 'local':
+        if data == 'clear_local':
             if self.handlers.clear_local():
                 return jsonify({'message': 'Files cleared'})
 
