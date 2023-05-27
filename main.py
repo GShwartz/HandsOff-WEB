@@ -304,7 +304,7 @@ class Backend:
 
                         self.commands.shell_target = endpoint.conn
                         dir_path = os.path.join('static', 'images', endpoint.ident)
-                        if not dir_path:
+                        if not os.path.exists(dir_path):
                             os.makedirs(dir_path, exist_ok=True)
 
                         file_list = os.listdir(dir_path)
@@ -347,7 +347,6 @@ class Backend:
         self.logger.debug(fr'shell_target: {self.commands.shell_target}')
         boot_time = last_boot()
         server_platform = platform.system()
-        print(server_platform)
 
         for endpoint in self.server.endpoints:
             self.server.check_vital_signs(endpoint)
