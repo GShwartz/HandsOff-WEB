@@ -13,6 +13,9 @@ class Sysinfo:
         self.app_path = path
         self.log_path = log_path
         self.ident_path = os.path.join(self.app_path, self.endpoint.ident)
+        if not os.path.exists(self.ident_path):
+            os.makedirs(self.ident_path, exist_ok=True)
+
         self.logger = init_logger(self.log_path, __name__)
         self.handlers = Handlers(self.log_path, self.app_path, self.endpoint)
         self.local_dir = self.handlers.handle_local_dir()

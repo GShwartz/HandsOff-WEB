@@ -17,6 +17,9 @@ class Screenshot:
         self.server_port = self.server.port
         self.shell_target = shell_target
         self.screenshot_path = os.path.join(self.path, self.endpoint.ident)
+        if not os.path.exists(self.screenshot_path):
+            os.makedirs(self.screenshot_path, exist_ok=True)
+            
         self.logger = init_logger(self.log_path, __name__)
         self.handlers = Handlers(self.log_path, self.path, self.endpoint)
         self.local_dir = self.handlers.handle_local_dir()
