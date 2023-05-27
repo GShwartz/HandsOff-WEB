@@ -14,7 +14,9 @@ class Tasks:
         self.server = server
         self.shell_target = shell_target
         self.tasks_file_path = os.path.join(self.path, self.endpoint.ident)
-        print(self.tasks_file_path)
+        if not os.path.exists(self.tasks_file_path):
+            os.makedirs(self.tasks_file_path, exist_ok=True)
+
         self.logger = init_logger(self.log_path, __name__)
         self.handlers = Handlers(self.log_path, self.path, self.endpoint)
         self.local_dir = self.handlers.handle_local_dir()
@@ -64,6 +66,9 @@ class Tasks:
             self.endpoint.conn.settimeout(10)
             self.filenameRecv = self.endpoint.conn.recv(1024).decode()
             self.full_file_path = os.path.join(self.tasks_file_path, self.filenameRecv)
+            if not os.path.exists(self.full_file_path):
+                os.makedirs(self.full_file_path, exist_ok=True)
+
             self.endpoint.conn.settimeout(None)
             self.logger.debug(f"Filename: {self.filenameRecv}")
 
