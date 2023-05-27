@@ -4,7 +4,7 @@ import queue
 
 
 def init_logger(log_path, name):
-    print(log_path)
+    print(f'log_path: {log_path}')
     log_queue = queue.Queue()
     queue_handler = logging.handlers.QueueHandler(log_queue)
 
