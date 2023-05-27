@@ -165,7 +165,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 50px;
-  padding: 1rem 1rem;
+  padding: 2rem 1rem;
 }
 
 .headers-wrapper {
@@ -282,7 +282,7 @@ h1 {
 }
 
 .server-table th {
-    background-color: #f2f2f2;
+    background-color: #D2B48C;
 }
 
 .server-table tbody tr{
@@ -314,7 +314,7 @@ h1 {
 .table-connected thead {
   position: sticky;
   top: 0;
-  background-color: #f2f2f2;
+  background-color: #D2B48C;
 }
 
 .table-connected tr {
@@ -333,7 +333,7 @@ h1 {
 }
 
 th {
-    background-color: #f2f2f2;
+    background-color: #D2B48C;
 }
 
 th,
@@ -370,7 +370,7 @@ td {
 
 .controller-buttons-container button:hover {
   color: white;
-  background-color: #DAA520;
+  background-color: #D2B48C;
 }
 
 .controller-buttons-container button:active {
@@ -401,8 +401,8 @@ td {
   -webkit-user-select: none;
   touch-action: manipulation;
   width: auto;
-  padding: 5px 5px; /* Adjust top and bottom padding as needed */
-  margin: 5px; /* Add margin for gaps between buttons */
+  padding: 5px 5px;
+  margin: 15px 10px; /* Add margin for gaps between buttons */
 }
 
 .screenshots-button:hover {
@@ -531,7 +531,7 @@ td {
   padding: 5px;
   text-align: center;
   border: 1px solid #ccc;
-  background-color: #f2f2f2;
+  background-color: #D2B48C;
 }
 
 .footer-logo {
