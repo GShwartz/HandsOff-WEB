@@ -305,8 +305,8 @@ class Backend:
                         self.commands.shell_target = endpoint.conn
                         dir_path = os.path.join('static', 'images', endpoint.ident)
                         if not dir_path:
-                            continue
-                            
+                            os.makedirs(dir_path, exist_ok=True)
+
                         file_list = os.listdir(dir_path)
                         # self.num_files = len(file_list)
                         self.num_files = self.count_files()
