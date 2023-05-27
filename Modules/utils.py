@@ -9,7 +9,7 @@ class Handlers:
         self.log_path = log_path
         self.app_path = app_path
         self.endpoint = endpoint
-        self.logger = init_logger(self.log_path, __name__)
+        self.logger = init_logger(self.log_path, __name__, self.app_path)
 
     def handle_local_dir(self):
         self.ident_path = os.path.join(self.app_path, self.endpoint.ident)

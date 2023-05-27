@@ -16,7 +16,7 @@ class Commands:
         self.log_path = log_path
         self.server = server
         self.shell_target = []
-        self.logger = init_logger(self.log_path, __name__)
+        self.logger = init_logger(self.log_path, __name__, self.main_path)
 
     def call_screenshot(self):
         matching_endpoint = self.find_matching_endpoint()

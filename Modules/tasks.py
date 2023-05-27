@@ -14,7 +14,7 @@ class Tasks:
         self.server = server
         self.shell_target = shell_target
         self.tasks_file_path = os.path.join(self.path, self.endpoint.ident)
-        self.logger = init_logger(self.log_path, __name__)
+        self.logger = init_logger(self.log_path, __name__, self.path)
         self.handlers = Handlers(self.log_path, self.path, self.endpoint)
         self.local_dir = self.handlers.handle_local_dir()
 
