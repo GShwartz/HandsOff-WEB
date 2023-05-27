@@ -41,7 +41,7 @@ class Handlers:
                 print(file_path)
                 # Use platform-specific file removal
                 # remove_file(file_path)
-            return True
+            return str(path)
 
         else:
             return False
