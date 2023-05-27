@@ -12,7 +12,6 @@ import argparse
 import psutil
 import shutil
 import socket
-import glob
 import time
 import sys
 import os
@@ -20,6 +19,7 @@ import os
 from Modules.logger import init_logger
 from Modules.commands import Commands
 from Modules.server import Server
+from Modules.utils import Handlers
 
 
 class Backend:
@@ -59,6 +59,7 @@ class Backend:
         self.app.route('/controller', methods=['POST'])(self.controller)
         self.app.route('/shell_data', methods=['POST', 'GET'])(self.shell_data)
         self.app.route('/kill_task', methods=['POST'])(self.commands.tasks_post_run)
+        # self.app.route('/clear_local')(self.clear_local)
 
     def serve_static(self, path):
         return send_from_directory('static', path)
@@ -72,8 +73,8 @@ class Backend:
     def serve_table_data_js(self):
         return self.app.send_static_file('table_data.js'), 200, {'Content-Type': 'application/javascript'}
 
-    def count_files(self):
-        pass
+    def clear_local(self):
+        self.handlers.clear_local()
 
     def controller(self) -> jsonify:
         self.logger.info(f"Waiting for command from the Frontend...")
@@ -269,6 +270,8 @@ class Backend:
             if self.server.endpoints:
                 for endpoint in self.server.endpoints:
                     if endpoint.client_mac == self.selected_row_data['id']:
+                        self.handlers = Handlers(self.log_path, self.main_path, endpoint)
+
                         self.commands.shell_target = endpoint.conn
                         dir_path = os.path.join('static', 'images', endpoint.ident)
                         file_list = os.listdir(dir_path)
