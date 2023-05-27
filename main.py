@@ -402,7 +402,7 @@ def main():
     main_path, log_path = check_platform(main_path)
     server_ip = args.server_ip if args.server_ip else str(os.getenv('SERVER_IP'))
     server_version = os.getenv('SERVER_VERSION')
-    logger = init_logger(log_path, __name__, main_path)
+    logger = init_logger(log_path, __name__)
 
     try:
         os.makedirs(str(main_path), exist_ok=True)
@@ -423,7 +423,7 @@ def main():
         print(f"An error occurred while trying to open file '{log_path}': {e}")
         sys.exit(1)
 
-    server = Server(server_ip, server_port, log_path, main_path)
+    server = Server(server_ip, server_port, log_path)
     backend = Backend(logger, main_path, log_path, server, server_version, web_port)
 
     server.listener()
