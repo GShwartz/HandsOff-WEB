@@ -5,7 +5,6 @@ import os
 
 
 def init_logger(log_path, name):
-    print(f'log_path: {log_path}')
     if log_path:
         os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
