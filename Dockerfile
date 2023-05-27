@@ -26,10 +26,10 @@ ENV SERVER_IP=${SERVER_IP:-$DEFAULT_SERVER_IP}
 ARG DEFAULT_SERVER_PORT=55400
 ENV SERVER_PORT=${SERVER_PORT:-$DEFAULT_SERVER_PORT}
 
+VOLUME ["/static/images"]
+
 # Expose ports
 EXPOSE $WEB_PORT $SERVER_PORT
-
-VOLUME ["static"]
 
 # Create an entrypoint script
 RUN echo '#!/bin/sh' > /entrypoint.sh && \
@@ -38,7 +38,3 @@ RUN echo '#!/bin/sh' > /entrypoint.sh && \
 
 # Set the entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
-
-# Debugging statements
-RUN echo "LOG_PATH=$LOG_PATH"
-RUN echo "NAME=$NAME"
