@@ -65,10 +65,31 @@ document.addEventListener('DOMContentLoaded', function() {
         overlay.classList.remove('visible');
         document.body.removeChild(overlay);
       });
-      button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
     } else if (action === 'sysinfo') {
-      button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
-      makeAjaxRequest('sysinfo');
+        const overlay = document.createElement('div');
+        const popup = document.createElement('div');
+        popup.classList.add('popup', 'fade-in', 'visible');
+        popup.innerHTML = `
+          <div class="waviy">
+            <span>Grabbing sysInfo...</span>
+          </div>
+          <div class="popup-loading">
+            <div class="loading-spinner"></div>
+          </div>`;
+        overlay.classList.add('overlay', 'visible');
+        document.body.appendChild(overlay);
+        document.body.appendChild(popup);
+
+        try {
+          overlay.style.display = 'block';
+          await makeAjaxRequest(action);
+          refreshImageSlider();
+        } catch (error) {
+          console.error('Error during AJAX request:', error);
+        } finally {
+          overlay.remove();
+          popup.remove();
+        }
     } else if (action === 'restart') {
       if (!lastSelectedRow) {
         console.log('No row selected');
@@ -144,11 +165,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (responseData.type === 'system') {
           var fileName = responseData.fileName;
           var fileContent = responseData.fileContent;
-
-          var informationContainer = document.querySelector('.information-container');
-          informationContainer.innerHTML = '';
           var preElement = document.createElement('pre');
           preElement.textContent = responseData.fileContent;
+
+          // Clear the information container before updating
+          while (informationContainer.firstChild) {
+            informationContainer.firstChild.remove();
+          }
+
           informationContainer.appendChild(preElement);
 
           refreshImageSlider();
