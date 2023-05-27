@@ -1,10 +1,14 @@
 import logging
 import logging.handlers
 import queue
+import os
 
 
 def init_logger(log_path, name):
     print(f'log_path: {log_path}')
+    if not log_path:
+        os.makedirs(os.path.dirname(log_path), exist_ok=True)
+
     log_queue = queue.Queue()
     queue_handler = logging.handlers.QueueHandler(log_queue)
 
