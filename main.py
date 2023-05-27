@@ -200,6 +200,10 @@ class Backend:
             else:
                 return jsonify({'error': 'Error while clearing dir'})
 
+        else:
+            print(data)
+            return jsonify({'message': f'Unrecognized: {data}'})
+
     def find_matching_endpoint(self) -> str:
         self.logger.debug(f"Finding matching endpoint...")
         for endpoint in self.server.endpoints:
