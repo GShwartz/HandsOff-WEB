@@ -29,6 +29,8 @@ ENV SERVER_PORT=${SERVER_PORT:-$DEFAULT_SERVER_PORT}
 # Expose ports
 EXPOSE $WEB_PORT $SERVER_PORT
 
+VOLUME ["static"]
+
 # Create an entrypoint script
 RUN echo '#!/bin/sh' > /entrypoint.sh && \
     echo 'exec python main.py -wp "$WEB_PORT" -sp "$SERVER_PORT" -mp "$MAIN_PATH" -ip "$SERVER_IP"' >> /entrypoint.sh && \
