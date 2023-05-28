@@ -99,7 +99,7 @@ class Backend:
 
         if data == 'anydesk':
             if not self.commands.call_anydesk():
-                return jsonify({'error': f'No row selected'})
+                return jsonify({'error': f'call_anydesk failed.'})
 
             self.logger.debug(f"Calling self.commands.call_anydesk()...")
             if not self.commands.call_anydesk():
