@@ -86,6 +86,7 @@ class Backend:
         self.logger.info(f"Waiting for command from the Frontend...")
         data = request.json.get('data')
         self.logger.debug(f"Command: {data}")
+
         if data == 'screenshot':
             self.logger.debug(f"Calling self.commands.call_screenshot()...")
             if self.commands.call_screenshot():
@@ -308,7 +309,6 @@ class Backend:
                             os.makedirs(dir_path, exist_ok=True)
 
                         file_list = os.listdir(dir_path)
-                        # self.num_files = len(file_list)
                         self.num_files = self.count_files()
 
                 self.logger.info(f'row: {self.selected_row_data}\n'
