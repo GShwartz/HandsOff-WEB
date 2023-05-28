@@ -119,7 +119,33 @@
 				  <span class="label"></span>
 				  <span class="focus-bg"></span>
 				</label>
-				<button id="tasksBtn">Kill</button>
+				<button class="kill_task_button" id="kill_task_button" data-action="kill_task">Kill</button>
+				<script>
+				  document.getElementById('kill_task_button').addEventListener('click', function() {
+					var taskName = document.getElementById('inp').value;
+
+					fetch('/kill_task', {
+					  method: 'POST',
+					  headers: {
+						'Content-Type': 'application/json'
+					  },
+					  body: JSON.stringify({ data: { taskName: taskName } })
+					})
+					.then(function(response) {
+					  if (response.ok) {
+						return response.json();
+					  } else {
+						throw new Error('Error: ' + response.status);
+					  }
+					})
+					.then(function(data) {
+					  console.log(data.message); // You can handle the response data here
+					})
+					.catch(function(error) {
+					  console.log(error); // Handle any errors that occurred during the request
+					});
+				  });
+				</script>
 			</div>
 		</div>
 
