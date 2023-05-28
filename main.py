@@ -39,6 +39,7 @@ class Backend:
         self.app = Flask(__name__)
         self.sio = SocketIO(self.app)
 
+        self.kill_task = False
         self._routes()
 
     def _routes(self):
@@ -85,7 +86,6 @@ class Backend:
         self.logger.info(f"Waiting for command from the Frontend...")
         data = request.json.get('data')
         self.logger.debug(f"Command: {data}")
-
         if data == 'screenshot':
             self.logger.debug(f"Calling self.commands.call_screenshot()...")
             if self.commands.call_screenshot():
@@ -147,7 +147,7 @@ class Backend:
                         'notificationCount': f'{count}',
                     }
 
-                    self.commands.shell_target.send('n'.encode())
+                    # self.commands.shell_target.send('n'.encode())
                     return jsonify(data)
 
                 except Exception as e:
