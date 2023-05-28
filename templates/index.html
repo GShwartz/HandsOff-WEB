@@ -29,7 +29,6 @@
 							<th>serving on</th>
 							<th>boot time</th>
 							<th>server version</th>
-							<th>server platform</th>
 							<th>connected stations</th>
 						</tr>
 					</thead>
@@ -38,7 +37,6 @@
 							<td>{{ serving_on }}</td>
 							<td>{{ boot_time }}</td>
 							<td>{{ server_version }}</td>
-							<td>{{ server_platform }}</td>
 							<td>{{ connected_stations }}</td>
 						</tr>
 					</tbody>
@@ -50,36 +48,65 @@
 			<h1>Connected Stations</h1>
 			<div class="table-connected">
 				<table>
-					<thead>
-						<tr>
-							<th>Client MAC</th>
-							<th>IP Address</th>
-							<th>Hostname</th>
-							<th>Logged User</th>
-							<th>OS Platform</th>
-							<th>Boot Time</th>
-							<th>Client Version</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for endpoint in endpoints %}
-						<tr class="table-connected-row-data" data-id="{{ endpoint.client_mac }}" data-ip="{{ endpoint.ip }}" data-hostname="{{ endpoint.ident }}" data-user="{{ endpoint.user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
-							<td>{{ endpoint.client_mac }}</td>
-							<td>{{ endpoint.ip }}</td>
-							<td>{{ endpoint.ident }}</td>
-							<td>{{ endpoint.user }}</td>
-							<td>{{ endpoint.client_platform }}</td>
-							<td>{{ endpoint.boot_time }}</td>
-							<td>{{ endpoint.client_version }}</td>
-						</tr>
-						{% endfor %}
-						{% if not endpoints %}
-						<tr>
-							<td colspan="7">No endpoints found.</td>
-						</tr>
-						{% endif %}
-					</tbody>
+				  <thead>
+					<tr>
+					  <th>Client MAC</th>
+					  <th>
+						  IP Address
+						  <button id="toggle-ip-button">EX-IP</button>
+					  </th>
+					  <th>Hostname</th>
+					  <th>Logged User</th>
+					  <th>OS Platform</th>
+					  <th>Boot Time</th>
+					  <th>Client Version</th>
+					</tr>
+				  </thead>
+				  <tbody>
+					{% for endpoint in endpoints %}
+					<tr class="table-connected-row-data" data-id="{{ endpoint.client_mac }}" data-ip="{{ endpoint.ip }}" data-hostname="{{ endpoint.ident }}" data-user="{{ endpoint.user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
+					  <td>{{ endpoint.client_mac }}</td>
+					  <td>
+						<span class="ip-address">{{ endpoint.ip }}</span>
+						<span class="external-ip-address" style="display: none;">{{ endpoint.external_ip }}</span>
+					  </td>
+					  <td>{{ endpoint.ident }}</td>
+					  <td>{{ endpoint.user }}</td>
+					  <td>{{ endpoint.client_platform }}</td>
+					  <td>{{ endpoint.boot_time }}</td>
+					  <td>{{ endpoint.client_version }}</td>
+					</tr>
+					{% endfor %}
+					{% if not endpoints %}
+					<tr>
+					  <td colspan="7">No endpoints found.</td>
+					</tr>
+					{% endif %}
+				  </tbody>
 				</table>
+				<script>
+				  document.getElementById("toggle-ip-button").addEventListener("click", function() {
+					var ipAddressElements = document.getElementsByClassName("ip-address");
+					var externalIpAddressElements = document.getElementsByClassName("external-ip-address");
+					var toggleButton = document.getElementById("toggle-ip-button");
+
+					for (var i = 0; i < ipAddressElements.length; i++) {
+					  var ipAddressElement = ipAddressElements[i];
+					  var externalIpAddressElement = externalIpAddressElements[i];
+
+					  if (ipAddressElement.style.display === "none") {
+						ipAddressElement.style.display = "inline";
+						externalIpAddressElement.style.display = "none";
+						toggleButton.textContent = "EX-IP";
+					  } else {
+						ipAddressElement.style.display = "none";
+						externalIpAddressElement.style.display = "inline";
+						toggleButton.textContent = "IN-IP";
+					  }
+					}
+				  });
+				</script>
+
 			</div>
 			<div class="Controller">
 				<div class="controller-buttons-container">
