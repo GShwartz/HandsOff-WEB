@@ -626,3 +626,37 @@ td {
 .local-files-container .hidden {
   display: none;
 }
+
+.remote-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.remote-container .hidden {
+    display: none;
+}
+
+#remote-button {
+  margin-left: 1px;
+}
+
+#anydesk-button {
+    margin-left: 15px;
+    width: 80%;
+    padding: 5px 5px;
+}
+
+#anydesk-button hidden {
+    display: none;
+}
+
+#teamviewer-button {
+    margin-left: 15px;
+    width: 80%;
+    padding: 5px 5px;
+}
+
+#teamviewer-button hidden {
+    display: none;
+}
