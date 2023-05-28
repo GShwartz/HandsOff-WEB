@@ -56,6 +56,7 @@
 							<th>IP Address</th>
 							<th>Hostname</th>
 							<th>Logged User</th>
+							<th>OS Platform</th>
 							<th>Boot Time</th>
 							<th>Client Version</th>
 						</tr>
@@ -67,13 +68,14 @@
 							<td>{{ endpoint.ip }}</td>
 							<td>{{ endpoint.ident }}</td>
 							<td>{{ endpoint.user }}</td>
+							<td>{{ endpoint.client_platform }}</td>
 							<td>{{ endpoint.boot_time }}</td>
 							<td>{{ endpoint.client_version }}</td>
 						</tr>
 						{% endfor %}
 						{% if not endpoints %}
 						<tr>
-							<td colspan="6">No endpoints found.</td>
+							<td colspan="7">No endpoints found.</td>
 						</tr>
 						{% endif %}
 					</tbody>
@@ -85,7 +87,6 @@
 				  <button class="button" data-action="anydesk">ANYDESK</button>
 				  <button class="button" data-action="sysinfo">SYSTEM</button>
 				  <button class="button" data-action="tasks">TASKS</button>
-				  <button id="restart" class="button" data-action="restart">RESTART</button>
 
 				  <div class="local-files-container">
 				    <span class="notification-badge" id="file-notification-badge"></span>
@@ -94,6 +95,7 @@
 				    <button class="clear-local hidden" data-action="clear" id="local-clear-button">Clear</button>
 				  </div>
 
+				  <button id="restart" class="button" data-action="restart">RESTART</button>
 				  <button id="update" class="button" data-action="update">UPDATE</button>
 				  <script src="{{ url_for('static', filename='controller.js') }}" defer></script>
 				</div>
