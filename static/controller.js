@@ -55,35 +55,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
     } else if (action === 'update') {
-      if (!lastSelectedRow) {
-        console.log('No row selected');
-        return;
-      }
-      const overlay = document.createElement('div');
-      const popup = document.createElement('container');
-      popup.classList.add('popup', 'fade-in');
-      setTimeout(() => {
+        if (!lastSelectedRow) {
+            console.log('No row selected');
+            return;
+        }
+        const overlay = document.createElement('div');
+        const popup = document.createElement('container');
+        popup.classList.add('popup', 'fade-in');
+        setTimeout(() => {
         popup.classList.remove('visible');
         void popup.offsetWidth; // Trigger reflow to restart the animation
         popup.classList.add('visible');
-      }, 50);
-      overlay.classList.add('overlay');
-      document.body.appendChild(overlay);
-      popup.innerHTML = `
+        }, 50);
+        overlay.classList.add('overlay');
+        document.body.appendChild(overlay);
+        popup.innerHTML = `
         <h1>Update ${lastSelectedRow.cells[2].innerText}?</h1>
         <div class="popup-buttons">
           <button id="yes-button">Yes</button>
           <button id="no-button">No</button>
         </div>`;
-      document.body.appendChild(popup);
-      const yesButton = document.getElementById('yes-button');
-      const noButton = document.getElementById('no-button');
-      yesButton.addEventListener('click', handleUpdateConfirmation);
-      noButton.addEventListener('click', () => {
+        document.body.appendChild(popup);
+        const yesButton = document.getElementById('yes-button');
+        const noButton = document.getElementById('no-button');
+        yesButton.addEventListener('click', handleUpdateConfirmation);
+        noButton.addEventListener('click', () => {
         popup.remove();
         overlay.classList.remove('visible');
         document.body.removeChild(overlay);
-      });
+        });
     } else if (action === 'sysinfo') {
         const overlay = document.createElement('div');
         const popup = document.createElement('div');
@@ -155,6 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
             localFilesClicked = false; // Reset the flag
             return;
           }
+
         makeAjaxRequest(action);
     }
   }
