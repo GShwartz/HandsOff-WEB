@@ -120,13 +120,16 @@ class Commands:
             return False
 
     def tasks_post_run(self):
-        task_name = request.json.get('taskName')
+        data = request.json.get('data')
+        task_name = data['taskName']
         if task_name:
-            self.tasks.kill_task(task_name)
+            self.shell_target.send('kill'.encode())
+            self.shell_target.send(str(task_name).encode())
+            msg = self.shell_target.recv(1024).decode()
             return jsonify({'message': f'Killed task {task_name}'}), 200
 
         else:
-            return jsonify({'message': 'No task name provided'}), 400
+            return jsonify({'message': f'Error killing {task_name}'}), 400
 
     def call_restart(self):
         matching_endpoint = self.find_matching_endpoint()
