@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const tasksHeaderButton = document.getElementById('tasks-button');
   const tasksContainer = document.querySelector('.tasks-container');
 
+  const informationButton = document.getElementById('sysinfo');
+  const tasksButton = document.getElementById('tasks');
+
   // Initial check for station value
   document.dispatchEvent(new CustomEvent('stationValue', { detail: { station: station } }));
 
@@ -84,6 +87,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (tasksHeaderButton.style.backgroundColor === 'green') {
     tasksHeaderButton.disabled = true;
   }
+
+  informationButton.addEventListener('click', () => {
+    informationHeaderButton.click();
+    informationHeaderButton.style.backgroundColor = 'green';
+  });
+
+  tasksButton.addEventListener('click', () => {
+    tasksHeaderButton.click();
+    tasksHeaderButton.style.backgroundColor = 'green';
+  });
 });
 
 // Function to check if any row is selected
