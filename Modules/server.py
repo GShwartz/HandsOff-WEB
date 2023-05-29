@@ -7,10 +7,7 @@ import os
 
 
 class Endpoints:
-    def __init__(self, conn, client_mac, ip, ident, user,
-                 client_version, boot_time, connection_time, ex_ip, client_platform):
-
-        self.client_platform = client_platform
+    def __init__(self, conn, client_mac, ip, ident, user, client_version, os_release, boot_time, connection_time):
         self.boot_time = boot_time
         self.conn = conn
         self.client_mac = client_mac
@@ -18,14 +15,13 @@ class Endpoints:
         self.ident = ident
         self.user = user
         self.client_version = client_version
-        self.external_ip = ex_ip
+        self.os_release = os_release
         self.connection_time = connection_time
 
     def __repr__(self):
         return f"Endpoint({self.conn}, {self.client_mac}, " \
                f"{self.ip}, {self.ident}, {self.user}, " \
-               f"{self.client_version}, {self.boot_time}, {self.connection_time}, " \
-               f"{self.external_ip}, {self.client_platform})"
+               f"{self.client_version}, {self.os_release}, {self.boot_time}, {self.connection_time})"
 
 
 class Server:
@@ -63,23 +59,20 @@ class Server:
             self.logger.debug(f'Connection from {self.ip} accepted.')
 
             try:
-                self.dt = self.get_date()
+                dt = self.get_date()
                 self.logger.debug(f'Waiting for MAC Address...')
                 self.client_mac = self.get_mac_address()
                 self.logger.debug(f'MAC: {self.client_mac}.')
                 self.logger.debug(f'Waiting for station name...')
-                self.hostname = self.get_hostname()
+                self.ident = self.get_hostname()
                 self.logger.debug(f'Station name: {self.hostname}.')
                 self.logger.debug(f'Waiting for logged user...')
-                self.loggedUser = self.get_user()
-                self.logger.debug(f'Logged user: {self.loggedUser}.')
+                self.user = self.get_user()
+                self.logger.debug(f'Logged user: {self.ident}.')
                 self.logger.debug(f'Waiting for client version...')
                 self.client_version = self.get_client_version()
                 self.logger.debug(f'Client version: {self.client_version}.')
-                self.client_external_ip = self.get_client_external_ip()
-                self.logger.debug(f'Client External IP: {self.client_external_ip}.')
-                self.client_platform = self.get_client_platform()
-                self.logger.debug(f'Client Platform: {self.client_platform}.')
+                self.os_release = self.get_os_release()
                 self.get_boot_time()
                 self.logger.debug(f'Client Boot time: {self.boot_time}.')
 
@@ -87,28 +80,23 @@ class Server:
                 self.logger.debug(f'Connection Error: {e}.')
                 return  # Restart The Loop
 
-            self.logger.debug(f'Updating lists...')
-            self.update_lists()
+            # Apply Data to dataclass Endpoints
+            self.logger.debug(f'Defining fresh endpoint data...')
+            self.fresh_endpoint = Endpoints(self.conn, self.client_mac, self.ip,
+                                            self.ident, self.user, self.client_version, self.os_release,
+                                            self.boot_time, self.get_date())
+            self.logger.debug(f'Fresh Endpoint: {self.fresh_endpoint}')
+
+            if self.fresh_endpoint not in self.endpoints:
+                self.logger.debug(f'{self.fresh_endpoint} not in endpoints list. adding...')
+                self.endpoints.append(self.fresh_endpoint)
+
+            self.logger.debug(f'Updating connection history dict...')
+            self.connHistory.update({self.fresh_endpoint: dt})
 
             self.logger.debug(f'Calling welcome_message...')
             self.welcome_message()
             self.logger.info(f'connect completed.')
-
-    # Update lists
-    def update_lists(self):
-        self.logger.debug(f'Defining fresh endpoint data...')
-        self.fresh_endpoint = Endpoints(self.conn, self.client_mac, self.ip,
-                                        self.ident, self.user, self.client_version,
-                                        self.boot_time, self.get_date(),
-                                        self.client_external_ip, self.client_platform)
-        self.logger.debug(f'Fresh Endpoint: {self.fresh_endpoint}')
-
-        if self.fresh_endpoint not in self.endpoints:
-            self.logger.debug(f'{self.fresh_endpoint} not in endpoints list. adding...')
-            self.endpoints.append(self.fresh_endpoint)
-
-        self.logger.debug(f'Updating connection history dict...')
-        self.connHistory.update({self.fresh_endpoint: self.dt})
 
     # Send welcome message to connected clients
     def welcome_message(self) -> bool:
@@ -155,17 +143,11 @@ class Server:
         self.conn.send('OK'.encode())
         return self.client_version
 
-    def get_client_external_ip(self) -> str:
-        self.logger.info(f'Running get_client_external_ip...')
-        self.external_ip = self.conn.recv(1024).decode()
+    def get_os_release(self):
+        self.logger.info('Running get_os_release...')
+        self.os_release = self.conn.recv(1024).decode()
         self.conn.send('OK'.encode())
-        return self.external_ip
-
-    def get_client_platform(self):
-        self.logger.info(f'Running get_client_platform...')
-        self.client_platform = self.conn.recv(1024).decode()
-        self.conn.send('OK'.encode())
-        return self.client_platform
+        return self.os_release
 
     # Get boot time
     def get_boot_time(self) -> str:
