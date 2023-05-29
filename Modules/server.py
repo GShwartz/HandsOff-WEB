@@ -33,10 +33,8 @@ class Server:
         self.hostname = socket.gethostname()
         self.connHistory = {}
         self.endpoints = []
-
         self.logger = init_logger(self.log_path, __name__)
 
-    # Server listener
     def listener(self) -> None:
         self.server = socket.socket()
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -51,11 +49,10 @@ class Server:
                                     name=f"Connect Thread")
         self.connectThread.start()
 
-    # Listen for connections and sort new connections to designated lists/dicts
     def connect(self) -> None:
         self.logger.info(f'Running connect...')
         while True:
-            dt = self.get_date()
+            self.dt = self.get_date()
             self.logger.debug(f'Accepting connection...')
             self.conn, (self.ip, self.port) = self.server.accept()
             self.logger.debug(f'Connection from {self.ip} accepted.')
@@ -63,51 +60,43 @@ class Server:
             self.welcome = "Connection Established!"
             self.logger.debug(f'Sending welcome message...')
             self.conn.send(f"@Server: {self.welcome}".encode())
-            self.logger.debug(f'"{self.welcome}" sent to {self.conn}.')
+            self.logger.debug(f'"{self.welcome}" sent to {self.ip}.')
 
             self.logger.debug(f'Waiting for handshake data...')
-            received_data = self.conn.recv(1024).decode()
-            handshake = json.loads(received_data)
+            self.gate_keeper = self.conn.recv(1024).decode()
+            if self.gate_keeper.lower()[:6] == 'client':
+                received_data = self.conn.recv(1024).decode()
+                self.handshake = json.loads(received_data)
+                self.update_data()
+                self.logger.info(f'connect completed.')
 
-            self.logger.debug(f'handshake: {handshake}')
-            self.client_mac = handshake['mac_address']
-            self.logger.debug(f'MAC: {self.client_mac}.')
-            self.ident = handshake['hostname']
-            self.logger.debug(f'Station name: {self.hostname}.')
-            self.user = handshake['current_user']
-            self.logger.debug(f'Logged user: {self.ident}.')
-            self.client_version = handshake['client_version']
-            self.logger.debug(f'Client version: {self.client_version}.')
-            self.os_release = handshake['os_platform']
-            self.logger.debug(f'OS Platform: {self.os_release}.')
-            self.bt = handshake['boot_time']
-            self.logger.debug(f"Client Boot time: {handshake['boot_time']}.")
+                self.logger.info(f'Running CICD Thread...')
+                Thread(target=cicd, args=(self.conn,), daemon=True, name="CICD Thread").start()
 
-            # Apply Data to dataclass Endpoints
-            self.logger.debug(f'Defining fresh endpoint data...')
-            self.fresh_endpoint = Endpoints(self.conn, self.client_mac, self.ip,
-                                            self.ident, self.user, self.client_version, self.os_release,
-                                            self.bt, self.get_date())
-            self.logger.debug(f'Fresh Endpoint: {self.fresh_endpoint}')
+            else:
+                self.conn.close()
+                return False
 
-            if self.fresh_endpoint not in self.endpoints:
-                self.logger.debug(f'{self.fresh_endpoint} not in endpoints list. adding...')
-                self.endpoints.append(self.fresh_endpoint)
+    def update_data(self):
+        self.logger.debug(f'Defining fresh endpoint data...')
+        self.fresh_endpoint = Endpoints(self.conn, self.handshake['mac_address'], self.ip,
+                                        self.handshake['hostname'], self.handshake['current_user'],
+                                        self.handshake['client_version'], self.handshake['os_platform'],
+                                        self.handshake['boot_time'], self.get_date())
+        self.logger.debug(f'Fresh Endpoint: {self.fresh_endpoint}')
 
-            self.logger.debug(f'Updating connection history dict...')
-            self.connHistory.update({self.fresh_endpoint: dt})
+        if self.fresh_endpoint not in self.endpoints:
+            self.logger.debug(f'{self.fresh_endpoint} not in endpoints list. adding...')
+            self.endpoints.append(self.fresh_endpoint)
 
-            self.logger.info(f'connect completed.')
-            self.logger.info(f'Running CICD Thread...')
-            Thread(target=cicd, args=(self.conn,), daemon=True, name="CICD Thread").start()
+        self.logger.debug(f'Updating connection history dict...')
+        self.connHistory.update({self.fresh_endpoint: self.dt})
 
-    # Get human readable datetime
     def get_date(self) -> str:
         d = datetime.now().replace(microsecond=0)
         dt = str(d.strftime("%d/%b/%y %H:%M:%S"))
         return dt
 
-    # Check vital signs
     def check_vital_signs(self, endpoint):
         self.callback = 'yes'
         self.logger.debug(f'Checking {endpoint.ip}...')
@@ -135,16 +124,13 @@ class Server:
             except (IndexError, RuntimeError):
                 return
 
-    # Run vital signs
     def vital_signs(self) -> bool:
         self.logger.info(f'Running vital_signs...')
         if not self.endpoints:
-            self.logger.debug(f'Updating statusbar message: No connected stations.')
-            self.app.update_statusbar_messages_thread(msg='No connected stations.')
+            self.logger.debug(f'No endpoints.')
             return False
 
         self.callback = 'yes'
-        self.logger.debug(f'Updating statusbar message: running vitals check....')
         threads = []
         for endpoint in self.endpoints:
             thread = Thread(target=self.check_vital_signs, args=(endpoint,))
@@ -154,11 +140,9 @@ class Server:
         for thread in threads:
             thread.join()
 
-        self.logger.debug(f'Updating statusbar message: Vitals check completed.')
         self.logger.info(f'=== End of vital_signs() ===')
         return True
 
-    # Remove Lost connections
     def remove_lost_connection(self, endpoint) -> bool:
         self.logger.info(f'Running remove_lost_connection({endpoint})...')
         try:
