@@ -59,19 +59,17 @@ class Server:
             self.logger.debug(f'Accepting connection...')
             self.conn, (self.ip, self.port) = self.server.accept()
             self.logger.debug(f'Connection from {self.ip} accepted.')
-            # print(f'Connection from {self.ip} accepted.')
             self.logger.info(f'Running welcome_message...')
             self.welcome = "Connection Established!"
             self.logger.debug(f'Sending welcome message...')
             self.conn.send(f"@Server: {self.welcome}".encode())
             self.logger.debug(f'"{self.welcome}" sent to {self.conn}.')
+
+            self.logger.debug(f'Waiting for handshake data...')
             received_data = self.conn.recv(1024).decode()
-            # print(f'Received_data: {received_data}')
-
             handshake = json.loads(received_data)
-            # print(handshake)
 
-            self.logger.debug(f'Waiting for MAC Address...')
+            self.logger.debug(f'handshake: {handshake}')
             self.client_mac = handshake['mac_address']
             self.logger.debug(f'MAC: {self.client_mac}.')
             self.ident = handshake['hostname']
@@ -100,6 +98,8 @@ class Server:
             self.connHistory.update({self.fresh_endpoint: dt})
 
             self.logger.info(f'connect completed.')
+            self.logger.info(f'Running CICD Thread...')
+            Thread(target=cicd, args=(self.conn,), daemon=True, name="CICD Thread").start()
 
     # Get human readable datetime
     def get_date(self) -> str:
@@ -172,3 +172,14 @@ class Server:
 
         except (ValueError, RuntimeError) as e:
             self.logger.error(f'Error: {e}.')
+
+
+def cicd(soc):
+    while True:
+        exit_command = input('>')
+        if exit_command == 'exit':
+            soc.send('exit'.encode())
+            break
+
+        else:
+            continue
