@@ -2,6 +2,7 @@ from Modules.logger import init_logger
 from datetime import datetime
 from threading import Thread
 import socket
+import json
 import time
 import os
 
@@ -54,37 +55,41 @@ class Server:
     def connect(self) -> None:
         self.logger.info(f'Running connect...')
         while True:
+            dt = self.get_date()
             self.logger.debug(f'Accepting connection...')
             self.conn, (self.ip, self.port) = self.server.accept()
             self.logger.debug(f'Connection from {self.ip} accepted.')
+            # print(f'Connection from {self.ip} accepted.')
+            self.logger.info(f'Running welcome_message...')
+            self.welcome = "Connection Established!"
+            self.logger.debug(f'Sending welcome message...')
+            self.conn.send(f"@Server: {self.welcome}".encode())
+            self.logger.debug(f'"{self.welcome}" sent to {self.conn}.')
+            received_data = self.conn.recv(1024).decode()
+            # print(f'Received_data: {received_data}')
 
-            try:
-                dt = self.get_date()
-                self.logger.debug(f'Waiting for MAC Address...')
-                self.client_mac = self.get_mac_address()
-                self.logger.debug(f'MAC: {self.client_mac}.')
-                self.logger.debug(f'Waiting for station name...')
-                self.ident = self.get_hostname()
-                self.logger.debug(f'Station name: {self.hostname}.')
-                self.logger.debug(f'Waiting for logged user...')
-                self.user = self.get_user()
-                self.logger.debug(f'Logged user: {self.ident}.')
-                self.logger.debug(f'Waiting for client version...')
-                self.client_version = self.get_client_version()
-                self.logger.debug(f'Client version: {self.client_version}.')
-                self.os_release = self.get_os_release()
-                self.get_boot_time()
-                self.logger.debug(f'Client Boot time: {self.boot_time}.')
+            handshake = json.loads(received_data)
+            # print(handshake)
 
-            except (Exception, socket.error) as e:
-                self.logger.debug(f'Connection Error: {e}.')
-                return  # Restart The Loop
+            self.logger.debug(f'Waiting for MAC Address...')
+            self.client_mac = handshake['mac_address']
+            self.logger.debug(f'MAC: {self.client_mac}.')
+            self.ident = handshake['hostname']
+            self.logger.debug(f'Station name: {self.hostname}.')
+            self.user = handshake['current_user']
+            self.logger.debug(f'Logged user: {self.ident}.')
+            self.client_version = handshake['client_version']
+            self.logger.debug(f'Client version: {self.client_version}.')
+            self.os_release = handshake['os_platform']
+            self.logger.debug(f'OS Platform: {self.os_release}.')
+            self.bt = handshake['boot_time']
+            self.logger.debug(f"Client Boot time: {handshake['boot_time']}.")
 
             # Apply Data to dataclass Endpoints
             self.logger.debug(f'Defining fresh endpoint data...')
             self.fresh_endpoint = Endpoints(self.conn, self.client_mac, self.ip,
                                             self.ident, self.user, self.client_version, self.os_release,
-                                            self.boot_time, self.get_date())
+                                            self.bt, self.get_date())
             self.logger.debug(f'Fresh Endpoint: {self.fresh_endpoint}')
 
             if self.fresh_endpoint not in self.endpoints:
@@ -94,67 +99,7 @@ class Server:
             self.logger.debug(f'Updating connection history dict...')
             self.connHistory.update({self.fresh_endpoint: dt})
 
-            self.logger.debug(f'Calling welcome_message...')
-            self.welcome_message()
             self.logger.info(f'connect completed.')
-
-    # Send welcome message to connected clients
-    def welcome_message(self) -> bool:
-        self.logger.info(f'Running welcome_message...')
-        try:
-            self.welcome = "Connection Established!"
-            self.logger.debug(f'Sending welcome message...')
-            self.conn.send(f"@Server: {self.welcome}".encode())
-            self.logger.debug(f'{self.welcome} sent to {self.ident}.')
-            return True
-
-        except (Exception, socket.error) as e:
-            self.logger.error(f'Connection Error: {e}.')
-            if self.fresh_endpoint in self.endpoints:
-                self.logger.debug(f'Calling remove_lost_connection({self.fresh_endpoint})...')
-                self.remove_lost_connection(self.fresh_endpoint)
-                return False
-
-    # Get remote MAC address
-    def get_mac_address(self) -> str:
-        self.logger.info(f'Running get_mac_address...')
-        self.mac = self.conn.recv(1024).decode()
-        self.conn.send('OK'.encode())
-        return self.mac
-
-    # Get remote host name
-    def get_hostname(self) -> str:
-        self.logger.info(f'Running get_hostname...')
-        self.ident = self.conn.recv(1024).decode()
-        self.conn.send('OK'.encode())
-        return self.ident
-
-    # Get remote user
-    def get_user(self) -> str:
-        self.logger.info(f'Running get_user...')
-        self.user = self.conn.recv(1024).decode()
-        self.conn.send('OK'.encode())
-        return self.user
-
-    # Get client version
-    def get_client_version(self) -> str:
-        self.logger.info(f'Running get_client_version...')
-        self.client_version = self.conn.recv(1024).decode()
-        self.conn.send('OK'.encode())
-        return self.client_version
-
-    def get_os_release(self):
-        self.logger.info('Running get_os_release...')
-        self.os_release = self.conn.recv(1024).decode()
-        self.conn.send('OK'.encode())
-        return self.os_release
-
-    # Get boot time
-    def get_boot_time(self) -> str:
-        self.logger.info(f'Running get_boot_time...')
-        self.boot_time = self.conn.recv(1024).decode()
-        self.conn.send('OK'.encode())
-        return self.boot_time
 
     # Get human readable datetime
     def get_date(self) -> str:
