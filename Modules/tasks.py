@@ -116,16 +116,7 @@ class Tasks:
         self.logger.debug(f"Sending confirmation to {self.endpoint.ip}...")
         try:
             self.endpoint.conn.send(f"Received file: {self.filenameRecv}\n".encode())
-
-        except (Exception, socket.error) as e:
-            self.handle_error(e)
-            return False
-
-        try:
-            self.endpoint.conn.settimeout(10)
-            msg = self.endpoint.conn.recv(1024).decode()
-            self.endpoint.conn.settimeout(None)
-            self.logger.debug(f"{self.endpoint.ip}: {msg}")
+            return True
 
         except (Exception, socket.error) as e:
             self.handle_error(e)

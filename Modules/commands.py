@@ -126,6 +126,7 @@ class Commands:
             self.shell_target.send('kill'.encode())
             self.shell_target.send(str(task_name).encode())
             msg = self.shell_target.recv(1024).decode()
+            self.logger.info(f'{msg}')
             return jsonify({'message': f'Killed task {task_name}'}), 200
 
         else:
