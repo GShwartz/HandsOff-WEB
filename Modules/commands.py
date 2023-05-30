@@ -89,6 +89,40 @@ class Commands:
         else:
             return False
 
+    def call_teamviewer(self) -> bool:
+        self.logger.info(f'Running anydesk_command...')
+        matching_endpoint = self.find_matching_endpoint()
+        if matching_endpoint:
+            try:
+                self.logger.debug(f'Sending teamviewer command to {matching_endpoint.conn}...')
+                matching_endpoint.conn.send('teamviewer'.encode())
+
+                self.logger.debug(f'Waiting for response from {matching_endpoint.ip}......')
+                msg = matching_endpoint.conn.recv(1024).decode()
+                self.logger.debug(f'Client response: {msg}.')
+
+                if "OK" not in msg:
+                    while "OK" not in msg:
+                        self.logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
+                        msg = matching_endpoint.conn.recv(1024).decode()
+                        self.logger.debug(f'{matching_endpoint.ip}: {msg}...')
+
+                    self.logger.debug(f'End of OK in msg loop.')
+                    self.logger.info(f'teamviewer completed.')
+                    return True
+
+                else:
+                    return True
+
+            except (WindowsError, ConnectionError, socket.error, RuntimeError) as e:
+                self.logger.error(f'Connection Error: {e}.')
+                self.logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
+                self.server.remove_lost_connection(matching_endpoint)
+                return False
+
+        else:
+            return False
+
     def call_sysinfo(self):
         matching_endpoint = self.find_matching_endpoint()
         if matching_endpoint:
