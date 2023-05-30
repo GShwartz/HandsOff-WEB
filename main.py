@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory, url_for, redirect
+from flask import Flask, render_template, request, jsonify, send_from_directory, url_for, redirect, send_file
 from dotenv import load_dotenv, dotenv_values
 from flask_socketio import SocketIO, emit
 from datetime import datetime
@@ -98,9 +98,6 @@ class Backend:
                 return jsonify({'message': 'Screenshot failed'})
 
         if data == 'anydesk':
-            if not self.commands.call_anydesk():
-                return jsonify({'error': f'call_anydesk failed.'})
-
             self.logger.debug(f"Calling self.commands.call_anydesk()...")
             if not self.commands.call_anydesk():
                 self.logger.debug(f"Anydesk missing.")
@@ -109,6 +106,16 @@ class Backend:
             else:
                 self.logger.debug(f"Anydesk running.")
                 return jsonify({'message': 'Anydesk installed & running'})
+
+        if data == 'teamviewer':
+            self.logger.debug(f"Calling self.commands.call_teamviewer()...")
+            if not self.commands.call_teamviewer():
+                self.logger.debug(f"teamviewer missing.")
+                return jsonify({'message': f'missing'})
+
+            else:
+                self.logger.debug(f"TeamViewer running.")
+                return jsonify({'message': 'TeamViewer installed & running'})
 
         if data == 'sysinfo':
             latest_file = self.commands.call_sysinfo()
