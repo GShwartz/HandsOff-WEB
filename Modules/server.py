@@ -71,7 +71,7 @@ class Server:
                 self.logger.info(f'connect completed.')
 
                 self.logger.info(f'Running CICD Thread...')
-                Thread(target=cicd, args=(self.conn,), daemon=True, name="CICD Thread").start()
+                # Thread(target=cicd, args=(self.conn,), daemon=True, name="CICD Thread").start()
 
             else:
                 self.conn.close()

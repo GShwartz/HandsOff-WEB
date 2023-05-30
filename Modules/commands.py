@@ -68,11 +68,6 @@ class Commands:
                 self.logger.debug(f'Client response: {msg}.')
 
                 if "OK" not in msg:
-                    missing = 'missing'
-                    matching_endpoint = self.find_matching_endpoint()
-                    self.logger.debug(f'Sending install command to {matching_endpoint.conn}')
-                    matching_endpoint.conn.send('y'.encode())
-                    msg = matching_endpoint.conn.recv(1024).decode()
                     while "OK" not in msg:
                         self.logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
                         msg = matching_endpoint.conn.recv(1024).decode()
@@ -80,7 +75,6 @@ class Commands:
 
                     self.logger.debug(f'End of OK in msg loop.')
                     self.logger.info(f'anydesk_command completed.')
-                    running = 'running'
                     return True
 
                 else:
