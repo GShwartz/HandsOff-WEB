@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     anydeskButton.classList.toggle('hidden');
     teamviewerButton.classList.toggle('hidden');
+
   });
 
   anydeskButton.addEventListener('click', handleAnyDeskButtonClick);
@@ -171,7 +172,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // If "Local Files" or remote buttons are clicked, don't send any request
         localFilesClicked = false; // Reset the flag
         remoteButtonClicked = false; // Reset the flag
+        remoteButton.style.backgroundColor = "";
+
         return;
+      }
+      else {
       }
       makeAjaxRequest(action);
     }
