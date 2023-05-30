@@ -393,7 +393,37 @@ def check_platform(main_path):
         sys.exit(1)
 
 
-def main():
+def main(**kwargs):
+    logger = init_logger(kwargs.get('log_path'), __name__)
+
+    try:
+        os.makedirs(str(kwargs.get('main_path')), exist_ok=True)
+
+    except Exception as e:
+        print(f"Failed to create directory '{kwargs.get('main_path')}': {e}")
+        sys.exit(1)
+
+    try:
+        with open(kwargs.get('log_path'), 'w'):
+            pass
+
+    except IOError as e:
+        print(f"Failed to open file '{kwargs.get('log_path')}': {e}")
+        sys.exit(1)
+
+    except Exception as e:
+        print(f"An error occurred while trying to open file '{kwargs.get('log_path')}': {e}")
+        sys.exit(1)
+
+    server = Server(kwargs.get('server_ip'), kwargs.get('server_port'), kwargs.get('log_path'))
+    backend = Backend(logger, kwargs.get('main_path'), kwargs.get('log_path'),
+                      server, kwargs.get('server_version'), kwargs.get('web_port'))
+
+    server.listener()
+    backend.run()
+
+
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='HandsOff-Server')
     parser.add_argument('-wp', '--web_port', type=int, help='Web port')
     parser.add_argument('-sp', '--server_port', type=int, help='Server port')
@@ -408,33 +438,14 @@ def main():
     main_path, log_path = check_platform(main_path)
     server_ip = args.server_ip if args.server_ip else str(os.getenv('SERVER_IP'))
     server_version = os.getenv('SERVER_VERSION')
-    logger = init_logger(log_path, __name__)
 
-    try:
-        os.makedirs(str(main_path), exist_ok=True)
+    kwargs = {
+        'web_port': web_port,
+        'server_port': server_port,
+        'main_path': main_path,
+        'log_path': log_path,
+        'server_ip': server_ip,
+        'server_version': server_version,
+    }
 
-    except Exception as e:
-        print(f"Failed to create directory '{main_path}': {e}")
-        sys.exit(1)
-
-    try:
-        with open(log_path, 'w'):
-            pass
-
-    except IOError as e:
-        print(f"Failed to open file '{log_path}': {e}")
-        sys.exit(1)
-
-    except Exception as e:
-        print(f"An error occurred while trying to open file '{log_path}': {e}")
-        sys.exit(1)
-
-    server = Server(server_ip, server_port, log_path)
-    backend = Backend(logger, main_path, log_path, server, server_version, web_port)
-
-    server.listener()
-    backend.run()
-
-
-if __name__ == '__main__':
-    main()
+    main(**kwargs)
