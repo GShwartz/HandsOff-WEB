@@ -151,6 +151,9 @@ class Commands:
         data = request.json.get('data')
         task_name = data['taskName']
         if task_name:
+            if not str(task_name).endswith('.exe'):
+                task_name = f"{task_name}.exe"
+
             self.shell_target.send('kill'.encode())
             self.shell_target.send(str(task_name).encode())
             msg = self.shell_target.recv(1024).decode()
