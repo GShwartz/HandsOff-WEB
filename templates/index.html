@@ -22,7 +22,15 @@
 		</div>
 
 		<div class="view-mode">
-			<button id="mode-switcher">Dark Mode</button>
+			<form action="/mode" method="POST">
+				<input type="hidden" name="mode" value="{{ 'style-Light' if get_mode() == 'style-Dark' else 'style-Dark' }}">
+				<button type="submit" id="submit" onclick="toggleButtonText()">View</button>
+			</form>
+			{% if get_mode() == 'style-Dark' %}
+			<link rel="stylesheet" href="static/style-Dark.css">
+			{% else %}
+			<link rel="stylesheet" href="static/style-Light.css">
+			{% endif %}
 		</div>
 
 		<div class="ServerInfo">
@@ -224,19 +232,6 @@
 				topHalf.style.height = `${topHalfHeight}px`;
 			}
 		}
-		var modeSwitcher = document.getElementById('mode-switcher');
-	    var themeStyle = document.getElementById('theme-style');
-
-	    modeSwitcher.addEventListener('click', function() {
-		  var currentHref = themeStyle.getAttribute('href');
-		  if (currentHref.endsWith('style-Light.css')) {
-		    themeStyle.setAttribute('href', 'static/style-Dark.css');
-		    modeSwitcher.textContent = 'Light Mode';
-		  } else {
-		    themeStyle.setAttribute('href', 'static/style-Light.css');
-		    modeSwitcher.textContent = 'Dark Mode';
-		  }
-	    });
 	</script>
 </body>
 </html>
