@@ -5,12 +5,12 @@
     width: 25%;
     height: 15%;
     transform: translate(-50%, -50%);
-    background-color: #072540;
-    border: 2px solid #E6EEF5;
+    background-color: #282A2A;
+    border: 2px solid white;
     border-radius: 50%;
     padding: 20px;
     z-index: 1000;
-    box-shadow: 0 1.5rem 2rem -1.75rem #4D499E; inset 0 1.5rem 3rem -0.75rem #8B4513;
+    box-shadow: 0 1.5rem 2rem -1.75rem #75032B; inset 0 1.5rem 3rem -0.75rem #8B4513;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -78,6 +78,19 @@
 
 .TopNav { grid-area: TopNav; }
 
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: 5px;
+  display: none;
+  padding: 2px 6px;
+  border-radius: 50%;
+  background-color: red;
+  color: white;
+  font-size: 12px;
+  z-index: 5;
+}
+
 html,
 body {
   margin: 0;
@@ -136,7 +149,6 @@ body {
 .view-mode {
     position: fixed;
     display: flex;
-    flex: 1;
     top: 0.8rem;
     margin-left: 220px;
     z-index: 10;
@@ -194,7 +206,7 @@ body {
   display: flex;
   flex-grow: 0;
   border: 5px solid black;
-  box-shadow: 0 0 5px #E6EEF5;
+  box-shadow: 0 0 5px white;
   width: 600px;
   height: 400px;
   z-index: 1;
@@ -205,7 +217,7 @@ body {
   display: flex;
   flex-grow: 0;
   border: 3px solid black;
-  box-shadow: 0 0 5px #E6EEF5;
+  box-shadow: 0 0 5px white;
   width: 900px;
   height: 400px;
   z-index: 1;
@@ -348,8 +360,9 @@ h1 {
 .table-connected th {
   position: sticky;
   top: 0;
-  background: #4C67FA;
+  background: #0E3C65;
   color: white;
+  border-color: 424B4B;
 }
 
 .table-connected tr {
@@ -357,10 +370,10 @@ h1 {
 }
 
 .table-connected tr:hover {
-  background-color: #D3E8FB;
+  background-color: white;
 }
 .table-connected tr.selected {
-  background-color: #8A0808;
+  background-color: #75032B;
   color: white;
 }
 
@@ -384,7 +397,7 @@ td {
 }
 
 .controller-buttons-container button {
-  background-color: #D86E03;
+  background-color: #75032B;
   color: white;
   font-size: 12px;
   cursor: pointer;
@@ -398,7 +411,7 @@ td {
 
 .controller-buttons-container button:hover {
   color: black;
-  background-color: #E9EEF7;
+  background-color: #FBDDC2;
 }
 
 .controller-buttons-container button:active {
@@ -432,6 +445,50 @@ td {
   padding: 5px 10px;
   margin: 30px 10px; /* Add margin for gaps between buttons */
 }
+
+.inp {
+  position: relative;
+  display: inline-block;
+  margin-left: 10px;
+  padding: 0 5px;
+}
+
+.inp .label {
+  position: absolute;
+  left: 0;
+  font-size: 14px;
+  color: #999;
+  transition: top 0.2s, font-size 0.2s;
+  pointer-events: none;
+}
+
+.inp .focus-bg {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background-color: #4a90e2;
+  transform: scaleX(0);
+  transition: transform 0.2s;
+}
+
+.inp input:focus + .label,
+.inp input:not(:placeholder-shown) + .label {
+  font-size: 12px;
+}
+
+.inp input:focus + .label {
+  color: #4a90e2;
+}
+
+.inp input:focus + .label + .focus-bg,
+.inp input:not(:placeholder-shown) + .label + .focus-bg {
+  transform: scaleX(1);
+}
+
+
+
 
 .screenshots-button:hover {
     cursor: initial;
@@ -548,7 +605,7 @@ td {
   padding: 5px;
   text-align: center;
   border: 1px solid #ccc;
-  background-color: #4C67FA;
+  background-color: #0E3C65;
   color: white;
 }
 
@@ -562,18 +619,6 @@ td {
 }
 
 
-.notification-badge {
-  position: absolute;
-  top: -5px;
-  right: 5px;
-  display: none;
-  padding: 2px 6px;
-  border-radius: 50%;
-  background-color: red;
-  color: white;
-  font-size: 12px;
-  z-index: 5;
-}
 .local-files-container {
   display: flex;
   align-items: center;
@@ -722,7 +767,7 @@ td {
   background: linear-gradient(
     120deg,
     transparent,
-    rgba(146, 148, 248, 0.4),
+    #B9BCC8,
     transparent
   );
   transition: all 650ms;
