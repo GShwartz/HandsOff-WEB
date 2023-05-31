@@ -166,7 +166,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 50px;
-  padding: 1rem 1rem;
+  padding: 5px 5px;
 }
 
 .headers-wrapper {
@@ -313,7 +313,7 @@ h1 {
     font-family: Arial, sans-serif;
     font-size: 12px;
     font-weight: bold;
-    background-color: white;
+    background-color: #E9EEF7;
 }
 
 .connectedStations {
@@ -348,12 +348,12 @@ h1 {
 .table-connected th {
   position: sticky;
   top: 0;
-  background: #27399D;
+  background: #4C67FA;
   color: white;
 }
 
 .table-connected tr {
-    background-color: white;
+    background-color: #E9EEF7;
 }
 
 .table-connected tr:hover {
@@ -384,7 +384,7 @@ td {
 }
 
 .controller-buttons-container button {
-  background-color: #14558E;
+  background-color: #D86E03;
   color: white;
   font-size: 12px;
   cursor: pointer;
@@ -397,8 +397,8 @@ td {
 }
 
 .controller-buttons-container button:hover {
-  color: white;
-  background-color: #1FB6CA;
+  color: black;
+  background-color: #E9EEF7;
 }
 
 .controller-buttons-container button:active {
@@ -541,14 +541,14 @@ td {
   font-family: Arial, sans-serif;
   font-size: 12px;
   font-weight: bold;
-  background-color: white;
+  background-color: #E9EEF7;
 }
 
 .table-history th {
   padding: 5px;
   text-align: center;
   border: 1px solid #ccc;
-  background-color: #27399D;
+  background-color: #4C67FA;
   color: white;
 }
 
@@ -592,7 +592,7 @@ td {
 }
 
 #local-clear-button:hover {
-  background-color: #4682B4;
+  background-color: #E5CEE7;
 }
 
 #local-view-button {
@@ -603,7 +603,7 @@ td {
 }
 
 #local-view-button:hover {
-  background-color: #4682B4;
+  background-color: #E5CEE7;
 }
 
 .loading-spinner {
@@ -680,7 +680,7 @@ td {
 }
 
 #anydesk-button:hover {
-  background-color: #4682B4;
+  background-color: #E5CEE7;
 }
 
 #teamviewer-button {
@@ -695,7 +695,7 @@ td {
 }
 
 #teamviewer-button:hover {
-  background-color: #4682B4;
+  background-color: #E5CEE7;
 }
 
 .btn {
@@ -731,3 +731,4 @@ td {
 .btn:hover:before {
   left: 100%;
 }
+
