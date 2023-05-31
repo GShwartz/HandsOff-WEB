@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory, url_for, redirect, send_file
+from flask import Flask, render_template, request, jsonify, \
+    send_from_directory, url_for, redirect, send_file, session
 from dotenv import load_dotenv, dotenv_values
 from flask_socketio import SocketIO, emit
 from datetime import datetime
@@ -37,9 +38,10 @@ class Backend:
         self.commands = Commands(self.main_path, self.log_path, self.server)
 
         self.app = Flask(__name__)
+        self.app.secret_key = os.urandom(24)
         self.sio = SocketIO(self.app)
+        self.configure_context_processors()
 
-        self.kill_task = False
         self._routes()
 
     def _routes(self):
@@ -61,6 +63,20 @@ class Backend:
         self.app.route('/shell_data', methods=['POST', 'GET'])(self.shell_data)
         self.app.route('/kill_task', methods=['POST'])(self.commands.tasks_post_run)
         self.app.route('/clear_local', methods=['POST'])(self.clear_local)
+        self.app.route('/mode', methods=['POST'])(self.set_mode)
+
+    def set_mode(self):
+        mode = request.form.get('mode')
+        session['mode'] = mode
+        return redirect(url_for('index'))
+
+    def configure_context_processors(self):
+        @self.app.context_processor
+        def inject_mode():
+            def get_mode():
+                return session.get('mode', 'style-Dark')
+
+            return {'get_mode': get_mode}
 
     def serve_static(self, path):
         return send_from_directory('static', path)
@@ -209,8 +225,8 @@ class Backend:
                 return jsonify({'error': 'Error while clearing dir'})
 
         else:
-            print(data)
-            return jsonify({'message': f'Unrecognized: {data}'})
+            self.logger.error(f"Unknown command: {data}")
+            return jsonify({'message': f'Unknown: {data}'})
 
     def find_matching_endpoint(self) -> str:
         self.logger.debug(f"Finding matching endpoint...")
