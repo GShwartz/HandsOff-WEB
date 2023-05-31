@@ -4,7 +4,6 @@
 	<meta charset="UTF-8">
 	<meta name="author" content="Gil Shwartz">
 	<meta name="description" content="A C&C for IT Admins">
-<!--	<link rel="stylesheet" href="{{ url_for('static', filename='style-Dark.css') }}">-->
 	<link rel="stylesheet" href="{{ url_for('static', filename='style-Light.css') }}" id="theme-style">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="{{ url_for('static', filename='table_data.js') }}" defer></script>
@@ -19,8 +18,11 @@
 		<div class="TopNav">
 			<div class="top-nav-logo">
 				<img src="static/images/handsoff-low-resolution-logo-color-on-transparent-background.png">
-				<button id="mode-switcher">Switch Mode</button>
 			</div>
+		</div>
+
+		<div class="view-mode">
+			<button id="mode-switcher">Dark Mode</button>
 		</div>
 
 		<div class="ServerInfo">
@@ -222,21 +224,19 @@
 				topHalf.style.height = `${topHalfHeight}px`;
 			}
 		}
+		var modeSwitcher = document.getElementById('mode-switcher');
+	    var themeStyle = document.getElementById('theme-style');
+
+	    modeSwitcher.addEventListener('click', function() {
+		  var currentHref = themeStyle.getAttribute('href');
+		  if (currentHref.endsWith('style-Light.css')) {
+		    themeStyle.setAttribute('href', 'static/style-Dark.css');
+		    modeSwitcher.textContent = 'Light Mode';
+		  } else {
+		    themeStyle.setAttribute('href', 'static/style-Light.css');
+		    modeSwitcher.textContent = 'Dark Mode';
+		  }
+	    });
 	</script>
-	<script>
-	  // Add the JavaScript code for mode switching here
-	  var modeSwitcher = document.getElementById('mode-switcher');
-	  var themeStyle = document.getElementById('theme-style');
-
-	  modeSwitcher.addEventListener('click', function() {
-		var currentHref = themeStyle.getAttribute('href');
-		if (currentHref.endsWith('style-Light.css')) {
-		  themeStyle.setAttribute('href', 'static/style-Dark.css');
-		} else {
-		  themeStyle.setAttribute('href', 'static/style-Light.css');
-		}
-	  });
-</script>
-
 </body>
 </html>
