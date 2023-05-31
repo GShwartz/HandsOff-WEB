@@ -139,6 +139,15 @@ body {
   z-index: 10;
 }
 
+.view-mode {
+    position: fixed;
+    display: flex;
+    flex: 1;
+    top: 0.6rem;
+    margin-left: 250px;
+    z-index: 10;
+}
+
 .ServerInfo {
   position: fixed;
   top: 2.9rem;
@@ -395,7 +404,7 @@ td {
 .screenshots-button,
  .information-button,
  .tasks-button {
-  background-color: #111827;
+  background-color: #54040E;
   border: 1px solid transparent;
   border-radius: .75rem;
   box-sizing: border-box;
@@ -415,7 +424,7 @@ td {
   -webkit-user-select: none;
   touch-action: manipulation;
   width: auto;
-  padding: 5px 5px;
+  padding: 5px 10px;
   margin: 15px 10px; /* Add margin for gaps between buttons */
 }
 

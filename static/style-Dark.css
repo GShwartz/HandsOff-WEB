@@ -133,6 +133,15 @@ body {
   z-index: 10;
 }
 
+.view-mode {
+    position: fixed;
+    display: flex;
+    flex: 1;
+    top: 0.6rem;
+    margin-left: 250px;
+    z-index: 10;
+}
+
 .ServerInfo {
   position: fixed;
   top: 2.9rem;
@@ -235,8 +244,8 @@ body {
 }
 
 h1 {
-  margin-top: 1px;
-  margin-bottom: 1px;
+  margin-top: 0.1px;
+  margin-bottom: 0.1px;
   color: white;
   border-color: #D2B48C;
   font-family: Arial, sans-serif;
@@ -245,7 +254,7 @@ h1 {
   text-transform: uppercase;
   letter-spacing: 1px;
   text-shadow: 1px 1px 3px #D2B48C;
-  background-color: #4F4D66;
+  background-color: #077377;
   border: 2px solid #ccc;
   padding: 2px;
 }
@@ -340,7 +349,7 @@ h1 {
 }
 
 th {
-    background-color: #053662;
+    background-color: #077377;
 }
 
 th,
@@ -408,7 +417,7 @@ td {
   -webkit-user-select: none;
   touch-action: manipulation;
   width: auto;
-  padding: 5px 5px;
+  padding: 5px 10px;
   margin: 30px 10px; /* Add margin for gaps between buttons */
 }
 
@@ -646,6 +655,10 @@ td {
 
 #remote-button {
   margin-left: 1px;
+}
+
+#remote-button.clicked {
+  background-color: white;
 }
 
 #anydesk-button {
