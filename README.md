@@ -1,4 +1,4 @@
-# HandsOff-Web
+# HandsOff-Server
 <img src="https://github.com/GShwartz/HandsOff-WEB/blob/main/src/02-connected.jpg?raw=true" alt="Connected" width="800" height="450">
 
 * Compatible with windows OS and Debian (tested on Ubuntu 22.04 with docker-ce).
