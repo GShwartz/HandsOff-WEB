@@ -6,11 +6,11 @@
     height: 15%;
     transform: translate(-50%, -50%);
     background-color: #282A2A;
-    border: 2px solid white;
+    border: 2px solid #283664;
     border-radius: 50%;
     padding: 20px;
     z-index: 1000;
-    box-shadow: 0 1.5rem 2rem -1.75rem #75032B; inset 0 1.5rem 3rem -0.75rem #8B4513;
+    box-shadow: 0 1.5rem 2rem -1.75rem white; inset 0 1.5rem 3rem -0.75rem #8B4513;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -85,7 +85,7 @@
   display: none;
   padding: 2px 6px;
   border-radius: 50%;
-  background-color: red;
+  background-color: #D30202;
   color: white;
   font-size: 12px;
   z-index: 5;
@@ -146,13 +146,7 @@ body {
   z-index: 10;
 }
 
-.view-mode {
-    position: fixed;
-    display: flex;
-    top: 0.8rem;
-    margin-left: 220px;
-    z-index: 10;
-}
+
 
 .ServerInfo {
   position: fixed;
@@ -317,7 +311,7 @@ h1 {
 }
 
 .server-table th {
-    background-color: #424B4B;
+    background-color: #0E3C65;
     color: white;
 }
 
@@ -325,7 +319,7 @@ h1 {
     font-family: Arial, sans-serif;
     font-size: 12px;
     font-weight: bold;
-    background-color: #E9EEF7;
+    background-color: #F6F7F7;
 }
 
 .connectedStations {
@@ -362,18 +356,19 @@ h1 {
   top: 0;
   background: #0E3C65;
   color: white;
-  border-color: 424B4B;
+  border-color: #424B4B;
 }
 
 .table-connected tr {
-    background-color: #E9EEF7;
+    background-color: #F6F7F7;
 }
 
 .table-connected tr:hover {
   background-color: white;
 }
+
 .table-connected tr.selected {
-  background-color: #75032B;
+  background-color: #1C7A11;
   color: white;
 }
 
@@ -397,11 +392,11 @@ td {
 }
 
 .controller-buttons-container button {
-  background-color: #75032B;
+  background-color: #3877EC;
   color: white;
   font-size: 12px;
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: 15px;
   width: 150px;
   height: 35px;
   left: 200px;
@@ -411,7 +406,7 @@ td {
 
 .controller-buttons-container button:hover {
   color: black;
-  background-color: #FBDDC2;
+  background-color: #A1ADC2;
 }
 
 .controller-buttons-container button:active {
@@ -430,8 +425,7 @@ td {
   cursor: pointer;
   flex: 0 0 auto;
   font-family: Arial, sans-serif;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 16px;
   text-align: center;
   text-decoration: none #6B7280 solid;
   text-decoration-thickness: auto;
@@ -443,7 +437,7 @@ td {
   touch-action: manipulation;
   width: auto;
   padding: 5px 10px;
-  margin: 30px 10px; /* Add margin for gaps between buttons */
+  margin: 20px 10px; /* Add margin for gaps between buttons */
 }
 
 .inp {
@@ -487,9 +481,6 @@ td {
   transform: scaleX(1);
 }
 
-
-
-
 .screenshots-button:hover {
     cursor: initial;
 }
@@ -528,41 +519,6 @@ td {
   border: 1px solid black;
 }
 
-.screenshots-slider::-webkit-scrollbar {
-  width: 10px;
-}
-
-.screenshots-slider::-webkit-scrollbar-track {
-  background-color: lightgray;
-}
-
-.screenshots-slider::-webkit-scrollbar-thumb {
-  background-color: gray;
-}
-
-.screenshots-slider-nav {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    column-gap: 1px;
-    /* bottom: 1.25rem; */
-    left: 100%;
-    transform: translateX(-50%);
-    z-index: 1;
-}
-
-.screenshots-slider-nav a {
-    width: 0.5rem;
-    height: 3rem;
-    border-radius: 80%;
-    opacity: 0.75;
-    transition: opacity ease 250ms;
-}
-
-.screenshots-slider-nav a:hover {
-    opacity: 1;
-}
-
 .information-container.minimized {
   display: none;
   overflow: hidden;
@@ -598,7 +554,7 @@ td {
   font-family: Arial, sans-serif;
   font-size: 12px;
   font-weight: bold;
-  background-color: #E9EEF7;
+  background-color: #F6F7F7;
 }
 
 .table-history th {
@@ -617,7 +573,6 @@ td {
   margin-left: 44.5%;
   margin-right: 50%;
 }
-
 
 .local-files-container {
   display: flex;
@@ -743,6 +698,14 @@ td {
   background-color: #E5CEE7;
 }
 
+.view-mode {
+    position: fixed;
+    display: flex;
+    top: 0.6rem;
+    margin-left: 220px;
+    z-index: 10;
+}
+
 .btn {
   text-decoration: none;
   border: 1px solid rgb(146, 148, 248);
@@ -751,6 +714,7 @@ td {
   color: #BDE9E7;
   background-color: #2F4F4F;
   text-transform: uppercase;
+  padding: 5px 10px;
 }
 
 .btn:hover {
@@ -776,4 +740,6 @@ td {
 .btn:hover:before {
   left: 100%;
 }
+
+
 
