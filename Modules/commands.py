@@ -25,36 +25,6 @@ class Commands:
             if sc.run():
                 return True
 
-    def skip_anydesk_install(self):
-        matching_endpoint = self.find_matching_endpoint()
-        self.logger.debug(f'Sending cancel command to {matching_endpoint.conn}...')
-        try:
-            matching_endpoint.conn.send('n'.encode())
-            skip = 'skipped'
-            return skip
-
-        except (RuntimeError, WindowsError, socket.error) as e:
-            self.logger.error(f'Connection Error: {e}.')
-            self.logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
-            self.server.remove_lost_connection(matching_endpoint)
-            self.logger.info(f'restart_command failed.')
-            return False
-
-    def install_anydesk(self):
-        matching_endpoint = self.find_matching_endpoint()
-        self.logger.debug(f'Sending install command to {matching_endpoint.conn}')
-        matching_endpoint.conn.send('y'.encode())
-        msg = matching_endpoint.conn.recv(1024).decode()
-        while "OK" not in msg:
-            self.logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
-            msg = matching_endpoint.conn.recv(1024).decode()
-            self.logger.debug(f'{matching_endpoint.ip}: {msg}...')
-
-        self.logger.debug(f'End of OK in msg loop.')
-        self.logger.info(f'anydesk_command completed.')
-        running = 'running'
-        return True
-
     def call_anydesk(self) -> bool:
         self.logger.info(f'Running anydesk_command...')
         matching_endpoint = self.find_matching_endpoint()

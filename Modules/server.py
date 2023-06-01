@@ -1,3 +1,5 @@
+import dotenv
+from dotenv import load_dotenv
 from Modules.logger import init_logger
 from datetime import datetime
 from threading import Thread
@@ -35,6 +37,10 @@ class Server:
         self.endpoints = []
         self.logger = init_logger(self.log_path, __name__)
 
+        load_dotenv()
+        self.user = os.getenv('USER')
+        self.password = os.getenv('PASSWORD')
+
     def listener(self) -> None:
         self.server = socket.socket()
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -63,10 +69,22 @@ class Server:
             self.logger.debug(f'"{self.welcome}" sent to {self.ip}.')
 
             self.logger.debug(f'Waiting for handshake data...')
-            self.gate_keeper = self.conn.recv(1024).decode()
+            try:
+                self.gate_keeper = self.conn.recv(1024).decode()
+
+            except ConnectionResetError:
+                self.conn.close()
+                return False
+
             if self.gate_keeper.lower()[:6] == 'client':
                 received_data = self.conn.recv(1024).decode()
                 self.handshake = json.loads(received_data)
+                if not str(self.handshake['user']) == str(self.user) and not \
+                        str(self.handshake['password']) == str(self.password):
+                    self.logger.warning(f"{self.conn}: Failed to authenticate with username | password.")
+                    self.conn.close()
+                    return False
+
                 self.update_data()
                 self.logger.info(f'connect completed.')
 
@@ -74,6 +92,7 @@ class Server:
                 # Thread(target=cicd, args=(self.conn,), daemon=True, name="CICD Thread").start()
 
             else:
+                self.logger.error(f'GATE-KEEPER: {self.conn} failed.')
                 self.conn.close()
                 return False
 
@@ -146,7 +165,7 @@ class Server:
     def remove_lost_connection(self, endpoint) -> bool:
         self.logger.info(f'Running remove_lost_connection({endpoint})...')
         try:
-            self.logger.debug(f'Removing {endpoint.ip} | {endpoint.ident}...')
+            self.logger.debug(f'Removing {endpoint.ip}...')
             endpoint.conn.close()
             self.endpoints.remove(endpoint)
 
