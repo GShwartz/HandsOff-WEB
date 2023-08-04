@@ -30,12 +30,16 @@ git clone https://github.com/GShwartz/HandsOff-WEB.git
 Create a new .env file inside the app's dir.
 copy & paste the following:
 ```
-LOG_FILE="logfileName.txt"
+SERVER_VERSION="1.0.0"
+LOG_FILE="server_log.txt"
 SERVER_IP="0.0.0.0"
-SERVER_PORT=55400
-WEB_PORT=8000
-SERVER_URL="http://"
+SERVER_PORT=<port>
+WEB_PORT=<port>
+SERVER_URL=""
 MAIN_PATH=""
+SECRET_KEY=<"your secret key">
+USER=<your username>
+PASSWORD=<your password>
 ```
 add & change the values to fit your needs.
 
