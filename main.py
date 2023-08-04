@@ -38,7 +38,7 @@ class Backend:
         self.commands = Commands(self.main_path, self.log_path, self.server)
 
         self.app = Flask(__name__)
-        self.app.secret_key = os.urandom(24)
+        self.app.secret_key = os.getenv('SECRET_KEY')
         self.sio = SocketIO(self.app)
         self.configure_context_processors()
 
@@ -64,6 +64,27 @@ class Backend:
         self.app.route('/kill_task', methods=['POST'])(self.commands.tasks_post_run)
         self.app.route('/clear_local', methods=['POST'])(self.clear_local)
         self.app.route('/mode', methods=['POST'])(self.set_mode)
+        self.app.route('/login', methods=['POST', 'GET'])(self.login)
+        self.app.route('/logout', methods=['POST'])(self.logout)
+
+    def login(self):
+        if request.method == 'POST':
+            username = request.form['username']
+            password = request.form["password"]
+            if username == os.getenv('USER') and password == os.getenv('PASSWORD'):
+                # print('Authentication successful, redirect to the index page')
+                session['logged_in'] = True
+                return redirect(url_for('index'))
+
+            # Authentication failed, show an error message on the login page
+            error_message = "Invalid credentials. Please try again."
+            return render_template('login.html', error_message=error_message)
+
+        return render_template('login.html')
+
+    def logout(self):
+        session.pop('logged_in', None)
+        return redirect('/login')
 
     def set_mode(self):
         mode = request.form.get('mode')
@@ -365,6 +386,9 @@ class Backend:
         return jsonify({'shell_target': 'None'})
 
     def index(self) -> render_template:
+        if not session.get('logged_in'):
+            return redirect('/login')
+
         self.logger.info(f'Running index...')
         self.commands.shell_target = []
         self.logger.debug(fr'shell_target: {self.commands.shell_target}')
