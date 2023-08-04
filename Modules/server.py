@@ -79,16 +79,10 @@ class Server:
             if self.gate_keeper.lower()[:6] == 'client':
                 received_data = self.conn.recv(1024).decode()
                 self.handshake = json.loads(received_data)
-                if not str(self.handshake['user']) == str(self.user) and not \
-                        str(self.handshake['password']) == str(self.password):
-                    self.logger.warning(f"{self.conn}: Failed to authenticate with username | password.")
-                    self.conn.close()
-                    return False
-
                 self.update_data()
                 self.logger.info(f'connect completed.')
 
-                self.logger.info(f'Running CICD Thread...')
+                # self.logger.info(f'Running CICD Thread...')
                 # Thread(target=cicd, args=(self.conn,), daemon=True, name="CICD Thread").start()
 
             else:

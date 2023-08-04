@@ -124,11 +124,14 @@ class Commands:
             if not str(task_name).endswith('.exe'):
                 task_name = f"{task_name}.exe"
 
-            self.shell_target.send('kill'.encode())
-            self.shell_target.send(str(task_name).encode())
-            msg = self.shell_target.recv(1024).decode()
-            self.logger.info(f'{msg}')
-            return jsonify({'message': f'Killed task {task_name}'}), 200
+            matching_endpoint = self.find_matching_endpoint()
+            if matching_endpoint:
+                matching_endpoint.conn.send('kill'.encode())
+                time.sleep(0.5)
+                matching_endpoint.conn.send(str(task_name).encode())
+                msg = matching_endpoint.conn.recv(1024).decode()
+                self.logger.info(f'{msg}')
+                return jsonify({'message': f'Killed task {task_name}'}), 200
 
         else:
             return jsonify({'message': f'Error killing {task_name}'}), 400
