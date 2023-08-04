@@ -275,6 +275,11 @@ h1 {
   max-height: 100%;
 }
 
+.logout-button {
+    position: fixed;
+    right: 20px;
+}
+
 .server-table, table {
     margin-top: 0;
     width: 100%;
