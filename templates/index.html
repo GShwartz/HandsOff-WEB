@@ -137,6 +137,7 @@
 				  <span class="focus-bg"></span>
 				</label>
 				<button class="kill_task_button" id="kill_task_button" data-action="kill_task">Kill</button>
+				<button class="clear_button" id="clear_button">Clear</button>
 				<script>
 				  document.getElementById('kill_task_button').addEventListener('click', function() {
 					var taskName = document.getElementById('inp').value;
@@ -162,6 +163,11 @@
 					  console.log(error); // Handle any errors that occurred during the request
 					});
 				  });
+
+				  document.getElementById('clear_button').addEventListener('click', function() {
+					// Functionality for the "Clear" button
+					document.getElementById('inp').value = '';
+					});
 				</script>
 			</div>
 		</div>
