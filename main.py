@@ -370,6 +370,8 @@ class Backend:
                 self.commands.shell_target = []
 
             if self.server.endpoints:
+                time_now = datetime.now(timezone.utc)
+                session['login_time'] = time_now
                 for endpoint in self.server.endpoints:
                     if endpoint.client_mac == self.selected_row_data['id']:
                         self.handlers = Handlers(self.log_path, self.main_path, endpoint)
@@ -423,6 +425,7 @@ class Backend:
             time_now = datetime.now(timezone.utc)
             session_timeout = self.app.config['SESSION_TIMEOUT']
             if (time_now - login_time).total_seconds() < session_timeout:
+                session['login_time'] = time_now
                 elapsed_time = time_now - login_time
                 hours, remainder = divmod(elapsed_time.total_seconds(), 3600)
                 minutes, _ = divmod(remainder, 60)
@@ -454,8 +457,7 @@ class Backend:
         return render_template('login.html')
 
     def run(self):
-        self.sio.run(self.app, host=os.getenv('SERVER_IP'),
-                     port=self.port)
+        self.sio.run(self.app, host=os.getenv('SERVER_IP'), port=self.port)
 
 
 def last_boot(format_str='%d/%b/%y %H:%M:%S %p'):
