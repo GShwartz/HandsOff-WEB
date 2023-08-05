@@ -133,6 +133,22 @@ body {
   z-index: 10;
 }
 
+.logout-button {
+  background-color: #14558E;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 10px;
+  width: 100px;
+  height: 35px;
+  right: 20px;
+  padding: 2px 2px;
+}
+
+.logout-button:hover {
+    background-color: #333333;
+}
+
 .view-mode {
     position: fixed;
     display: flex;
@@ -248,7 +264,7 @@ h1 {
   margin-bottom: 0.1px;
   color: white;
   border-color: #D2B48C;
-  font-family: Arial, sans-serif;
+  font-family: 'Quicksand', sans-serif;
   font-size: 16px;
   text-align: center;
   text-transform: uppercase;
@@ -295,7 +311,7 @@ h1 {
 }
 
 .server-table tbody tr{
-    font-family: Arial, sans-serif;
+    font-family: 'Quicksand', sans-serif;
     font-size: 12px;
     font-weight: bold;
     background-color: white;
@@ -359,7 +375,7 @@ th {
 
 th,
 td {
-    font-family: Arial, sans-serif;
+    font-family: 'Quicksand', sans-serif;
     font-size: 12px;
     font-weight: bold;
     padding: 5px;
@@ -391,7 +407,7 @@ td {
 
 .controller-buttons-container button:hover {
   color: white;
-  background-color: #1FB6CA;
+  background-color: #333333;
 }
 
 .controller-buttons-container button:active {
@@ -409,7 +425,7 @@ td {
   color: #FFFFFF;
   cursor: pointer;
   flex: 0 0 auto;
-  font-family: Arial, sans-serif;
+  font-family: 'Quicksand', sans-serif;
   font-size: 18px;
   font-weight: 600;
   text-align: center;
@@ -531,7 +547,7 @@ td {
 }
 
 .table-history tbody tr {
-  font-family: Arial, sans-serif;
+  font-family: 'Quicksand', sans-serif;
   font-size: 12px;
   font-weight: bold;
   background-color: white;
@@ -586,7 +602,7 @@ td {
     margin-left: 15px;
     width: 80%;
     padding: 5px 5px;
-    background-color: #2F4F4F;
+    background-color: #333333;
 }
 
 #local-clear-button:hover {
@@ -597,7 +613,7 @@ td {
     margin-left: 15px;
     width: 80%;
     padding: 5px 5px;
-    background-color: #2F4F4F;
+    background-color: #333333;
 }
 
 #local-view-button:hover {
@@ -631,7 +647,7 @@ td {
   display: inline-block;
   font-size: 20px;
   color: white;
-  font-family: Arial, sans-serif;
+  font-family: 'Quicksand', sans-serif;
   text-transform: uppercase;
   text-color: white;
   animation: flip 2s infinite;
@@ -670,7 +686,7 @@ td {
     margin-left: 15px;
     width: 80%;
     padding: 5px 5px;
-    background-color: #2F4F4F;
+    background-color: #333333;
 }
 
 #anydesk-button hidden {
@@ -685,7 +701,7 @@ td {
     margin-left: 15px;
     width: 80%;
     padding: 5px 5px;
-    background-color: #2F4F4F;
+    background-color: #333333;
 }
 
 #teamviewer-button hidden {
