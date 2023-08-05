@@ -131,11 +131,12 @@
 			<div class="display-header">
 				<button class="screenshots-button" id="screenshots-button">Screenshots</button>
 			</div>
+
 			<div class="information-header">
 				<button class="information-button" id="information-button">Information</button>
 				<button class="tasks-button" id="tasks-button">Tasks</button>
 				<label for="inp" class="inp">
-				  <input type="text" id="inp" placeholder="taskname">
+				  <input type="text" id="inp" placeholder="taskname.exe">
 				  <span class="label"></span>
 				  <span class="focus-bg"></span>
 				</label>
@@ -188,46 +189,41 @@
 			</div>
 		</div>
 	</div>
-	<div class="ConnectionHistory">
-				<h1 class="history-h1">Connection History</h1>
-				<div class="table-history">
-					<table>
-						<thead>
-							<tr>
-								<th>Client MAC</th>
-								<th>IP Address</th>
-								<th>Hostname</th>
-								<th>Logged User</th>
-								<th>Boot Time</th>
-								<th>Connection Time</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% for endpoint, time in history.items() %}
-							<tr>
-								<td>{{ endpoint.client_mac }}</td>
-								<td>{{ endpoint.ip }}</td>
-								<td>{{ endpoint.ident }}</td>
-								<td>{{ endpoint.user }}</td>
-								<td>{{ endpoint.boot_time }}</td>
-								<td>{{ endpoint.connection_time }}</td>
-							</tr>
-							{% endfor %}
-							{% if not history %}
-							<tr>
-								<td colspan="6">No endpoints found.</td>
-							</tr>
-							{% endif %}
-						</tbody>
-					</table>
-				</div>
 
+	<div class="ConnectionHistory">
+		<h1 class="history-h1">Connection History</h1>
+		<div class="table-history">
+			<table>
+				<thead>
+					<tr>
+						<th>Client MAC</th>
+						<th>IP Address</th>
+						<th>Hostname</th>
+						<th>Logged User</th>
+						<th>Boot Time</th>
+						<th>Connection Time</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for endpoint, time in history.items() %}
+					<tr>
+						<td>{{ endpoint.client_mac }}</td>
+						<td>{{ endpoint.ip }}</td>
+						<td>{{ endpoint.ident }}</td>
+						<td>{{ endpoint.user }}</td>
+						<td>{{ endpoint.boot_time }}</td>
+						<td>{{ endpoint.connection_time }}</td>
+					</tr>
+					{% endfor %}
+					{% if not history %}
+					<tr>
+						<td colspan="6">No endpoints found.</td>
+					</tr>
+					{% endif %}
+				</tbody>
+			</table>
 		</div>
-<!--	<div class="Footer">-->
-<!--		<div class="footer-logo">-->
-<!--			<img src="static/src/white.png">-->
-<!--		</div>-->
-<!--	</div>-->
+	</div>
 	<script>
 		window.addEventListener('DOMContentLoaded', adjustTopHalfHeight);
 
