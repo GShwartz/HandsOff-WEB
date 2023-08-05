@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify, \
     send_from_directory, url_for, redirect, send_file, session
 from dotenv import load_dotenv, dotenv_values
 from flask_socketio import SocketIO, emit
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import subprocess
 import threading
 import requests
@@ -39,6 +39,7 @@ class Backend:
 
         self.app = Flask(__name__)
         self.app.secret_key = os.getenv('SECRET_KEY')
+        self.app.config['SESSION_TIMEOUT'] = 7200   # 2 hours
         self.sio = SocketIO(self.app)
         self.configure_context_processors()
 
@@ -68,23 +69,49 @@ class Backend:
         self.app.route('/logout', methods=['POST'])(self.logout)
 
     def login(self):
+        self.failed_attempts_key = 'failed_login_attempts'
+        self.max_attempts = 3
+
         if request.method == 'POST':
             username = request.form['username']
             password = request.form["password"]
+
             if username == os.getenv('USER') and password == os.getenv('PASSWORD'):
-                # print('Authentication successful, redirect to the index page')
+                self.logger.info('Authentication successful, redirect to the index page')
                 session['logged_in'] = True
+                session['login_time'] = datetime.now(timezone.utc)
+                session.pop(self.failed_attempts_key, None)
+                error_message = None
+                login_disabled = False
                 return redirect(url_for('index'))
 
-            # Authentication failed, show an error message on the login page
-            error_message = "Invalid credentials. Please try again."
-            return render_template('login.html', error_message=error_message)
+            else:
+                self.failed_attempts = session.get(self.failed_attempts_key, 0) + 1
+                session[self.failed_attempts_key] = self.failed_attempts
+                if session.get(self.failed_attempts_key, 0) >= self.max_attempts:
+                    self.error_message = "Too many failed login attempts. Please try again later."
+                    login_disabled = True
 
-        return render_template('login.html')
+                else:
+                    self.error_message = "Invalid credentials. Please try again."
+                    login_disabled = True
+
+                return render_template('login.html',
+                                       error_message=self.error_message,
+                                       failed_attempts=session.get(self.failed_attempts_key, 0),
+                                       login_disabled=login_disabled)
+
+        return render_template('login.html', error_message=None, failed_attempts=None)
 
     def logout(self):
-        session.pop('logged_in', None)
-        return redirect('/login')
+        try:
+            session.pop('logged_in', None)
+            session.pop('login_time', None)
+            return redirect('/login')
+
+        except Exception as e:
+            self.logger.error(e)
+            return redirect('/login')
 
     def set_mode(self):
         mode = request.form.get('mode')
@@ -387,34 +414,48 @@ class Backend:
 
     def index(self) -> render_template:
         if not session.get('logged_in'):
+            self.logger.error(f'User {os.getenv("USER")} is not logged in.')
             return redirect('/login')
 
-        self.logger.info(f'Running index...')
-        self.commands.shell_target = []
-        self.logger.debug(fr'shell_target: {self.commands.shell_target}')
-        boot_time = last_boot()
+        if 'logged_in' in session and 'login_time' in session:
+            self.logger.info(f'User {os.getenv("USER")} logged in successfully')
+            login_time = session['login_time']
+            time_now = datetime.now(timezone.utc)
+            session_timeout = self.app.config['SESSION_TIMEOUT']
+            if (time_now - login_time).total_seconds() < session_timeout:
+                elapsed_time = time_now - login_time
+                hours, remainder = divmod(elapsed_time.total_seconds(), 3600)
+                minutes, _ = divmod(remainder, 60)
+                elapsed_time_str = f"{int(hours)} hours, {int(minutes)} minutes"
+                self.logger.info(f'User {os.getenv("USER")} logged in for {elapsed_time_str}')
+                self.logger.info(f'Running index...')
+                self.commands.shell_target = []
+                self.logger.debug(fr'shell_target: {self.commands.shell_target}')
+                boot_time = last_boot()
 
-        for endpoint in self.server.endpoints:
-            self.server.check_vital_signs(endpoint)
+                for endpoint in self.server.endpoints:
+                    self.server.check_vital_signs(endpoint)
 
-        connected_stations = len(self.server.endpoints)
-        self.logger.debug(fr'connected stations: {len(self.server.endpoints)}')
+                connected_stations = len(self.server.endpoints)
+                self.logger.debug(fr'connected stations: {len(self.server.endpoints)}')
 
-        kwargs = {
-            "serving_on": os.getenv('SERVER_URL'),
-            "server_ip": os.getenv('SERVER_IP'),
-            "server_port": os.getenv('SERVER_PORT'),
-            "boot_time": boot_time,
-            "connected_stations": connected_stations,
-            "endpoints": self.server.endpoints,
-            "history": self.server.connHistory,
-            "server_version": self.version,
-        }
+                kwargs = {
+                    "serving_on": os.getenv('SERVER_URL'),
+                    "server_ip": os.getenv('SERVER_IP'),
+                    "server_port": os.getenv('SERVER_PORT'),
+                    "boot_time": boot_time,
+                    "connected_stations": connected_stations,
+                    "endpoints": self.server.endpoints,
+                    "history": self.server.connHistory,
+                    "server_version": self.version,
+                }
 
-        return render_template('index.html', **kwargs)
+                return render_template('index.html', **kwargs)
+        return render_template('login.html')
 
     def run(self):
-        self.sio.run(self.app, host=os.getenv('SERVER_IP'), port=self.port)
+        self.sio.run(self.app, host=os.getenv('SERVER_IP'),
+                     port=self.port)
 
 
 def last_boot(format_str='%d/%b/%y %H:%M:%S %p'):
