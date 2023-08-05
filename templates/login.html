@@ -11,6 +11,7 @@
     <div class="signin">
       <div class="content">
         <h2><img src="static/images/white.png"></h2>
+
         {% if error_message %}
             <p style="color: red;">{{ error_message }}</p>
         {% endif %}
@@ -37,10 +38,9 @@
         {% if failed_attempts is not none and failed_attempts >= 3 %}
           <p id="timer" style="display: block;"></p>
           <script>
-              // Your JavaScript code here
               const loginButton = document.getElementById("login");
               const maxAttempts = 3;
-              const cooldownMinutes = 5; // Change this to the desired cooldown time in minutes
+              const cooldownMinutes = 5;
 
               const failedAttempts = {{ failed_attempts }};
               if (failedAttempts >= maxAttempts) {
