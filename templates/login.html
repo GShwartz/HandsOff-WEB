@@ -11,6 +11,13 @@
     <div class="signin">
       <div class="content">
         <h2><img src="static/images/white.png"></h2>
+        {% if error_message %}
+            <p style="color: red;">{{ error_message }}</p>
+        {% endif %}
+        {% if failed_attempts is not none and failed_attempts >= 1 %}
+            <p>Failed attempts: {{ failed_attempts }}/3</p>
+        {% endif %}
+
         <form action="/login" method="post">
           <div class="form">
             <div class="inputBox">
@@ -18,14 +25,51 @@
               <input class="i" type="text" id="username" name="username" required><br>
             </div>
             <div class="inputBox">
-              <label for="password">Password:</label>
-              <input type="password" id="password" name="password" required><br>
+              <label for="current-password">Password:</label>
+              <input type="password" id="current-password" name="password" required><br>
             </div>
             <div class="inputBox">
-              <input type="submit" value="Login">
+              <input id="login" type="submit" value="Login">
             </div>
           </div>
         </form>
+
+        {% if failed_attempts is not none and failed_attempts >= 3 %}
+          <p id="timer" style="display: block;"></p>
+          <script>
+              // Your JavaScript code here
+              const loginButton = document.getElementById("login");
+              const maxAttempts = 3;
+              const cooldownMinutes = 5; // Change this to the desired cooldown time in minutes
+
+              const failedAttempts = {{ failed_attempts }};
+              if (failedAttempts >= maxAttempts) {
+                  loginButton.disabled = true;
+
+                  const cooldownEndTime = new Date();
+                  cooldownEndTime.setMinutes(cooldownEndTime.getMinutes() + cooldownMinutes);
+                  sessionStorage.setItem("cooldownEndTime", cooldownEndTime.getTime());
+
+                  const timerElement = document.getElementById("timer");
+                  const timerInterval = setInterval(() => {
+                      const now = new Date().getTime();
+                      const endTime = parseInt(sessionStorage.getItem("cooldownEndTime"));
+                      const remainingTime = endTime - now;
+
+                      if (remainingTime <= 0) {
+                          loginButton.disabled = false;
+                          clearInterval(timerInterval);
+                          sessionStorage.removeItem("cooldownEndTime");
+                          timerElement.textContent = "";
+                      } else {
+                          const minutes = Math.floor(remainingTime / (1000 * 60));
+                          const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+                          timerElement.textContent = `Cooldown Timer: ${minutes}m ${seconds}s`;
+                      }
+                  }, 1000);
+              }
+          </script>
+      {% endif %}
       </div>
     </div>
   </section>
