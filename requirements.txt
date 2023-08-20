@@ -1,5 +1,8 @@
 python-dotenv
+Flask-SQLAlchemy
+Flask-Migrate
 flask-socketio
+flask-session
 Flask
 requests
 psutil

@@ -1,3 +1,16 @@
+"""
+    HandsOff
+    A C&C for IT Admins
+    Copyright (C) 2023 Gil Shwartz
+
+    This work is licensed under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    You should have received a copy of the GNU General Public License along with this work.
+    If not, see <https://www.gnu.org/licenses/>.
+"""
+
 from flask import Flask, render_template, request, jsonify, \
     send_from_directory, url_for, redirect, send_file, session
 from dotenv import load_dotenv, dotenv_values
@@ -23,6 +36,24 @@ from Modules.server import Server
 from Modules.utils import Handlers
 
 
+class Endpoints:
+    def __init__(self, id, ip, hostname, user, boot_time, connection_time):
+        self.id = id
+        self.ip = ip
+        self.hostname = hostname
+        self.user = user
+        self.boot_time = boot_time
+        self.connection_time = connection_time
+
+    def __eq__(self, other):
+        if not isinstance(other, Endpoints):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __repr__(self):
+        return f"Endpoints({self.id}, {self.ip}, {self.hostname}, {self.user}, {self.boot_time}, {self.connection_time})"
+
+
 class Backend:
     def __init__(self, logger, main_path, log_path, server, version, port):
         self.logger = logger
@@ -34,12 +65,15 @@ class Backend:
 
         self.station = False
         self.images = {}
+        self.rows = []
+        self.temp = []
+        self.temp_rows = []
 
         self.commands = Commands(self.main_path, self.log_path, self.server)
 
         self.app = Flask(__name__)
         self.app.secret_key = os.getenv('SECRET_KEY')
-        self.app.config['SESSION_TIMEOUT'] = 7200   # 2 hours
+        self.app.config['SESSION_TIMEOUT'] = 3600  # 7200 2 hours
         self.sio = SocketIO(self.app)
         self.configure_context_processors()
 
@@ -52,8 +86,8 @@ class Backend:
 
         self.app.route('/static/<path:path>')(self.serve_static)
         self.app.route('/static/images/<path:path>')(self.serve_images)
-        self.app.route('/static/controller.js')(self.serve_controller_js)
-        self.app.route('/static/table_data.js')(self.serve_table_data_js)
+        self.app.route('/static/checkboxes.js')(self.serve_checkboxes_js)
+        self.app.route('/download/<filename>')(self.download_file)
         self.app.route('/')(self.index)
         self.app.errorhandler(404)(self.page_not_found)
 
@@ -67,6 +101,20 @@ class Backend:
         self.app.route('/mode', methods=['POST'])(self.set_mode)
         self.app.route('/login', methods=['POST', 'GET'])(self.login)
         self.app.route('/logout', methods=['POST'])(self.logout)
+        self.app.route('/checkboxes', methods=['POST'])(self.checkboxes)
+
+    def download_file(self, filename):
+        return send_from_directory('static', filename, as_attachment=True)
+
+    def checkboxes(self):
+        data = request.get_json()
+        if data:
+            print(data)
+
+        return jsonify({'message': 'Data received.'})
+
+    def get_count(self):
+        return jsonify({'message': f'Banked Stations: {len(self.rows)} | {self.rows}'})
 
     def login(self):
         self.failed_attempts_key = 'failed_login_attempts'
@@ -80,6 +128,7 @@ class Backend:
                 self.logger.info('Authentication successful, redirect to the index page')
                 session['logged_in'] = True
                 session['login_time'] = datetime.now(timezone.utc)
+                session['username'] = username
                 session.pop(self.failed_attempts_key, None)
                 error_message = None
                 login_disabled = False
@@ -107,6 +156,7 @@ class Backend:
         try:
             session.pop('logged_in', None)
             session.pop('login_time', None)
+            session.pop('username', None)
             return redirect('/login')
 
         except Exception as e:
@@ -138,6 +188,9 @@ class Backend:
     def serve_table_data_js(self):
         return self.app.send_static_file('table_data.js'), 200, {'Content-Type': 'application/javascript'}
 
+    def serve_checkboxes_js(self):
+        return self.app.send_static_file('checkboxes.js'), 200, {'Content-Type': 'application/javascript'}
+
     def clear_local(self):
         path = self.handlers.clear_local()
         if path:
@@ -147,21 +200,41 @@ class Backend:
             return jsonify({'error': f'Something went wrong'})
 
     def controller(self) -> jsonify:
-        self.logger.info(f"Waiting for command from the Frontend...")
-        data = request.json.get('data')
-        self.logger.debug(f"Command: {data}")
+        def multi_command(cmd, item):
+            if cmd == 'restart':
+                if self.commands.call_restart(item):
+                    restarted.append(item)
 
-        if data == 'screenshot':
+            if cmd == 'update':
+                self.logger.debug(f"Calling self.commands.call_update_selected_endpoint()...")
+                if self.commands.call_update_selected_endpoint(item):
+                    self.logger.debug(f"Resetting self.commands.shell_target...")
+                    self.commands.shell_target = []
+                    updated.append(item)
+                    self.logger.debug(f"Update completed.")
+
+                else:
+                    self.logger.debug(f"Update failed.")
+                    return jsonify({'ERROR': f'Update failed for {item}.'})
+
+        restarted = []
+        updated = []
+        self.logger.info(f"Waiting for command from the Frontend...")
+        data = request.get_json()
+        self.logger.debug(f"Command: {data}")
+        # print(f"Command data: {data}")
+
+        if data['action'] == 'screenshot':
             self.logger.debug(f"Calling self.commands.call_screenshot()...")
             if self.commands.call_screenshot():
                 self.logger.info(f"Screenshot completed.")
-                return jsonify({'message': 'Screenshot Completed'})
+                return jsonify({'message': f'Screenshot Completed!'})
 
             else:
                 self.logger.debug(f"Screenshot failed.")
                 return jsonify({'message': 'Screenshot failed'})
 
-        if data == 'anydesk':
+        if data['action'] == 'anydesk':
             self.logger.debug(f"Calling self.commands.call_anydesk()...")
             if not self.commands.call_anydesk():
                 self.logger.debug(f"Anydesk missing.")
@@ -171,7 +244,7 @@ class Backend:
                 self.logger.debug(f"Anydesk running.")
                 return jsonify({'message': 'Anydesk installed & running'})
 
-        if data == 'teamviewer':
+        if data['action'] == 'teamviewer':
             self.logger.debug(f"Calling self.commands.call_teamviewer()...")
             if not self.commands.call_teamviewer():
                 self.logger.debug(f"teamviewer missing.")
@@ -181,7 +254,7 @@ class Backend:
                 self.logger.debug(f"TeamViewer running.")
                 return jsonify({'message': 'TeamViewer installed & running'})
 
-        if data == 'sysinfo':
+        if data['action'] == 'sysinfo':
             latest_file = self.commands.call_sysinfo()
             if latest_file:
                 count = self.count_files()
@@ -204,7 +277,7 @@ class Backend:
             else:
                 return jsonify({'error': 'local dir not found'})
 
-        if data == 'tasks':
+        if data['action'] == 'tasks':
             latest_file = self.commands.call_tasks()
             if latest_file:
                 count = self.count_files()
@@ -228,31 +301,46 @@ class Backend:
             else:
                 return jsonify({'error': 'local dir not found'})
 
-        if data == 'restart':
-            self.logger.debug(f"Calling self.commands.call_restart()...")
-            if self.commands.call_restart():
+        if data['action'] == 'restart':
+            if data['checkedItems']:
+                threads = []
+                for c in data['checkedItems']:
+                    thread = threading.Thread(target=multi_command, args=('restart', c), name='Multi Restart')
+                    threads.append(thread)
+                    thread.start()
+
+                for thread in threads:
+                    thread.join()
+
+                time.sleep(1)
+                self.logger.debug(f"Restarted {restarted}.")
                 self.logger.debug(f"Reloading app...")
                 self.reload()
-                self.logger.debug(f"Restart completed.")
-                return jsonify({'message': 'Restart message sent.'})
+                return jsonify({'message': f'Multi restart sent to {restarted}!'})
 
-            else:
-                self.logger.debug(f"Restart failed.")
-                return jsonify({'message': 'Restart failed.'})
+            self.logger.debug(f"Restart failed.")
+            return jsonify({'message': 'Restart failed.'})
 
-        if data == 'update':
-            self.logger.debug(f"Calling self.commands.call_update_selected_endpoint()...")
-            if self.commands.call_update_selected_endpoint():
-                self.logger.debug(f"Resetting self.commands.shell_target...")
-                self.commands.shell_target = []
-                self.logger.debug(f"Update completed.")
-                return jsonify({'message': 'Update message sent.'})
+        if data['action'] == 'update':
+            if data['checkedItems']:
+                threads = []
+                for c in data['checkedItems']:
+                    thread = threading.Thread(target=multi_command, args=('update', c), name='Multi Update')
+                    threads.append(thread)
+                    thread.start()
 
-            else:
-                self.logger.debug(f"Update failed.")
-                return jsonify({'message': 'Update failed.'})
+                for thread in threads:
+                    thread.join()
 
-        if data == 'view':
+                self.logger.info(f"Updated {updated}.")
+                self.logger.debug(f"Reloading app...")
+                self.reload()
+                return jsonify({'message': f'Multi Update sent to {updated}!'})
+
+            self.logger.error(f"Update failed.")
+            return jsonify({'message': 'Update failed.'})
+
+        if data['action'] == 'view':
             self.logger.debug(f"Calling self.find_matching_endpoint()...")
             matching_endpoint = self.find_matching_endpoint()
             self.logger.debug(f"{matching_endpoint}")
@@ -265,7 +353,7 @@ class Backend:
             else:
                 return jsonify({'message': 'View failed.'})
 
-        if data == 'clear_local':
+        if data['action'] == 'clear_local':
             if self.handlers.clear_local():
                 return jsonify({'message': 'Files cleared'})
 
@@ -274,14 +362,13 @@ class Backend:
 
         else:
             self.logger.error(f"Unknown command: {data}")
-            return jsonify({'message': f'Unknown: {data}'})
+            return jsonify({'message': f'Unknown command: {data}'})
 
     def find_matching_endpoint(self) -> str:
-        self.logger.debug(f"Finding matching endpoint...")
-        for endpoint in self.server.endpoints:
-            if endpoint.conn == self.commands.shell_target:
-                return endpoint
-        return None
+        self.logger.debug("Finding matching endpoint...")
+        matching_endpoints = [endpoint for endpoint in self.server.endpoints if
+                              endpoint.conn == self.commands.shell_target]
+        return next(iter(matching_endpoints), None)
 
     def browse_local_files(self, ident) -> subprocess:
         self.logger.info(f'Running browse_local_files_command...')
@@ -304,16 +391,20 @@ class Backend:
                 sys.exit(1)
 
     def count_files(self):
-        if self.server.endpoints:
-            for endpoint in self.server.endpoints:
-                if endpoint.client_mac == self.selected_row_data['id']:
-                    self.commands.shell_target = endpoint.conn
-                    dir_path = os.path.join('static', 'images', endpoint.ident)
-                    file_list = os.listdir(dir_path)
-                    number_of_files = len(file_list)
-                    return number_of_files
+        selected_id = self.selected_row_data['id']
+        matching_endpoints = [ep for ep in self.server.endpoints if ep.client_mac == selected_id]
+
+        if matching_endpoints:
+            endpoint = matching_endpoints[0]
+            self.commands.shell_target = endpoint.conn
+            dir_path = os.path.join('static', 'images', endpoint.ident)
+            file_list = os.listdir(dir_path)
+            return len(file_list)
 
     def reload(self):
+        self.temp.clear()
+        self.temp_rows.clear()
+        self.rows.clear()
         return redirect(url_for('index'))
 
     def on_event(self, data):
@@ -364,7 +455,24 @@ class Backend:
             self.station = True
 
         self.selected_row_data = request.get_json()
-        if self.selected_row_data:
+        # print(f"JSONed req: {self.selected_row_data}")
+        checked_value = self.selected_row_data.get('checked', 'None')
+        row_value = self.selected_row_data.get('row')
+
+        if row_value == 'clear_shell':
+            self.commands.shell_target = []
+            self.station = False
+            return jsonify({'message': 'Shell cleared.'})
+
+        if row_value and not checked_value:
+            print('row full but unchecked')
+
+        if not checked_value:
+            if self.commands.shell_target:
+                print('shell exists.')
+            print('Checkbox is not checked')
+
+        if 'id' in self.selected_row_data and checked_value:
             if isinstance(self.commands.shell_target, list) or self.images:
                 self.logger.debug(fr'resetting shell_target...')
                 self.commands.shell_target = []
@@ -373,28 +481,36 @@ class Backend:
                 time_now = datetime.now(timezone.utc)
                 session['login_time'] = time_now
                 for endpoint in self.server.endpoints:
-                    if endpoint.client_mac == self.selected_row_data['id']:
-                        self.handlers = Handlers(self.log_path, self.main_path, endpoint)
+                    try:
+                        if endpoint.client_mac == self.selected_row_data['id']:
+                            self.handlers = Handlers(self.log_path, self.main_path, endpoint)
 
-                        self.commands.shell_target = endpoint.conn
-                        dir_path = os.path.join('static', 'images', endpoint.ident)
-                        if not os.path.exists(dir_path):
-                            os.makedirs(dir_path, exist_ok=True)
+                            self.commands.shell_target = endpoint.conn
+                            dir_path = os.path.join('static', 'images', endpoint.ident)
+                            if not os.path.exists(dir_path):
+                                os.makedirs(dir_path, exist_ok=True)
 
-                        file_list = os.listdir(dir_path)
-                        self.num_files = self.count_files()
+                            file_list = os.listdir(dir_path)
+                            self.num_files = self.count_files()
 
-                self.logger.info(f'row: {self.selected_row_data}\n'
-                                 f'station: {self.station}\n'
-                                 f'num_files: {self.num_files}')
+                    except KeyError:
+                        pass
+
+                try:
+                    self.logger.info(f'row: {self.selected_row_data}\n'
+                                     f'station: {self.station}\n'
+                                     f'num_files: {self.num_files}')
+                except AttributeError:
+                    pass
 
                 return jsonify({'row': self.selected_row_data,
                                 'station': self.station,
                                 'num_files': self.num_files})
 
-            else:
-                self.logger.info(fr'No connected stations.')
-                return jsonify({'message': 'No connected stations.'})
+            self.commands.shell_target = []
+            self.station = False
+            self.logger.info(fr'No connected stations.')
+            return jsonify({'message': 'No connected stations.'})
 
         else:
             return jsonify({'station': self.station})
@@ -443,18 +559,19 @@ class Backend:
                 self.logger.debug(fr'connected stations: {len(self.server.endpoints)}')
 
                 kwargs = {
-                    "serving_on": os.getenv('SERVER_URL'),
+                    "serving_on": f"{os.getenv('SERVER_URL')}:{os.getenv('WEB_PORT')}",
                     "server_ip": os.getenv('SERVER_IP'),
                     "server_port": os.getenv('SERVER_PORT'),
                     "boot_time": boot_time,
                     "connected_stations": connected_stations,
                     "endpoints": self.server.endpoints,
                     "history": self.server.connHistory,
+                    "history_rows": len(self.server.connHistory),
                     "server_version": self.version,
                 }
 
                 return render_template('index.html', **kwargs)
-        return render_template('login.html')
+        return render_template('login.html', failed_attempts=None)
 
     def run(self):
         self.sio.run(self.app, host=os.getenv('SERVER_IP'), port=self.port)
@@ -479,6 +596,36 @@ def check_platform(main_path):
     else:
         print("Unsupported operating system.")
         sys.exit(1)
+
+
+def remove_duplicate_dicts(input_list):
+    # Convert each dictionary in the list to a tuple of sorted key-value pairs
+    tuple_list = [tuple(d.items()) for d in input_list]
+
+    # Use set to remove duplicates (since tuples are hashable)
+    unique_tuples = set(tuple_list)
+
+    # Convert back the unique tuples to dictionaries
+    unique_dicts = [dict(t) for t in unique_tuples]
+
+    return unique_dicts
+
+
+def replace_key_with_same_value(input_dict, old_key, new_key):
+    if old_key in input_dict:
+        value = input_dict[old_key]
+        input_dict[new_key] = value
+        del input_dict[old_key]
+
+    return input_dict
+
+
+def move_last_to_first(input_dict):
+    last_key, last_value = list(input_dict.items())[-1]
+    del input_dict[last_key]
+    input_dict = {last_key: last_value, **input_dict}
+
+    return input_dict
 
 
 def main(**kwargs):
