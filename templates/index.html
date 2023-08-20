@@ -1,67 +1,301 @@
+<!--    HandsOff-->
+<!--    C&C for IT Admins-->
+<!--    Copyright (C) 2023 Gil Shwartz-->
+
+<!--    This work is licensed under the terms of the GNU General Public License as published by-->
+<!--    the Free Software Foundation, either version 3 of the License, or-->
+<!--    (at your option) any later version.-->
+
+<!--    You should have received a copy of the GNU General Public License along with this work.-->
+<!--    If not, see <https://www.gnu.org/licenses/>.-->
+
 <!DOCTYPE html>
+<html>
 <head>
 	<title>HandsOff 1.0.0</title>
 	<meta charset="UTF-8">
 	<meta name="author" content="Gil Shwartz">
 	<meta name="description" content="A C&C for IT Admins">
-	<link rel="stylesheet" href="{{ url_for('static', filename='style-Dark.css') }}" id="theme-style">
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<script src="{{ url_for('static', filename='table_data.js') }}" defer></script>
-	<script src="{{ url_for('static', filename='minimizer.js') }}" defer></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" id="theme-style">
+	<script src="{{ url_for('static', filename='checkboxes.js') }}" defer></script>
+
 </head>
-
-<html>
 <body>
+    <div class="container">
+        <div class="top-nav">
+        	<div class="loading-spinner"></div>
+            <div class="top-nav-logo">
+                <img src="static/images/white.png" alt="Logo">
+            </div>
+            <div class="logout">
+                <form action="/logout" method="post">
+                    <input class="logout-button btn btn-danger" type="submit" value="Logout">
+                </form>
+            </div>
+        </div>
 
-	<div class="topHalf">
-	    <div class="loading-spinner"></div>
-		<div class="TopNav">
-			<div class="top-nav-logo">
-				<form action="/logout" method="post">
-					<input class="logout-button" type="submit" value="Logout">
-				</form>
-				<img src="static/images/white.png">
-			</div>
+		<div id="imageModal" class="modal">
+			<span class="close">&times;</span>
+			<img src="" class="modal-content" id="modalImage">
 		</div>
 
-<!--		<div class="view-mode">-->
-<!--			<form action="/mode" method="POST">-->
-<!--				<input type="hidden" name="mode" value="{{ 'style-Light' if get_mode() == 'style-Dark' else 'style-Dark' }}">-->
-<!--				<button type="submit" id="submit" onclick="toggleButtonText()" class="btn">View</button>-->
-<!--			</form>-->
-<!--			{% if get_mode() == 'style-Dark' %}-->
-<!--			<link rel="stylesheet" href="static/style-Dark.css">-->
-<!--			{% else %}-->
-<!--			<link rel="stylesheet" href="static/style-Light.css">-->
-<!--			{% endif %}-->
-<!--		</div>-->
+        <div class="server-info">
+            <div class="server-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>serving on</th>
+                        <th>boot time</th>
+                        <th>server version</th>
+                        <th>connected stations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ serving_on }}</td>
+                        <td>{{ boot_time }}</td>
+                        <td>{{ server_version }}</td>
+                        <td>{{ connected_stations }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
 
-		<div class="ServerInfo">
-			<div class="server-table">
-				<table>
-					<thead>
-						<tr>
-							<th>serving on</th>
-							<th>boot time</th>
-							<th>server version</th>
-							<th>connected stations</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>{{ serving_on }}</td>
-							<td>{{ boot_time }}</td>
-							<td>{{ server_version }}</td>
-							<td>{{ connected_stations }}</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
-
-		<div class="connectedStations" id="connectedStations">
-			<h1>Connected Stations</h1>
+		<h1 class="connected-h1">Connected Stations [{{ connected_stations }}]</h1>
+        <div class="connected-stations">
 			<div class="table-connected">
+				<div class="table-header">
+					<table>
+					<thead>
+					  <tr>
+						<th><input id="header-checkbox" class="table-checkbox" type="checkbox"></th>
+						<th>Client MAC</th>
+						<th>IP Address</th>
+						<th>Hostname</th>
+						<th>Logged User</th>
+						<th>OS Platform</th>
+					    <th>Total RAM</th>
+					    <th>Free RAM</th>
+					    <th>HDD Size</th>
+						<th>VM</th>
+						<th>Boot Time</th>
+						<th>Client Version</th>
+					  </tr>
+					</thead>
+					</table>
+				</div>
+				<div class="table-body">
+					<table>
+					<tbody>
+					  {% for endpoint in endpoints %}
+					  <tr class="table-connected-row-data" data-checkbox="checkbox" data-id="{{ endpoint.client_mac }}" data-ip="{{ endpoint.ip }}" data-hostname="{{ endpoint.ident }}" data-user="{{ endpoint.user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
+						<td><input class="table-checkbox" type="checkbox"></td>
+						<td>{{ endpoint.client_mac }}</td>
+						<td>{{ endpoint.ip }}</td>
+						<td>{{ endpoint.ident }}</td>
+						<td>{{ endpoint.user }}</td>
+						<td>{{ endpoint.os_release }}</td>
+					    <td>{{ "%.1f"|format(endpoint.hardware['memory']['total']) }}GB</td>
+						<td>{{ "%.1f"|format(endpoint.hardware['memory']['available']) }}GB</td>
+						<td>{{ "%.1f"|format(endpoint.hardware['hard_drives'][0]['total_size'][:-3] | float) }}GB</td>
+					    <td>{{ endpoint.is_vm }}</td>
+						<td>{{ endpoint.boot_time }}</td>
+						<td>{{ endpoint.client_version }}</td>
+					  </tr>
+					  {% endfor %}
+					  {% if not endpoints %}
+					  <tr>
+						<td colspan="11">No connected endpoints.</td>
+					  </tr>
+					  {% endif %}
+					</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="content">
+			<div class="controller">
+				<div class="controller-buttons-container" id="controller-buttons-container">
+					<div class="screenshot-btn">
+						<button class="button" data-action="screenshot">SCREENSHOT</button>
+					</div>
+					<div class="tasks-btn">
+						<button class="button" data-action="tasks" id="tasks">TASKS</button>
+					</div>
+
+					<div class="sysinfo-btn">
+						<button class="button" data-action="sysinfo" id="sysinfo">SYSINFO</button>
+					</div>
+
+					<div class="dropdown">
+						<button class="controller-buttons-container button" id="remote-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-action="local">
+							REMOTE &#9660;</button>
+						<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownRemote">
+							<li><a class="dropdown-item" data-action="view" id="anydesk-button">Anydesk</a></li>
+							<li><a class="dropdown-item" data-action="clear" id="teamviewer-button">Team Viewer</a></li>
+						</ul>
+					</div>
+
+					<div class="update-btn">
+						<button id="update" class="button" data-action="update">UPDATE</button>
+					</div>
+
+					<div class="restart-btn">
+						<button id="restart" class="button" data-action="restart">RESTART</button>
+					</div>
+
+					<div class="dropdown">
+						<button class="controller-buttons-container button" id="local-files-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-action="local">LOCAL &#9660;</button>
+						<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="local-files-button">
+							<li><a class="dropdown-item" data-action="view" id="local-view-button">View</a></li>
+							<li><a class="dropdown-item" data-action="clear" id="local-clear-button">Clear</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<div class="slider-container" id="slider-container">
+				<div class="screenshots-slider" id="screenshots-slider"></div>
+				<div class="image-group"></div>
+			</div>
+
+			<div class="notebook-container">
+				<div class="tab-buttons">
+					<div class="tab-buttons-header" id="tab-buttons-header"></div>
+					<button class="tab-button" data-tab="tab1">Tasks</button>
+					<button class="tab-button" data-tab="tab2">System Info</button>
+					<button class="tab-button" data-tab="tab3">Network</button>
+				</div>
+
+				<div class="tab-tips" id="tab-tips">
+					<div class="tab-tips-header">
+						<h1 class="tab-tips-h1">C&C for IT Admins</h1>
+						<div class="tab-tips-logo">
+							<img src="static/images/white.png" alt="Logo">
+							<p class="version">version: 1.0.0</p>
+						</div>
+					</div>
+
+					<div class="tab-tips-body">
+						<h1 class="tab-tips-h1">Tips</h1>
+						<ul class="welcome-ul">
+						  <li class="welcome-li">Reload the page to get the latest connections.</li>
+						  <li class="welcome-li">Update & Restart requires a checkbox verification.</li>
+						  <li class="welcome-li">Remote Team Viewer might take some time to run, depends on the installation status.</li>
+						  <li class="welcome-li">You can view and delete the local files received from each remote station using the Local button.</li>
+						</ul>
+					</div>
+
+					<div class="tab-tips-footer">
+						<p class="copyright">&copy; 2023 Gil Shwartz</p>
+
+						<div class="social-nav">
+						  <a href="https://github.com/GShwartz/HandsOff-WEB" target="_blank">
+        					<img class="social-logo" src="static/images/github_purple.png" alt="GitHub">
+        					<span class="tooltip">GitHub</span>
+						  </a>
+
+						  <a href="https://www.linkedin.com/in/gilshwartz/" target="_blank">
+						    <img class="social-logo" src="static/images/linkedin_blue.png" alt="LinkedIn">
+							<span class="tooltip">LinkedIn</span>
+						  </a>
+						</div>
+					</div>
+					<script>
+					  const socialLogos = document.querySelectorAll('.social-logo');
+
+					  socialLogos.forEach(logo => {
+						let timeout;
+						logo.addEventListener('mouseenter', () => {
+						  timeout = setTimeout(() => {
+							logo.nextElementSibling.style.display = 'block';
+						  }, 1000);
+						});
+
+						logo.addEventListener('mouseleave', () => {
+						  clearTimeout(timeout);
+						  logo.nextElementSibling.style.display = 'none';
+						});
+					  });
+					</script>
+				</div>
+
+				<div class="tab-content" id="tab1">
+					<div class="tasks-header-content">
+						<div class="header-row">
+							<h3 class="tasks-h3">Tasks</h3>
+
+							<label for="inp" class="inp">
+								<input type="text" id="inp" placeholder="taskname.exe">
+								<span class="label"></span>
+								<span class="focus-bg"></span>
+							</label>
+
+							<div class="killclear-container">
+								<button class="kill-task-button" id="kill_task_button" data-action="kill_task">Kill</button>
+							</div>
+						</div>
+
+						<div class="tasks-content" id="tasks-container">
+							<!-- Content for tasks container goes here -->
+						</div>
+					</div>
+				</div>
+
+				<div class="tab-content" id="tab2">
+					<div class="information-header-content">
+						<div class="header-row">
+							<h3 class="information-h3">System Information</h3>
+						</div>
+					</div>
+
+					<div class="information-content" id="information-container">
+						<!-- Content for information container goes here -->
+					</div>
+				</div>
+				<div class="tab-content" id="tab3">
+				</div>
+			</div>
+			<script>
+				const tabButtons = document.querySelectorAll('.tab-button');
+				const tabContents = document.querySelectorAll('.tab-content');
+				const tipsContent = document.querySelectorAll('.tab-tips');
+				const sliderContainer = document.getElementById('slider-container');
+				const tabButtonsHeader = document.getElementById('tab-buttons-header');
+
+				tabButtons.forEach(button => {
+				  button.style.display = 'none';
+				});
+
+				sliderContainer.style.display = 'none';
+				tabButtonsHeader.style.display = 'block';
+
+				tabButtons.forEach(button => {
+					button.addEventListener('click', () => {
+						// Remove the 'active' class from all tab buttons and contents
+						tabButtons.forEach(btn => btn.classList.remove('active'));
+						tabContents.forEach(content => content.classList.remove('active'));
+
+						// Add the 'active' class to the clicked tab button and associated content
+						tipsContent.forEach(content => content.classList.add('hidden'));
+
+						button.classList.add('active');
+						const tabId = button.getAttribute('data-tab');
+						const tabContent = document.getElementById(tabId);
+						tabContent.classList.add('active');
+					});
+				});
+			</script>
+		</div>
+    </div>
+
+	<div class="history">
+		<div class="table-history">
+			<h1 class="history-h1">Connection History [{{ history_rows }}]</h1>
+			<div class="table-header">
 				<table>
 				  <thead>
 					<tr>
@@ -69,173 +303,81 @@
 					  <th>IP Address</th>
 					  <th>Hostname</th>
 					  <th>Logged User</th>
-					  <th>OS Platform</th>
 					  <th>Boot Time</th>
-					  <th>Client Version</th>
+					  <th>Connection Time</th>
 					</tr>
 				  </thead>
-				  <tbody>
-					{% for endpoint in endpoints %}
-					<tr class="table-connected-row-data" data-id="{{ endpoint.client_mac }}" data-ip="{{ endpoint.ip }}" data-hostname="{{ endpoint.ident }}" data-user="{{ endpoint.user }}" data-boot="{{ endpoint.boot_time }}" data-connection="{{ endpoint.connection_time }}">
-					  <td>{{ endpoint.client_mac }}</td>
-					  <td>{{ endpoint.ip }}</td>
-					  <td>{{ endpoint.ident }}</td>
-					  <td>{{ endpoint.user }}</td>
-					  <td>{{ endpoint.os_release }}</td>
-					  <td>{{ endpoint.boot_time }}</td>
-					  <td>{{ endpoint.client_version }}</td>
-					</tr>
-					{% endfor %}
-					{% if not endpoints %}
-					<tr>
-					  <td colspan="7">No endpoints found.</td>
-					</tr>
-					{% endif %}
-				  </tbody>
 				</table>
 			</div>
-			<div class="Controller">
-				<div class="controller-buttons-container">
-				  <button class="button" data-action="screenshot">SCREENSHOT</button>
-				  <div class="remote-container">
-				  	<button id="remote-button" data-action="remote">REMOTE</button>
-				    <button id="anydesk-button" data-action="anydesk" class="hidden">ANYDESK</button>
-				    <button id="teamviewer-button" data-action="teamviewer" class="hidden">TEAMVIEWER</button>
-				  </div>
-
-				  <button class="button" data-action="sysinfo" id="sysinfo">SYSTEM</button>
-				  <button class="button" data-action="tasks" id="tasks">TASKS</button>
-
-				  <div class="local-files-container">
-				    <span class="notification-badge" id="file-notification-badge"></span>
-				    <button class="button" data-action="local" id="local-files-button">LOCAL FILES</button>
-				    <button class="local-view hidden" data-action="view" id="local-view-button">View</button>
-				    <button class="clear-local hidden" data-action="clear" id="local-clear-button">Clear</button>
-				  </div>
-
-				  <button id="restart" class="button" data-action="restart">RESTART</button>
-				  <button id="update" class="button" data-action="update">UPDATE</button>
-				  <script src="{{ url_for('static', filename='controller.js') }}" defer></script>
-				</div>
-
-				<div class="Extenders" id="extenders">
-					<div class="extenders-wrapper" id="ex-wrapper">
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="bottomHalf">
-		<div class="headers-wrapper">
-			<div class="display-header">
-				<button class="screenshots-button" id="screenshots-button">Screenshots</button>
-			</div>
-
-			<div class="information-header">
-				<button class="information-button" id="information-button">Information</button>
-				<button class="tasks-button" id="tasks-button">Tasks</button>
-				<label for="inp" class="inp">
-				  <input type="text" id="inp" placeholder="taskname.exe">
-				  <span class="label"></span>
-				  <span class="focus-bg"></span>
-				</label>
-				<button class="kill_task_button" id="kill_task_button" data-action="kill_task">Kill</button>
-				<button class="clear_button" id="clear_button">Clear</button>
-				<script>
-				  document.getElementById('kill_task_button').addEventListener('click', function() {
-					var taskName = document.getElementById('inp').value;
-
-					fetch('/kill_task', {
-					  method: 'POST',
-					  headers: {
-						'Content-Type': 'application/json'
-					  },
-					  body: JSON.stringify({ data: { taskName: taskName } })
-					})
-					.then(function(response) {
-					  if (response.ok) {
-						return response.json();
-					  } else {
-						throw new Error('Error: ' + response.status);
-					  }
-					})
-					.then(function(data) {
-					  console.log(data.message); // You can handle the response data here
-					})
-					.catch(function(error) {
-					  console.log(error); // Handle any errors that occurred during the request
-					});
-				  });
-
-				  document.getElementById('clear_button').addEventListener('click', function() {
-					// Functionality for the "Clear" button
-					document.getElementById('inp').value = '';
-					});
-				</script>
-			</div>
-		</div>
-
-		<div class="display-container">
-			<div class="Display">
-				<div class="screenshots-slider-wrapper">
-					<div class="screenshots-slider"></div>
-					<div class="screenshots-slider-nav"></div>
-				</div>
-			</div>
-			<div class="Information">
-				<div class="information-container" id="information-container"></div>
-				<div class="tasks-container" id="tasks-container"></div>
-			</div>
-		</div>
-	</div>
-
-	<div class="ConnectionHistory">
-		<h1 class="history-h1">Connection History</h1>
-		<div class="table-history">
-			<table>
-				<thead>
-					<tr>
-						<th>Client MAC</th>
-						<th>IP Address</th>
-						<th>Hostname</th>
-						<th>Logged User</th>
-						<th>Boot Time</th>
-						<th>Connection Time</th>
-					</tr>
-				</thead>
+			<div class="table-body">
+				<table>
 				<tbody>
 					{% for endpoint, time in history.items() %}
-					<tr>
+						<tr>
 						<td>{{ endpoint.client_mac }}</td>
 						<td>{{ endpoint.ip }}</td>
 						<td>{{ endpoint.ident }}</td>
 						<td>{{ endpoint.user }}</td>
 						<td>{{ endpoint.boot_time }}</td>
 						<td>{{ endpoint.connection_time }}</td>
-					</tr>
+						</tr>
 					{% endfor %}
 					{% if not history %}
-					<tr>
+						<tr>
 						<td colspan="6">No endpoints found.</td>
-					</tr>
+						</tr>
 					{% endif %}
-				</tbody>
+			  </tbody>
 			</table>
+		  </div>
 		</div>
 	</div>
-	<script>
-		window.addEventListener('DOMContentLoaded', adjustTopHalfHeight);
 
-		function adjustTopHalfHeight() {
-			const topHalf = document.querySelector('.topHalf');
-			const nestedBottom = document.querySelector('.Extenders');
+<script>
+    const topNav = document.querySelector('.top-nav');
+    const serverInfo = document.querySelector('.server-info');
+    const connectedH1 = document.querySelector('.connected-h1');
+    const connectedStations = document.querySelector('.connected-stations');
+    const controller = document.querySelector('.controller');
+    const content = document.querySelector('.content');
+    const history = document.querySelector('.history');
 
-			if (nestedBottom) {
-				const topHalfHeight = nestedBottom.getBoundingClientRect().bottom;
-				topHalf.style.height = `${topHalfHeight}px`;
-			}
-		}
-	</script>
+    function adjustLayout() {
+        // Get heights of elements
+        const topNavHeight = topNav.clientHeight;
+        const serverInfoHeight = serverInfo.clientHeight;
+        const connectedH1Height = connectedH1.clientHeight;
+        const connectedStationsHeight = connectedStations.clientHeight;
+        const controllerHeight = controller.clientHeight;
+        const historyHeight = history.clientHeight; // Get the height of the history table
+
+        // Calculate top positions
+        const serverInfoTop = topNavHeight;
+        const connectedH1Top = serverInfoTop + serverInfoHeight;
+        const connectedStationsTop = connectedH1Top + connectedH1Height;
+        const controllerTop = connectedStationsTop + connectedStationsHeight;
+        const historyTop = controllerTop + controllerHeight;
+
+        // Set positions
+        serverInfo.style.top = `${serverInfoTop}px`;
+        connectedH1.style.top = `${connectedH1Top}px`;
+        connectedStations.style.top = `${connectedStationsTop}px`;
+        controller.style.top = `${controllerTop}px`;
+        history.style.top = `${historyTop}px`;
+
+        // Calculate content height based on history position
+        const historyBottom = historyTop + historyHeight; // Calculate the bottom position of the history table
+        const availableHeight = window.innerHeight - historyBottom;
+
+        content.style.marginTop = `${historyBottom - 50}px`;
+        content.style.height = `${availableHeight}px`; // Set content height to available viewport height
+
+    }
+
+    adjustLayout();
+    window.addEventListener('scroll', adjustLayout);
+    window.addEventListener('resize', adjustLayout); // Recalculate on window resize
+</script>
+
 </body>
 </html>
