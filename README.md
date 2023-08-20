@@ -68,6 +68,6 @@ or if you chose the .env way
 docker run -d -p <host_web_port:container_port> -p <host_server_port>:<container_server_port> --restart=always -v <local/path>:/static/images <image-name:tag>
 ```
 
-After running the container, you can access the application by opening a web browser and visiting http://url:<host_web_port>. 
-The application should be up and running, allowing you to interact with it. <br /> <br />
+After running the container you can access the application by opening a web browser and visiting <br />http://url:<host_web_port>. 
+The application should be up and running.<br /> <br />
 
