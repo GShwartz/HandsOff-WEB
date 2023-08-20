@@ -1,3 +1,16 @@
+/*
+    HandsOff
+	A C&C for IT Admins
+	Copyright (C) 2023 Gil Shwartz
+
+    This work is licensed under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    You should have received a copy of the GNU General Public License along with this work.
+    If not, see <https://www.gnu.org/licenses/>.
+*/
+
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
 *
 {
@@ -86,7 +99,7 @@ section .signin .content
   position: relative;
   width: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: left;
   align-items: center;
   flex-direction: column;
   gap: 40px;
@@ -97,7 +110,7 @@ section .signin .content h2
   font-size: 2em;
   color: #0f0;
   text-transform: uppercase;
-  height: 5px;
+  height: 1px;
 }
 
 h2 img {
@@ -106,8 +119,11 @@ h2 img {
     display: flex;
 }
 
-p {
-    height: 5px;
+label {
+    height: 25px;
+    display: inline-block;
+    width: 100px;
+
 }
 
 section .signin .content .form
@@ -115,43 +131,48 @@ section .signin .content .form
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 15px;
 }
+
 section .signin .content .form .inputBox
 {
   position: relative;
   width: 100%;
 }
+
 section .signin .content .form .inputBox input
 {
   position: relative;
-  width: 100%;
+  width: 300px;
   background: #333;
   border: none;
   outline: none;
-  padding: 25px 10px 7.5px;
+  padding: 10px 10px 7.5px;
   border-radius: 4px;
   color: #fff;
   font-weight: 500;
   font-size: 1em;
 }
+
 section .signin .content .form .inputBox i
 {
   position: absolute;
   left: 0;
-  padding: 15px 10px;
   font-style: normal;
   color: #182E2F;
   transition: 0.5s;
   pointer-events: none;
 }
+
 .signin .content .form .inputBox input:focus ~ i,
 .signin .content .form .inputBox input:valid ~ i
 {
   transform: translateY(-7.5px);
   font-size: 0.8em;
   color: white;
+
 }
+
 .signin .content .form .links
 {
   position: relative;
@@ -164,6 +185,7 @@ section .signin .content .form .inputBox i
   color: white;
   text-decoration: none;
 }
+
 .signin .content .form .links a:nth-child(2)
 {
   color: #182E2F;
