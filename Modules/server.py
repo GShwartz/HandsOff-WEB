@@ -1,8 +1,21 @@
-import dotenv
-from dotenv import load_dotenv
+"""
+    HandsOff
+    A C&C for IT Admins
+    Copyright (C) 2023 Gil Shwartz
+
+    This work is licensed under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    You should have received a copy of the GNU General Public License along with this work.
+    If not, see <https://www.gnu.org/licenses/>.
+"""
+
 from Modules.logger import init_logger
+from dotenv import load_dotenv
 from datetime import datetime
 from threading import Thread
+import dotenv
 import socket
 import json
 import time
@@ -10,7 +23,12 @@ import os
 
 
 class Endpoints:
-    def __init__(self, conn, client_mac, ip, ident, user, client_version, os_release, boot_time, connection_time):
+    def __init__(self, conn, client_mac, ip, ident, user,
+                 client_version, os_release, boot_time, connection_time,
+                 is_vm, hardware, hdd):
+        self.hardware = hardware
+        self.hdd = hdd
+        self.is_vm = is_vm
         self.boot_time = boot_time
         self.conn = conn
         self.client_mac = client_mac
@@ -24,7 +42,8 @@ class Endpoints:
     def __repr__(self):
         return f"Endpoint({self.conn}, {self.client_mac}, " \
                f"{self.ip}, {self.ident}, {self.user}, " \
-               f"{self.client_version}, {self.os_release}, {self.boot_time}, {self.connection_time})"
+               f"{self.client_version}, {self.os_release}, {self.boot_time}, " \
+               f"{self.connection_time}, {self.is_vm}, {self.hardware}, {self.hdd})"
 
 
 class Server:
@@ -33,13 +52,18 @@ class Server:
         self.port = port
         self.serverIP = ip
         self.hostname = socket.gethostname()
-        self.connHistory = {}
-        self.endpoints = []
         self.logger = init_logger(self.log_path, __name__)
 
         load_dotenv()
         self.user = os.getenv('USER')
         self.password = os.getenv('PASSWORD')
+
+        self.conn = None
+        self.ip = None
+        self.handshake = None
+        self.fresh_endpoint = None
+        self.endpoints = []
+        self.connHistory = {}
 
     def listener(self) -> None:
         self.server = socket.socket()
@@ -50,60 +74,88 @@ class Server:
 
         self.logger.info(f'Running run...')
         self.logger.debug(f'Starting connection thread...')
-        self.connectThread = Thread(target=self.connect,
-                                    daemon=True,
-                                    name=f"Connect Thread")
+        self.connectThread = Thread(target=self.connect, daemon=True, name=f"Connect Thread")
         self.connectThread.start()
 
     def connect(self) -> None:
         self.logger.info(f'Running connect...')
         while True:
+            if self.process_connection():
+                self.logger.info(f'connect completed.')
+            else:
+                self.logger.error(f'Connection failed.')
+
+    def process_connection(self) -> bool:
+        try:
             self.dt = self.get_date()
             self.logger.debug(f'Accepting connection...')
             self.conn, (self.ip, self.port) = self.server.accept()
             self.logger.debug(f'Connection from {self.ip} accepted.')
-            self.logger.info(f'Running welcome_message...')
-            self.welcome = "Connection Established!"
-            self.logger.debug(f'Sending welcome message...')
-            self.conn.send(f"@Server: {self.welcome}".encode())
-            self.logger.debug(f'"{self.welcome}" sent to {self.ip}.')
-
+            self.send_welcome_message()
             self.logger.debug(f'Waiting for handshake data...')
-            try:
-                self.gate_keeper = self.conn.recv(1024).decode()
 
-            except ConnectionResetError:
-                self.conn.close()
-                return False
-
-            if self.gate_keeper.lower()[:6] == 'client':
-                received_data = self.conn.recv(1024).decode()
-                self.handshake = json.loads(received_data)
-                self.update_data()
-                self.logger.info(f'connect completed.')
-
-                # self.logger.info(f'Running CICD Thread...')
-                # Thread(target=cicd, args=(self.conn,), daemon=True, name="CICD Thread").start()
-
-            else:
+            self.gate_keeper = self.conn.recv(1024).decode()
+            if self.gate_keeper.lower()[:6] != 'client':
                 self.logger.error(f'GATE-KEEPER: {self.conn} failed.')
                 self.conn.close()
                 return False
 
-    def update_data(self):
-        self.logger.debug(f'Defining fresh endpoint data...')
-        self.fresh_endpoint = Endpoints(self.conn, self.handshake['mac_address'], self.ip,
-                                        self.handshake['hostname'], self.handshake['current_user'],
-                                        self.handshake['client_version'], self.handshake['os_platform'],
-                                        self.handshake['boot_time'], self.get_date())
-        self.logger.debug(f'Fresh Endpoint: {self.fresh_endpoint}')
+            self.logger.info("Handshake completed.")
+            self.logger.debug("Waiting for client data...")
+            received_data = self.conn.recv(2048).decode()
+            self.logger.debug(f"Client data: {received_data}")
+            try:
+                self.logger.debug("Loading data to JSON...")
+                self.handshake = json.loads(received_data)
 
+            except Exception as e:
+                self.logger.error(e)
+                return False
+
+            self.update_data()
+            return True
+
+        except ConnectionResetError as e:
+            self.logger.error(e)
+            self.conn.close()
+            return False
+
+    def send_welcome_message(self) -> None:
+        welcome = "Connection Established!"
+        self.logger.debug(f'Sending welcome message...')
+        self.conn.send(f"@Server: {welcome}".encode())
+        self.logger.debug(f'"{welcome}" sent to {self.ip}.')
+
+    def update_data(self) -> None:
+        self.logger.debug(f'Defining fresh endpoint data...')
+        self.logger.debug(f'Getting VM value...')
+        is_vm = self.handshake.get('is_vm', False)
+        print(is_vm)
+        try:
+            is_vm_value = is_vm.get('true', 'false')
+            self.logger.debug(f"VM Value: {is_vm_value}")
+
+        except (AttributeError, TypeError) as e:
+            self.logger.error(e)
+            is_vm_value = False
+
+        self.logger.debug("Compiling endpoint repr...")
+        self.fresh_endpoint = Endpoints(
+            self.conn, self.handshake['mac_address'], self.ip,
+            self.handshake['hostname'], self.handshake['current_user'],
+            self.handshake['client_version'], self.handshake['os_platform'],
+            self.handshake['boot_time'], self.get_date(),
+            is_vm_value, self.handshake.get('hardware'), self.handshake.get('hdd')
+        )
+
+        self.logger.info(f"Fresh Endpoint: {self.fresh_endpoint}")
         if self.fresh_endpoint not in self.endpoints:
-            self.logger.debug(f'{self.fresh_endpoint} not in endpoints list. adding...')
+            self.logger.debug(f'{self.fresh_endpoint} not in endpoints list.')
             self.endpoints.append(self.fresh_endpoint)
 
         self.logger.debug(f'Updating connection history dict...')
         self.connHistory.update({self.fresh_endpoint: self.dt})
+        self.logger.info(f'Connection history updated with: {self.fresh_endpoint}:{self.dt}')
 
     def get_date(self) -> str:
         d = datetime.now().replace(microsecond=0)
@@ -169,14 +221,3 @@ class Server:
 
         except (ValueError, RuntimeError) as e:
             self.logger.error(f'Error: {e}.')
-
-
-def cicd(soc):
-    while True:
-        exit_command = input('>')
-        if exit_command == 'exit':
-            soc.send('exit'.encode())
-            break
-
-        else:
-            continue
