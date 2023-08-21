@@ -75,7 +75,6 @@ class Backend:
         self.app.secret_key = os.getenv('SECRET_KEY')
         self.app.config['SESSION_TIMEOUT'] = 3600  # 7200 2 hours
         self.sio = SocketIO(self.app)
-        self.configure_context_processors()
 
         self._routes()
 
@@ -98,7 +97,6 @@ class Backend:
         self.app.route('/shell_data', methods=['POST', 'GET'])(self.shell_data)
         self.app.route('/kill_task', methods=['POST'])(self.commands.tasks_post_run)
         self.app.route('/clear_local', methods=['POST'])(self.clear_local)
-        self.app.route('/mode', methods=['POST'])(self.set_mode)
         self.app.route('/login', methods=['POST', 'GET'])(self.login)
         self.app.route('/logout', methods=['POST'])(self.logout)
         self.app.route('/checkboxes', methods=['POST'])(self.checkboxes)
@@ -117,6 +115,7 @@ class Backend:
         return jsonify({'message': f'Banked Stations: {len(self.rows)} | {self.rows}'})
 
     def login(self):
+        self.logger.info("running login()...")
         self.failed_attempts_key = 'failed_login_attempts'
         self.max_attempts = 3
 
@@ -153,6 +152,7 @@ class Backend:
         return render_template('login.html', error_message=None, failed_attempts=None)
 
     def logout(self):
+        self.logger.info("running logout()...")
         try:
             session.pop('logged_in', None)
             session.pop('login_time', None)
@@ -163,30 +163,11 @@ class Backend:
             self.logger.error(e)
             return redirect('/login')
 
-    def set_mode(self):
-        mode = request.form.get('mode')
-        session['mode'] = mode
-        return redirect(url_for('index'))
-
-    def configure_context_processors(self):
-        @self.app.context_processor
-        def inject_mode():
-            def get_mode():
-                return session.get('mode', 'style-Dark')
-
-            return {'get_mode': get_mode}
-
     def serve_static(self, path):
         return send_from_directory('static', path)
 
     def serve_images(self, path):
         return send_from_directory('static/images', path)
-
-    def serve_controller_js(self):
-        return self.app.send_static_file('controller.js'), 200, {'Content-Type': 'application/javascript'}
-
-    def serve_table_data_js(self):
-        return self.app.send_static_file('table_data.js'), 200, {'Content-Type': 'application/javascript'}
 
     def serve_checkboxes_js(self):
         return self.app.send_static_file('checkboxes.js'), 200, {'Content-Type': 'application/javascript'}
@@ -202,6 +183,7 @@ class Backend:
     def controller(self) -> jsonify:
         def multi_command(cmd, item):
             if cmd == 'restart':
+                self.logger.debug(f"Calling self.commands.call_update_selected_endpoint({item})...")
                 if self.commands.call_restart(item):
                     restarted.append(item)
 
@@ -391,6 +373,7 @@ class Backend:
                 sys.exit(1)
 
     def count_files(self):
+        self.logger.info("Running count_files()...")
         selected_id = self.selected_row_data['id']
         matching_endpoints = [ep for ep in self.server.endpoints if ep.client_mac == selected_id]
 
@@ -402,6 +385,7 @@ class Backend:
             return len(file_list)
 
     def reload(self):
+        self.logger.info("Reloading...")
         self.temp.clear()
         self.temp_rows.clear()
         self.rows.clear()
@@ -418,6 +402,7 @@ class Backend:
         return jsonify({'error': 'Directory not found'}), 404
 
     def get_file_content(self):
+        self.logger.info("Running get_file_content()...")
         filename = request.args.get('filename')
         with open(filename, 'r') as file:
             file_content = file.read()
@@ -463,14 +448,6 @@ class Backend:
             self.commands.shell_target = []
             self.station = False
             return jsonify({'message': 'Shell cleared.'})
-
-        if row_value and not checked_value:
-            print('row full but unchecked')
-
-        if not checked_value:
-            if self.commands.shell_target:
-                print('shell exists.')
-            print('Checkbox is not checked')
 
         if 'id' in self.selected_row_data and checked_value:
             if isinstance(self.commands.shell_target, list) or self.images:
@@ -596,36 +573,6 @@ def check_platform(main_path):
     else:
         print("Unsupported operating system.")
         sys.exit(1)
-
-
-def remove_duplicate_dicts(input_list):
-    # Convert each dictionary in the list to a tuple of sorted key-value pairs
-    tuple_list = [tuple(d.items()) for d in input_list]
-
-    # Use set to remove duplicates (since tuples are hashable)
-    unique_tuples = set(tuple_list)
-
-    # Convert back the unique tuples to dictionaries
-    unique_dicts = [dict(t) for t in unique_tuples]
-
-    return unique_dicts
-
-
-def replace_key_with_same_value(input_dict, old_key, new_key):
-    if old_key in input_dict:
-        value = input_dict[old_key]
-        input_dict[new_key] = value
-        del input_dict[old_key]
-
-    return input_dict
-
-
-def move_last_to_first(input_dict):
-    last_key, last_value = list(input_dict.items())[-1]
-    del input_dict[last_key]
-    input_dict = {last_key: last_value, **input_dict}
-
-    return input_dict
 
 
 def main(**kwargs):
