@@ -130,14 +130,13 @@ class Server:
         self.logger.debug(f'Defining fresh endpoint data...')
         self.logger.debug(f'Getting VM value...')
         is_vm = self.handshake.get('is_vm', False)
-        print(is_vm)
         try:
             is_vm_value = is_vm.get('true', 'false')
             self.logger.debug(f"VM Value: {is_vm_value}")
 
         except (AttributeError, TypeError) as e:
             self.logger.error(e)
-            is_vm_value = False
+            is_vm_value = "N/A"
 
         self.logger.debug("Compiling endpoint repr...")
         self.fresh_endpoint = Endpoints(

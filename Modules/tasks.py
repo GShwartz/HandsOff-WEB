@@ -1,3 +1,16 @@
+"""
+    HandsOff
+    A C&C for IT Admins
+    Copyright (C) 2023 Gil Shwartz
+
+    This work is licensed under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    You should have received a copy of the GNU General Public License along with this work.
+    If not, see <https://www.gnu.org/licenses/>.
+"""
+
 import socket
 import shutil
 import sys
@@ -26,10 +39,6 @@ class Tasks:
         for i in range(4):
             res += b[i] << (i * 8)
         return res
-
-    def display_text(self):
-        self.logger.info(f"Running display_text...")
-        os.startfile(self.full_file_path)
 
     def kill_task(self, taskname):
         self.logger.debug(f"Running kill_task...")
@@ -150,9 +159,12 @@ class Tasks:
 
         src = os.path.join(self.tasks_file_path, self.filenameRecv)
         if self.endpoint.conn == self.shell_target:
-            shutil.move(src, self.local_dir)
+            try:
+                shutil.move(src, self.local_dir)
 
-        # self.logger.debug(f"Calling display_text...")
-        # self.display_text()
+            except shutil.Error as e:
+                self.logger.error(e)
+                pass
+
         self.logger.info(f"run completed.")
         return True
