@@ -366,49 +366,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  headerCheckbox.addEventListener('change', checkHeaderCheckbox);
-
-  rowCheckboxes.forEach((checkbox) => {
-    checkbox.addEventListener('change', (event) => {
-      updateHeaderCheckbox();
-      updateCheckedList(event);
-    });
-  });
-
-  rows.forEach(row => {
-    row.addEventListener('click', () => {
-      handleRowClick(row);
-      clickedRowSelected = row.classList.contains('selected'); // Update clickedRowSelected flag
-    });
-  });
-
-  remoteButton.addEventListener('click', () => {
-    if (!lastSelectedRow) {
-      console.log('No row selected');
-      return;
-    }
-
-    anydeskButton.classList.toggle('hidden');
-    teamviewerButton.classList.toggle('hidden');
-
-  });
-
-  anydeskButton.addEventListener('click', handleAnyDeskButtonClick);
-  teamviewerButton.addEventListener('click', handleTeamViewerButtonClick);
-
-  localFilesButton.addEventListener('click', () => {
-    if (!lastSelectedRow) {
-      console.log('No row selected');
-      return;
-    }
-
-    localClearButton.classList.toggle('hidden');
-    localViewButton.classList.toggle('hidden');
-  });
-
-  localViewButton.addEventListener('click', handleViewButtonClick);
-  localClearButton.addEventListener('click', handleClearButtonClick);
-
   function setupButtonFunctionality() {
     document.getElementById('kill_task_button').addEventListener('click', function() {
       var taskName = document.getElementById('inp').value;
@@ -551,8 +508,20 @@ document.addEventListener('DOMContentLoaded', function () {
         overlay.remove();
         popup.remove();
         refreshImageSlider();
+        const tabButtons = document.querySelectorAll('.tab-button');
+          const tipsContent = document.querySelectorAll('.tab-tips');
+          const sysinfoButton = document.querySelector('[data-tab="sysinfo-tab"]');
+
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tipsContent.forEach(content => content.classList.add('hidden'));
+          tabContents.forEach(content => content.classList.remove('active'));
+          sysinfoButton.classList.add('active');
+          const tabId = sysinfoButton.getAttribute('data-tab');
+          const tabContent = document.getElementById(tabId);
+          tabContent.classList.add('active');
         return;
       }
+
     } else if (action === 'restart') {
           const selectedRowCount = checkedList.size;
           console.log('[RESTART] rowCount:', selectedRowCount);
@@ -599,6 +568,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
       button.removeEventListener('click', handleButtonClick); // Remove event listener from the clicked button
       makeAjaxRequest('tasks');
+
+      const tabButtons = document.querySelectorAll('.tab-button');
+      const tipsContent = document.querySelectorAll('.tab-tips');
+      const tasksButton = document.querySelector('[data-tab="tasks-tab"]');
+      const sysinfoButton = document.querySelector('[data-tab="sysinfo-tab"]');
+
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      tipsContent.forEach(content => content.classList.add('hidden'));
+      tabContents.forEach(content => content.classList.remove('active'));
+      tasksButton.classList.add('active');
+      const tabId = tasksButton.getAttribute('data-tab');
+      const tabContent = document.getElementById(tabId);
+      tabContent.classList.add('active');
       return;
 
     } else if (action === 'local') {
@@ -735,6 +717,49 @@ document.addEventListener('DOMContentLoaded', function () {
 // ---------------------------------------------------------------------------------------------------  //
   checkHeaderCheckbox();
   setupButtonFunctionality();
+
+  headerCheckbox.addEventListener('change', checkHeaderCheckbox);
+
+  rowCheckboxes.forEach((checkbox) => {
+    checkbox.addEventListener('change', (event) => {
+      updateHeaderCheckbox();
+      updateCheckedList(event);
+    });
+  });
+
+  rows.forEach(row => {
+    row.addEventListener('click', () => {
+      handleRowClick(row);
+      clickedRowSelected = row.classList.contains('selected'); // Update clickedRowSelected flag
+    });
+  });
+
+  remoteButton.addEventListener('click', () => {
+    if (!lastSelectedRow) {
+      console.log('No row selected');
+      return;
+    }
+
+    anydeskButton.classList.toggle('hidden');
+    teamviewerButton.classList.toggle('hidden');
+
+  });
+
+  anydeskButton.addEventListener('click', handleAnyDeskButtonClick);
+  teamviewerButton.addEventListener('click', handleTeamViewerButtonClick);
+
+  localFilesButton.addEventListener('click', () => {
+    if (!lastSelectedRow) {
+      console.log('No row selected');
+      return;
+    }
+
+    localClearButton.classList.toggle('hidden');
+    localViewButton.classList.toggle('hidden');
+  });
+
+  localViewButton.addEventListener('click', handleViewButtonClick);
+  localClearButton.addEventListener('click', handleClearButtonClick);
 
   // Close the modal when the close button is clicked
   modalClose.addEventListener('click', () => {

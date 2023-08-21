@@ -177,9 +177,9 @@ body {
 }
 
 .logout [type="submit"] {
-    background-color: red;
+    background-color: #333333;
     color: white;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     text-align: center;
     display: flex;
@@ -190,10 +190,11 @@ body {
     width: 100%;
     margin-bottom: 5px;
     margin-right: 5px;
+    border-radius: 5px;
 }
 
 .logout-button:hover {
-    background-color: #333333;
+    background-color: red;
 }
 
 .server-info {
@@ -901,6 +902,7 @@ body {
 .welcome-ul {
     list-style-type: none;
     padding-left: 0;
+    cursor: pointer;
 }
 
 .welcome-li {
@@ -925,7 +927,7 @@ body {
 }
 
 .welcome-li:hover {
-    background-color: #333;
+    background-color: grey;
 }
 
 .tab-tips-footer {
@@ -996,4 +998,24 @@ body {
     font-size: 16px;
     color: white;
     margin-bottom: 1px;
+}
+
+.download-button {
+    padding: 5px;
+    margin-left: 90%;
+    width: 8%;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+}
+
+.download-button:hover {
+    background: rgb(9,6,190);
+    background: linear-gradient(135deg, rgba(9,6,190,1) 0%, rgba(31,229,245,0.76234243697479) 50%, rgba(9,6,190,1) 100%);
 }
