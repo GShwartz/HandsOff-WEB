@@ -19,6 +19,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" id="theme-style">
 	<script src="{{ url_for('static', filename='checkboxes.js') }}" defer></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 </head>
 <body>
@@ -31,7 +32,7 @@
 				</div>
 			</a>
 
-			<a class="download-button" href="{{ url_for('download_file', filename='handsOff.zip') }}">Download Client</a>
+			<a class="download-button" href="http://10.0.0.5/handsOff.zip">Download Client</a>
 
             <div class="logout">
                 <form action="/logout" method="post">
@@ -153,7 +154,8 @@
 					</div>
 
 					<div class="dropdown">
-						<button class="controller-buttons-container button" id="local-files-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-action="local">LOCAL &#9660;</button>
+						<button class="controller-buttons-container button" id="local-files-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-action="local">LOCAL &#9660;<span class="notification-badge" id="file-notification-badge"></span></button>
+
 						<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="local-files-button">
 							<li><a class="dropdown-item" data-action="view" id="local-view-button">View</a></li>
 							<li><a class="dropdown-item" data-action="clear" id="local-clear-button">Clear</a></li>
@@ -172,7 +174,7 @@
 					<div class="tab-buttons-header" id="tab-buttons-header"></div>
 					<button class="tab-button" data-tab="tasks-tab">Tasks</button>
 					<button class="tab-button" data-tab="sysinfo-tab">System Info</button>
-					<button class="tab-button" data-tab="tab3">Network</button>
+					<button class="tab-button" data-tab="network-tab">Network Discovery</button>
 				</div>
 
 				<div class="tab-tips" id="tab-tips">
@@ -261,8 +263,70 @@
 						<!-- Content for information container goes here -->
 					</div>
 				</div>
-				<div class="tab-content" id="tab3">
+
+				<div class="tab-content" id="network-tab">
+					<div class="discover-header" id="discover-header">
+        				<button class="discover-button" id="discover-button">Discover</button>
+					</div>
+
+					<div class="discover-table" id="discover-content">
+						<div class="table-connected discover-table">
+							<table class="discover-table-header" id="discover-table-header">
+								<thead>
+									<tr>
+										<th>IP Address</th>
+										<th>Hostname</th>
+									</tr>
+								</thead>
+							</table>
+							<div class="discover-table-body" id="discover-table-body">
+								<table>
+									<tbody>
+										<tr>
+											<td>{{ ip }}</td>
+											<td>{{ hostname }}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
 				</div>
+				<script>
+					$(document).ready(function() {
+						$("#discover-button").click(function() {
+							// Send AJAX request to /discover on Flask backend
+							$.ajax({
+								url: "/discover",
+								type: "POST",
+								success: function(response) {
+									// Handle the response from the backend here
+									console.log("Discovery request sent successfully!");
+
+									// Update the table content
+									var tableBody = $("#discover-table-body");
+									tableBody.empty();  // Clear existing content
+
+									// Loop through the response.map and add rows
+									for (var ip in response.map) {
+										if (response.map.hasOwnProperty(ip)) {
+											var newRow = $("<tr>");
+											newRow.append($("<td>").text(ip));
+											newRow.append($("<td>").text(response.map[ip]));
+											tableBody.append(newRow);
+										}
+									}
+
+								var currentTime = new Date().toLocaleTimeString();
+								$("#discover-button").text("Discover (Checked: " + currentTime + ")");
+								},
+								error: function(error) {
+									console.error("Error sending discovery request:", error);
+								}
+							});
+						});
+					});
+				</script>
 			</div>
 			<script>
 				const tabButtons = document.querySelectorAll('.tab-button');
