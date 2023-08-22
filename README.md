@@ -1,7 +1,8 @@
 # HandsOff-Server
 <img src="https://github.com/GShwartz/HandsOff-WEB/blob/main/src/f_login.JPG?raw=true" alt="Failed Login" width="800" height="400">
 <img src="https://github.com/GShwartz/HandsOff-WEB/blob/main/src/startup.JPG?raw=true" alt="Main" width="800" height="400">
-<img src="https://github.com/GShwartz/HandsOff-WEB/blob/main/src/connected.JPG?raw=true" alt="Connected" width="800" height="400">
+<img src="https://github.com/GShwartz/HandsOff-WEB/blob/main/src/net-discovery.jpg?raw=true" alt="Net-Discovery" width="800" height="400">
+<!-- <img src="https://github.com/GShwartz/HandsOff-WEB/blob/main/src/connected.JPG?raw=true" alt="Connected" width="800" height="400"> -->
 * Compatible with windows OS and Debian (tested on Ubuntu 22.04 with docker-ce).
 
 ### Base Image
