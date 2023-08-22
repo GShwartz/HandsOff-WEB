@@ -144,7 +144,8 @@ class Server:
             self.handshake['hostname'], self.handshake['current_user'],
             self.handshake['client_version'], self.handshake['os_platform'],
             self.handshake['boot_time'], self.get_date(),
-            is_vm_value, self.handshake.get('hardware'), self.handshake.get('hdd')
+            is_vm_value, self.handshake.get('hardware'),
+            self.handshake.get('hdd')
         )
 
         self.logger.info(f"Fresh Endpoint: {self.fresh_endpoint}")
