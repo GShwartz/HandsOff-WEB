@@ -442,7 +442,7 @@ body {
 
 .dropdown {
     margin-left: 5px;
-    width: 15%;
+    width: 20%;
     top: 0;
     bottom: 0;
 }
@@ -456,6 +456,7 @@ body {
     padding: 0;
     margin: 0;
     width: 85px;
+    height: 5%;
     border-radius: 5px;
     box-shadow: 8px 3px 5px rgba(0, 0, 0, 0.2);
     margin-left: 22px;
@@ -470,8 +471,9 @@ body {
     display: block;
     text-align: center;
     color: white;
-    margin: 1px;
+    margin-left: 5px;
     padding: 5px 10px;
+    margin-bottom: 1px;
     font-size: 12px;
     font-weight: bold;
     background-color: #3e78e0;
@@ -485,6 +487,19 @@ body {
     letter-spacing: 1px;
 
 }
+
+.notification-badge {
+  position: relative;
+  top: -2px;
+  right: -8px; /* Adjust the right position to position it on the top right corner */
+  display: none;
+  padding: 2px 6px;
+  border-radius: 50%;
+  background-color: red;
+  color: white;
+  font-size: 12px;
+}
+
 
 .slider-container {
     display: flex;
@@ -518,7 +533,7 @@ body {
 
 .screenshots-slider img {
     max-width: 140px;
-    max-height: 90%;
+    max-height: 100%;
     cursor: pointer;
     transition: transform 0.3s ease-in-out;
     object-fit: contain;
@@ -819,11 +834,6 @@ body {
     justify-content: flex-end;
 }
 
-.tab-buttons-header {
-    justify-content: center;
-    background: red;
-}
-
 .tab-button.active {
     background: #427F39;
 }
@@ -928,6 +938,130 @@ body {
 
 .welcome-li:hover {
     background-color: grey;
+}
+
+.discover-header {
+    background: #333333;
+    display: flex;
+    align-items: center;
+    height: 70px;
+}
+
+.network-h1 {
+    color: white;
+    font-size: 18px;
+    margin-left: 37%;
+}
+
+.discover-button {
+    margin-top: 5px;
+    margin-left: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #3e78e0;
+    color: #eaeaf2;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 10px;
+}
+
+.discover-button:hover {
+    background: rgb(9, 6, 190);
+    background: linear-gradient(135deg, rgba(9, 6, 190, 1) 0%, rgba(31, 229, 245, 0.76234243697479) 50%, rgba(9, 6, 190, 1) 100%);
+}
+
+.discover-button:active {
+    background: rgb(30,137,227);
+    background: radial-gradient(circle, rgba(30,137,227,1) 0%, rgba(53,211,233,0.7399334733893557) 50%, rgba(30,137,227,1) 100%);
+}
+
+.discover-content {
+    justify-content: center;
+}
+
+.discover-table {
+    width: 94.2%;
+    max-height: 341px;
+    overflow: auto;
+}
+
+/* Custom scrollbar styles */
+.discover-table::-webkit-scrollbar {
+    width: 9px;
+    background-color: #222;
+}
+
+.discover-table::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+.discover-table::-webkit-scrollbar-thumb:hover {
+    background-color: #565957;
+}
+
+.discover-table::-webkit-scrollbar-track {
+    background-color: #222;
+}
+
+/* Improve visibility of the scrollbar track */
+.discover-table::-webkit-scrollbar-track-piece {
+    background-color: #333;
+}
+
+.discover-table-header {
+    width: 100%;
+    z-index: 10;
+    position: sticky;
+    top: 0;
+}
+
+.discover-table-body {
+    width: 99.8%;
+}
+
+.discover-table-header th {
+    background-color: #444;
+    padding: 10px 15px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.discover-table-body td {
+  padding: 10px 15px;
+  border-bottom: 1px solid #444;
+}
+
+.discover-table-body tr:last-child td {
+  border-bottom: none;
+}
+
+/* Highlight the table row on hover */
+.discover-table-body tr:hover {
+  background-color: #555;
+}
+
+/* Apply specific styles to the content inside cells */
+.discover-table-body td {
+  color: #fff;
+
+}
+
+/* Style the link-like elements */
+.discover-table-body a {
+  color: #00aaff;
+  text-decoration: none;
+}
+
+.discover-table-body a:hover {
+  text-decoration: underline;
+}
+
+/* Apply specific styles to the first column (IP Address) */
+.discover-table-body td:first-child {
+  font-weight: bold;
 }
 
 .tab-tips-footer {

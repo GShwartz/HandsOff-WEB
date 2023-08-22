@@ -287,6 +287,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     row.classList.add('selected');
 
+    // Reset Discover button
+    var tableBody = $("#discover-table-body");
+    tableBody.empty();  // Clear existing content
+    $("#discover-button").text("Discover");
+
     const sliderContainer = document.getElementById('slider-container');
       sliderContainer.style.display = 'block';
 
@@ -351,9 +356,9 @@ document.addEventListener('DOMContentLoaded', function () {
           console.log('Row data sent to backend.');
           console.log('fileNum:', fileNum);
 
-//          const fileNotificationBadge = document.getElementById('file-notification-badge');
-//          fileNotificationBadge.textContent = fileNum;
-//          fileNotificationBadge.style.display = fileNum > 0 ? 'block' : 'none';
+          const fileNotificationBadge = document.getElementById('file-notification-badge');
+          fileNotificationBadge.textContent = fileNum;
+          fileNotificationBadge.style.display = fileNum > 0 ? 'block' : 'none';
 
         })
         .catch(error => {
@@ -362,6 +367,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Save the last selected row
       lastSelectedRow = row;
+
+      const discoverContent = document.getElementById('discover-content');
+      discoverContent.style.display = 'block';
 
     }
   }
@@ -508,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function () {
         overlay.remove();
         popup.remove();
         refreshImageSlider();
-        const tabButtons = document.querySelectorAll('.tab-button');
+          const tabButtons = document.querySelectorAll('.tab-button');
           const tipsContent = document.querySelectorAll('.tab-tips');
           const sysinfoButton = document.querySelector('[data-tab="sysinfo-tab"]');
 
@@ -585,6 +593,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     } else if (action === 'local') {
       return;
+
+    } else if (action === 'discover') {
+        makeAjaxRequest('discover');
+        return;
 
     } else {
       }
