@@ -100,9 +100,15 @@ class Backend:
         self.app.route('/login', methods=['POST', 'GET'])(self.login)
         self.app.route('/logout', methods=['POST'])(self.logout)
         self.app.route('/checkboxes', methods=['POST'])(self.checkboxes)
+        self.app.route('/discover', methods=['POST'])(self.discover)
 
     def download_file(self, filename):
         return send_from_directory('static', filename, as_attachment=True)
+
+    def discover(self):
+        self.logger.debug(f"Calling self.commands.discover()...")
+        netMap = self.commands.call_discover()
+        return jsonify({'map': netMap})
 
     def checkboxes(self):
         data = request.get_json()
