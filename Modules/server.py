@@ -25,7 +25,9 @@ import os
 class Endpoints:
     def __init__(self, conn, client_mac, ip, ident, user,
                  client_version, os_release, boot_time, connection_time,
-                 is_vm, hardware, hdd):
+                 is_vm, hardware, hdd, external_ip, wifi):
+        self.wifi = wifi
+        self.external_ip = external_ip
         self.hardware = hardware
         self.hdd = hdd
         self.is_vm = is_vm
@@ -43,7 +45,8 @@ class Endpoints:
         return f"Endpoint({self.conn}, {self.client_mac}, " \
                f"{self.ip}, {self.ident}, {self.user}, " \
                f"{self.client_version}, {self.os_release}, {self.boot_time}, " \
-               f"{self.connection_time}, {self.is_vm}, {self.hardware}, {self.hdd})"
+               f"{self.connection_time}, {self.is_vm}, {self.hardware}, " \
+               f"{self.hdd}, {self.external_ip}, {self.wifi})"
 
 
 class Server:
@@ -82,6 +85,7 @@ class Server:
         while True:
             if self.process_connection():
                 self.logger.info(f'connect completed.')
+
             else:
                 self.logger.error(f'Connection failed.')
 
@@ -102,7 +106,7 @@ class Server:
 
             self.logger.info("Handshake completed.")
             self.logger.debug("Waiting for client data...")
-            received_data = self.conn.recv(2048).decode()
+            received_data = self.conn.recv(4096).decode()
             self.logger.debug(f"Client data: {received_data}")
             try:
                 self.logger.debug("Loading data to JSON...")
@@ -145,7 +149,8 @@ class Server:
             self.handshake['client_version'], self.handshake['os_platform'],
             self.handshake['boot_time'], self.get_date(),
             is_vm_value, self.handshake.get('hardware'),
-            self.handshake.get('hdd')
+            self.handshake.get('hdd'), self.handshake.get('ex_ip'),
+            self.handshake.get('wifi')
         )
 
         self.logger.info(f"Fresh Endpoint: {self.fresh_endpoint}")
@@ -215,7 +220,6 @@ class Server:
             endpoint.conn.close()
             self.endpoints.remove(endpoint)
 
-            # Update statusbar message
             self.logger.info(f'=== End of remove_lost_connection({endpoint}) ===')
             return True
 

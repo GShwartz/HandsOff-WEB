@@ -1,4 +1,18 @@
+"""
+    HandsOff
+    A C&C for IT Admins
+    Copyright (C) 2023 Gil Shwartz
+
+    This work is licensed under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    You should have received a copy of the GNU General Public License along with this work.
+    If not, see <https://www.gnu.org/licenses/>.
+"""
+
 from flask import request, jsonify
+from datetime import datetime
 import socket
 import time
 import glob
@@ -27,14 +41,75 @@ class Commands:
             if sc.run():
                 return True
 
+    def ex_ip(self):
+        matching_endpoint = self.find_matching_endpoint()
+        if matching_endpoint:
+            ip = matching_endpoint.external_ip
+            return ip
+
+    def get_nearby_wifi(self):
+        matching_endpoint = self.find_matching_endpoint()
+
+        if not matching_endpoint:
+            return None
+
+        try:
+            # Send request to the matching endpoint
+            matching_endpoint.conn.send('wifi'.encode())
+            received_data = matching_endpoint.conn.recv(1024)
+            decoded_data = received_data.decode()
+
+            # Extract SSID list from received data
+            ssid_list = [line.split(":")[1].strip() for line in decoded_data.split('\n') if line.startswith("SSID")]
+
+            # Prepare file writing
+            path = os.path.join('static', 'images', matching_endpoint.ident)
+            os.makedirs(path, exist_ok=True)
+            filename = f'network {matching_endpoint.ident}.txt'
+            file_path = os.path.join(path, filename)
+
+            # Write data to the newest or create a new file
+            with open(file_path, 'a') as file:
+                file.write('=' * 50 + f'\nNearby Wi-Fi networks | HOSTNAME: {matching_endpoint.ident} | '
+                                      f'IP: {matching_endpoint.ip} | DATE: {self.get_date()}\n\n')
+                file.write('\n'.join(ssid_list))
+                file.write('\n' + '=' * 50 + '\n')
+
+            # Count files and return data
+            file_counter = self.count_files(matching_endpoint)
+            return ssid_list, file_counter
+
+        except socket.error as soc_error:
+            self.logger.error(f"Socket error: {soc_error}")
+            return None
+
     def call_discover(self):
         matching_endpoint = self.find_matching_endpoint()
+
         if matching_endpoint:
             self.logger.debug(f"Sending 'discover' to {matching_endpoint.ip}...")
             matching_endpoint.conn.send('discover'.encode())
             msg = matching_endpoint.conn.recv(2048)
             self.logger.debug(f"{matching_endpoint.ip}: {msg}")
             active_hosts = json.loads(msg)
+        else:
+            active_hosts = {}
+
+        path = os.path.join('static', 'images', matching_endpoint.ident)
+        os.makedirs(path, exist_ok=True)
+
+        filename = f'network {matching_endpoint.ident}.txt'
+        file_path = os.path.join(path, filename)
+
+        with open(file_path, 'a') as network_file:
+            network_file.write(
+                f"Active Hosts | HOSTNAME: {matching_endpoint.ident} | "
+                f"IP: {matching_endpoint.ip} | DATE: {self.get_date()}\n\n")
+
+            for host, service in active_hosts.items():
+                network_file.write(f"{host} | {service}\n")
+
+            network_file.write("=" * 50 + "\n\n")
 
         return active_hosts
 
@@ -185,3 +260,14 @@ class Commands:
 
     def find_matching_endpoint(self):
         return next((endpoint for endpoint in self.server.endpoints if endpoint.conn == self.shell_target), None)
+
+    def get_date(self) -> str:
+        d = datetime.now().replace(microsecond=0)
+        dt = str(d.strftime("%d-%b-%y %I.%M.%S %p"))
+        return dt
+
+    def count_files(self, endpoint):
+        self.logger.info("Running count_files()...")
+        dir_path = os.path.join('static', 'images', endpoint.ident)
+        file_list = os.listdir(dir_path)
+        return len(file_list)
