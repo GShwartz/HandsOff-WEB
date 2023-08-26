@@ -26,7 +26,7 @@
     <div class="container">
         <div class="top-nav">
         	<div class="loading-spinner"></div>
-            <a href="https://github.com/GShwartz/HandsOff-WEB" target="_blank">
+            <a href="/reload">
 				<div class="top-nav-logo">
 					<img src="static/images/white.png" alt="Logo">
 				</div>
@@ -123,6 +123,14 @@
 		</div>
 
 		<div class="content">
+			<div id="wifiDialog" class="wifi-dialog">
+				  <div class="wifi-content">
+					<h2 class="wifi-title"></h2>
+					<p class="wifi-message"></p>
+					<button id="closeWifiDialog">Close</button>
+				  </div>
+				</div>
+
 			<div class="controller">
 				<div class="controller-buttons-container" id="controller-buttons-container">
 					<div class="screenshot-btn">
@@ -154,7 +162,7 @@
 					</div>
 
 					<div class="dropdown">
-						<button class="controller-buttons-container button" id="local-files-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-action="local">LOCAL &#9660;<span class="notification-badge" id="file-notification-badge"></span></button>
+						<button class="controller-buttons-container button" id="local-files-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-action="local"><span class="notification-badge" id="file-notification-badge"></span>LOCAL &#9660;</button>
 
 						<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="local-files-button">
 							<li><a class="dropdown-item" data-action="view" id="local-view-button">View</a></li>
@@ -174,7 +182,7 @@
 					<div class="tab-buttons-header" id="tab-buttons-header"></div>
 					<button class="tab-button" data-tab="tasks-tab">Tasks</button>
 					<button class="tab-button" data-tab="sysinfo-tab">System Info</button>
-					<button class="tab-button" data-tab="network-tab">Network Discovery</button>
+					<button class="tab-button" data-tab="network-tab">Network</button>
 				</div>
 
 				<div class="tab-tips" id="tab-tips">
@@ -191,6 +199,7 @@
 						<ul class="welcome-ul">
 						  <li class="welcome-li">Reload the page to get the latest connections.</li>
 						  <li class="welcome-li">Update & Restart requires a checkbox verification.</li>
+						  <li class="welcome-li">Network discovery might take some time so be patient.</li>
 						  <li class="welcome-li">Remote Team Viewer might take some time to run, depends on the installation status.</li>
 						  <li class="welcome-li">You can view and delete the local files received from each remote station using the Local button.</li>
 						</ul>
@@ -267,6 +276,8 @@
 				<div class="tab-content" id="network-tab">
 					<div class="discover-header" id="discover-header">
         				<button class="discover-button" id="discover-button">Discover</button>
+						<button class="discover-button" id="ex_ip">External IP</button>
+						<button class="discover-button" id="wifi">Nearby Wifi</button>
 					</div>
 
 					<div class="discover-table" id="discover-content">
@@ -293,19 +304,61 @@
 					</div>
 				</div>
 				<script>
+					const button = document.getElementById("ex_ip");
+					let initialButtonText = button.textContent;
+
+					function handleButtonClick() {
+						// Change cursor to 'wait'
+						button.classList.add('waiting');
+
+						// If the button text has been changed, revert it to the initial text
+						if (button.textContent !== initialButtonText) {
+							button.textContent = initialButtonText;
+							button.classList.remove('waiting'); // Revert cursor to default immediately
+							return; // Exit the function early
+						}
+
+						// Send fetch request to fetch external IP from the backend
+						fetch("/ex_ip", {
+							method: "GET",
+							headers: {
+								Accept: "application/json"
+							}
+						})
+						.then(response => response.json())
+						.then(data => {
+							// Update button text with received IP
+							const externalIpText = `External IP: ${data.ip}`;
+							button.textContent = externalIpText;
+
+							// Revert cursor to default
+							button.classList.remove('waiting');
+						})
+						.catch(error => {
+							console.error("Fetch Error:", error);
+						});
+					}
+
+					button.addEventListener("click", handleButtonClick);
+				</script>
+				<script>
 					$(document).ready(function() {
 						$("#discover-button").click(function() {
+							var discoverButton = $(this);
+
+							// Disable the button and set cursor to 'wait'
+							discoverButton.prop("disabled", true).css("cursor", "wait").text("Working...");
+
 							// Send AJAX request to /discover on Flask backend
 							$.ajax({
 								url: "/discover",
 								type: "POST",
 								success: function(response) {
-									// Handle the response from the backend here
 									console.log("Discovery request sent successfully!");
 
 									// Update the table content
 									var tableBody = $("#discover-table-body");
-									tableBody.empty();  // Clear existing content
+									tableBody.empty();
 
 									// Loop through the response.map and add rows
 									for (var ip in response.map) {
@@ -317,13 +370,60 @@
 										}
 									}
 
-								var currentTime = new Date().toLocaleTimeString();
-								$("#discover-button").text("Discover (Checked: " + currentTime + ")");
+									const fileNotificationBadge = document.getElementById('file-notification-badge');
+									fileNotificationBadge.textContent = response.files;
+									fileNotificationBadge.style.display = response.files > 0 ? 'block' : 'none';
+
 								},
 								error: function(error) {
 									console.error("Error sending discovery request:", error);
+								},
+								complete: function() {
+									// Reset cursor and button text
+									var currentTime = new Date().toLocaleTimeString();
+									discoverButton.prop("disabled", false).css("cursor", "pointer").text("Discover (Checked: " + currentTime + ")");
 								}
 							});
+						});
+
+						$("#wifi").click(function() {
+							$(this).css("cursor", "wait");
+							$(this).prop("disabled", true).text("Working...");
+
+							$.ajax({
+								url: "/wifi",
+								type: "POST",
+								success: function(response) {
+									console.log("response:", response);
+									var wifiList = response.wifi;
+									var counter = response.files;
+									console.log('Counter:', counter);
+
+									// Create a message with line breaks between each item
+									var wifiMessage = wifiList.join('<br>');
+
+									// Update the notification badge with the counter value
+									$("#file-notification-badge").text(counter);
+
+									// Display WiFi list in the custom dialog
+									$(".wifi-title").text("Nearby Wi-Fi Networks");
+									$(".wifi-message").html(wifiMessage);
+									$("#wifiDialog").fadeIn();
+								},
+								error: function(error) {
+									console.error("Error sending Wi-Fi discovery request:", error);
+								},
+								complete: function() {
+									// Reset cursor and button text
+									$("#wifi").css("cursor", "pointer");
+									$("#wifi").prop("disabled", false).text("Nearby Wifi");
+								}
+							});
+						});
+
+						// Close the dialog when the close button is clicked
+						$("#closeWifiDialog").click(function() {
+							$("#wifiDialog").fadeOut();
 						});
 					});
 				</script>
@@ -360,10 +460,13 @@
 			</script>
 		</div>
     </div>
-
 	<div class="history">
-		<div class="table-history">
+		<div class="history-header">
 			<h1 class="history-h1">Connection History [{{ history_rows }}]</h1>
+			<button id="minimize-button">-</button>
+		</div>
+
+		<div class="table-history">
 			<div class="table-header">
 				<table>
 				  <thead>
@@ -401,8 +504,32 @@
 		  </div>
 		</div>
 	</div>
+    <script>
+        const minimizeButton = document.getElementById('minimize-button');
+        const tableHistory = document.querySelector('.table-history');
+        const tableRows = document.querySelectorAll('.table-history tbody tr');
 
-<script>
+        let isMinimized = false;
+        let previousHeight = '10rem';
+
+        minimizeButton.addEventListener('click', () => {
+            isMinimized = !isMinimized;
+
+            if (isMinimized) {
+                previousHeight = tableHistory.style.maxHeight;
+                tableHistory.style.maxHeight = '20px';
+            } else {
+                tableHistory.style.maxHeight = previousHeight;
+            }
+
+            tableRows.forEach(row => {
+                row.classList.toggle('minimized', isMinimized);
+            });
+
+            minimizeButton.textContent = isMinimized ? '+' : '-';
+        });
+    </script>
+	<script>
     const topNav = document.querySelector('.top-nav');
     const serverInfo = document.querySelector('.server-info');
     const connectedH1 = document.querySelector('.connected-h1');
@@ -447,6 +574,5 @@
     window.addEventListener('scroll', adjustLayout);
     window.addEventListener('resize', adjustLayout); // Recalculate on window resize
 </script>
-
 </body>
 </html>
