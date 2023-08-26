@@ -28,7 +28,7 @@
     "connected-h1"
     "connected-stations"
     "content"
-    "controller"; /* Place controller in its own grid row */
+    "controller";
 
     overflow: hidden;
     display: flex;
@@ -240,9 +240,10 @@ body {
     font-size: 16px;
     color: #dcdcdd;
     margin-bottom: 2px;
+    margin-left: 5px;
     background-color: #252525;
     text-align: left;
-    z-index: 9;
+    z-index: 10;
 }
 
 .connected-stations {
@@ -252,10 +253,20 @@ body {
     background-color: #1b1b1b;
     width: 99%;
     z-index: 10;
+
 }
 
 .table-connected {
     width: 100%;
+    max-height: calc(6 * (10px + 2 * 10px));
+    overflow-y: auto;
+}
+
+.table-header {
+    position: sticky;
+    top: 0;
+    background-color: #252525;
+    z-index: 1;
 }
 
 .table-header table {
@@ -274,6 +285,7 @@ body {
 .table-body table {
     width: 100%;
     background-color: #1b1b1b;
+
 }
 
 .table-body td {
@@ -282,6 +294,7 @@ body {
     border: none;
     font-size: 12px;
     height: 5px;
+
 }
 
 .table-connected tr {
@@ -363,6 +376,23 @@ body {
     width: 5%;
 }
 
+.table-connected::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-connected::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.table-connected::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+}
+
+.table-connected::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
 .controller {
     grid-area: controller;
     position: fixed;
@@ -384,7 +414,6 @@ body {
 }
 
 .front-page-modal .front-page-container {
-    background-color: green;
     z-index: 10;
 }
 
@@ -397,6 +426,23 @@ body {
     margin: 0;
     background-color: #222222;
     z-index: 0;
+}
+
+.content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.content::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
 }
 
 .controller-buttons-container {
@@ -490,14 +536,14 @@ body {
 
 .notification-badge {
   position: relative;
-  top: -2px;
-  right: -8px; /* Adjust the right position to position it on the top right corner */
+  right: 10px;
   display: none;
-  padding: 2px 6px;
+  padding: 1.5px 3px;
   border-radius: 50%;
   background-color: red;
   color: white;
   font-size: 12px;
+  text-align: center;
 }
 
 
@@ -547,16 +593,16 @@ body {
 }
 
 .screenshots-slider::-webkit-scrollbar-track {
-    background: transparent; /* Track background color */
+    background: transparent;
 }
 
 .screenshots-slider::-webkit-scrollbar-thumb {
-    background-color: #888; /* Thumb color */
-    border-radius: 8px; /* Thumb border radius */
+    background-color: #888;
+    border-radius: 8px;
 }
 
 .screenshots-slider::-webkit-scrollbar-thumb:hover {
-    background-color: #E6E6E6; /* Thumb color on hover */
+    background-color: #E6E6E6;
 }
 
 .screenshots-slider img:hover {
@@ -712,6 +758,14 @@ body {
     flex: 1;
 }
 
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1b1b1b;
+    padding: 3px;
+}
+
 .history-h1 {
     margin: 0;
     padding: 3px;
@@ -721,7 +775,7 @@ body {
     font-size: 18px;
     color: #eaeaf2;
     background-color: #1b1b1b;
-    position: relative; /* Position relative to the .table-history container */
+    position: relative;
     top: 0;
     left: 0;
     right: 0;
@@ -738,7 +792,9 @@ body {
 .table-history {
   position: relative;
   width: 100%;
-  max-height: 12rem;
+  max-height: 10rem;
+  overflow-y: auto;
+
   bottom: 0;
   font-size: 12px;
   font-weight: bold;
@@ -749,9 +805,17 @@ body {
   background-color: #1b1b1b;
 }
 
+.table-history thead {
+    position: sticky;
+    top: 0;
+    background-color: #565957;
+    color: white;
+    z-index: 1;
+}
+
 .table-history th,
 .table-history td {
-    padding: 3px; /* Adjusted padding */
+    padding: 3px;
     text-align: center;
 }
 
@@ -766,38 +830,63 @@ body {
 
 .table-history th:nth-child(1),
 .table-history td:nth-child(1) {
-    width: 15%; /* Adjust the width as needed */
+    width: 15%;
     text-align: center;
 }
 
 .table-history th:nth-child(2),
 .table-history td:nth-child(2) {
-    width: 15%; /* Adjust the width as needed */
+    width: 15%;
     text-align: center;
 }
 
 .table-history th:nth-child(3),
 .table-history td:nth-child(3) {
-    width: 15%; /* Adjust the width as needed */
+    width: 15%;
     text-align: center;
 }
 
 .table-history th:nth-child(4),
 .table-history td:nth-child(4) {
-    width: 15%; /* Adjust the width as needed */
+    width: 15%;
     text-align: center;
 }
 
 .table-history th:nth-child(5),
 .table-history td:nth-child(5) {
-    width: 15%; /* Adjust the width as needed */
+    width: 15%;
     text-align: center;
 }
 
 .table-history th:nth-child(6),
 .table-history td:nth-child(6) {
-    width: 15%; /* Adjust the width as needed */
+    width: 15%;
     text-align: center;
+}
+
+.table-history::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-history::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.table-history::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+}
+
+.table-history::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
+#minimize-button {
+    font-size: 18px;
+    color: #eaeaf2;
+    background-color: #1b1b1b;
+    border: none;
+    cursor: pointer;
 }
 
 .notebook-container {
@@ -805,7 +894,6 @@ body {
     border-radius: 5px;
     overflow: hidden;
     width: 800px;
-    /* Center horizontally */
     margin: 0 auto;
     padding: 0;
     top: 5px;
@@ -831,11 +919,13 @@ body {
     cursor: pointer;
     flex: 1;
     text-align: center;
-    justify-content: flex-end;
+    justify-content: center;
 }
 
 .tab-button.active {
-    background: #427F39;
+    background: #D47311;
+    box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.3);
+
 }
 
 .tab-button:not(.active):hover {
@@ -878,7 +968,7 @@ body {
 
 .version {
     color: white;
-    font-size: 10px; /* Adjust the font size as needed */
+    font-size: 10px;
     margin-left: 78px;
     margin-top: 0;
 }
@@ -901,7 +991,7 @@ body {
 .tab-tips-body {
     margin-top: 5px;
     margin-left: 5px;
-    height: 250px;
+    height: 270px;
     width: 99%;
     color: white;
     background-color: #333333;
@@ -937,7 +1027,7 @@ body {
 }
 
 .welcome-li:hover {
-    background-color: grey;
+    background-color: #0E0E11;
 }
 
 .discover-header {
@@ -968,6 +1058,7 @@ body {
 .discover-button:hover {
     background: rgb(9, 6, 190);
     background: linear-gradient(135deg, rgba(9, 6, 190, 1) 0%, rgba(31, 229, 245, 0.76234243697479) 50%, rgba(9, 6, 190, 1) 100%);
+    cursor: pointer;
 }
 
 .discover-button:active {
@@ -975,6 +1066,7 @@ body {
     background: radial-gradient(circle, rgba(30,137,227,1) 0%, rgba(53,211,233,0.7399334733893557) 50%, rgba(30,137,227,1) 100%);
 }
 
+.external
 .discover-content {
     justify-content: center;
 }
@@ -1038,35 +1130,26 @@ body {
   border-bottom: none;
 }
 
-/* Highlight the table row on hover */
 .discover-table-body tr:hover {
   background-color: #555;
 }
 
-/* Apply specific styles to the content inside cells */
 .discover-table-body td {
   color: #fff;
 
-}
-
-/* Style the link-like elements */
-.discover-table-body a {
-  color: #00aaff;
-  text-decoration: none;
 }
 
 .discover-table-body a:hover {
   text-decoration: underline;
 }
 
-/* Apply specific styles to the first column (IP Address) */
 .discover-table-body td:first-child {
   font-weight: bold;
 }
 
 .tab-tips-footer {
     background-color: #333333;
-    margin-top: 2px;
+    margin-top: 10px;
     margin-left: 5px;
     width: 96.5%;
     padding: 10px;
@@ -1152,4 +1235,62 @@ body {
 .download-button:hover {
     background: rgb(9,6,190);
     background: linear-gradient(135deg, rgba(9,6,190,1) 0%, rgba(31,229,245,0.76234243697479) 50%, rgba(9,6,190,1) 100%);
+}
+
+.waiting {
+    cursor: wait;
+}
+
+.wifi-dialog {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 20;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.wifi-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 90%;
+    max-height: 80%;
+    overflow: auto;
+}
+
+.wifi-title {
+    margin: 0 5px 10px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.wifi-message {
+    margin: 15px 0;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1.5;
+}
+
+#wifiDialog button {
+    font-weight: bold;
+    padding: 10px 20px;
+    margin-top: 10px;
+}
+
+.wifi-title {
+    margin: 0 0 10px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.wifi-title::after {
+    content: "";
+    display: block;
+    height: 2px;
+    background-color: black;
+    margin-top: 8px;
 }
