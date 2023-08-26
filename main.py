@@ -26,6 +26,7 @@ import argparse
 import psutil
 import shutil
 import socket
+import json
 import time
 import sys
 import os
@@ -87,8 +88,8 @@ class Backend:
         self.app.route('/static/images/<path:path>')(self.serve_images)
         self.app.route('/static/checkboxes.js')(self.serve_checkboxes_js)
         self.app.route('/download/<filename>')(self.download_file)
-        self.app.route('/')(self.index)
         self.app.errorhandler(404)(self.page_not_found)
+        self.app.route('/')(self.index)
 
         self.app.route('/reload')(self.reload)
         self.app.route('/get_images', methods=['GET'])(self.get_files)
@@ -99,25 +100,33 @@ class Backend:
         self.app.route('/clear_local', methods=['POST'])(self.clear_local)
         self.app.route('/login', methods=['POST', 'GET'])(self.login)
         self.app.route('/logout', methods=['POST'])(self.logout)
-        self.app.route('/checkboxes', methods=['POST'])(self.checkboxes)
         self.app.route('/discover', methods=['POST'])(self.discover)
+        self.app.route('/ex_ip', methods=['GET'])(self.get_ex_ip)
+        self.app.route('/wifi', methods=['POST'])(self.get_wifi)
 
     def download_file(self, filename):
+        self.logger.debug(f"Serving file: {filename}...")
         return send_from_directory('static', filename, as_attachment=True)
+
+    def get_ex_ip(self):
+        self.logger.info("Calling commands.get_ex_ip()...")
+        ip = self.commands.ex_ip()
+        return jsonify({'ip': ip})
+
+    def get_wifi(self):
+        self.logger.info("Calling commands.get_nearby_wifi()...")
+        networks_data, files = self.commands.get_nearby_wifi()
+        return jsonify({'wifi': networks_data, 'files': files})
 
     def discover(self):
         self.logger.debug(f"Calling self.commands.discover()...")
         netMap = self.commands.call_discover()
-        return jsonify({'map': netMap})
-
-    def checkboxes(self):
-        data = request.get_json()
-        if data:
-            print(data)
-
-        return jsonify({'message': 'Data received.'})
+        files = self.count_files()
+        self.logger.info(f"Netmap: {netMap}\nFiles: {files}\n")
+        return jsonify({'map': netMap, 'files': files})
 
     def get_count(self):
+        self.logger.debug(f"Checkbox: Banked stations: {len(self.rows)} | {self.rows}\n")
         return jsonify({'message': f'Banked Stations: {len(self.rows)} | {self.rows}'})
 
     def login(self):
@@ -390,6 +399,8 @@ class Backend:
             file_list = os.listdir(dir_path)
             return len(file_list)
 
+        return None
+
     def reload(self):
         self.logger.info("Reloading...")
         self.temp.clear()
@@ -607,8 +618,9 @@ def main(**kwargs):
     backend = Backend(logger, kwargs.get('main_path'), kwargs.get('log_path'),
                       server, kwargs.get('server_version'), kwargs.get('web_port'))
 
+    backend_thread = threading.Thread(target=backend.run)
+    backend_thread.start()
     server.listener()
-    backend.run()
 
 
 if __name__ == '__main__':
