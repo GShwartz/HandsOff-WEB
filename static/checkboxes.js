@@ -291,6 +291,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var tableBody = $("#discover-table-body");
     tableBody.empty();  // Clear existing content
     $("#discover-button").text("Discover");
+    $("#ex_ip").text("External IP");
 
     const sliderContainer = document.getElementById('slider-container');
       sliderContainer.style.display = 'block';
@@ -325,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Fetch images for selected hostname
     if (selectedRowData.hostname.trim() !== '') {
       const encodedHostname = encodeURIComponent(selectedRowData.hostname.trim());
-      fetch(`/get_images?directory=static/images/${encodedHostname}`, {
+      fetch(`/get_files?directory=static/images/${encodedHostname}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -646,7 +647,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     console.log('SENDING AJAX:', action, checkedItems);
     try {
-      const response = await fetch('/controller', {
+      const response = await fetch('/control', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json;charset=UTF-8'

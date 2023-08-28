@@ -132,7 +132,7 @@
 
 head, html,
 body {
-    background-color: #333333;
+    background-color: #0E0E15;
     margin: 0;
     padding: 0;
     overflow-y: auto;
@@ -141,9 +141,10 @@ body {
 
 .top-nav {
   position: fixed;
+  top: 0;
   display: grid;
   grid-template-columns: auto 1fr auto;
-  background-color: #333333;
+  background-color: #0E0E15;
   width: 99%;
   height: 3rem;
   align-items: center;
@@ -158,26 +159,26 @@ body {
     height: 100%;
     top: 0;
     margin-bottom: 10px;
-    background-color: #333333;
+    background-color: #0E0E15;
 }
 
 
 .top-nav-logo img {
     max-height: 30px;
     margin-top: 10px;
-    margin-left: 5px;
+    margin-left: 10px;
 }
 
 .logout {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    margin-right: 5px;
+    margin-right: 10px;
     margin-top: 5px;
 }
 
 .logout [type="submit"] {
-    background-color: #333333;
+    background-color: grey;
     color: white;
     font-size: 14px;
     font-weight: bold;
@@ -202,7 +203,7 @@ body {
     position: fixed;
     top: 3rem;
     display: grid;
-    background-color: #ddd;
+    background-color: #0E0E15;
     width: 99%;
     z-index: 10;
 }
@@ -212,7 +213,7 @@ body {
     padding: 1px;
     width: 100%;
     table-layout: fixed;
-    background-color: #1b1b1b;
+    background-color: #0E0E15;
 }
 
 .server-table th {
@@ -229,20 +230,19 @@ body {
     color: #dcdcdd;
     font-weight: bold;
     font-size: 14px;
-    border: none;
 }
 
 .connected-h1 {
     position: fixed;
+    display: flex;
+    padding: 1px 3px;
     margin-top: 0;
-    top: 5.9rem;
-    width: 99%;
+    width: 98%;
+    height: 20px;
     font-size: 16px;
     color: #dcdcdd;
-    margin-bottom: 2px;
-    margin-left: 5px;
-    background-color: #252525;
-    text-align: left;
+    margin-bottom: 4px;
+    background-color: #0E0E15;
     z-index: 10;
 }
 
@@ -250,7 +250,7 @@ body {
     grid-area: connected-stations;
     position: fixed;
     top: 7.2rem;
-    background-color: #1b1b1b;
+    background-color: #0E0E15;
     width: 99%;
     z-index: 10;
 
@@ -260,6 +260,8 @@ body {
     width: 100%;
     max-height: calc(6 * (10px + 2 * 10px));
     overflow-y: auto;
+    table-layout: fixed;
+
 }
 
 .table-header {
@@ -275,9 +277,9 @@ body {
 }
 
 .table-header th {
-    padding: 5px;
+    padding: 1px;
     text-align: center;
-    border: none;
+    border: 1px solid black;
     background: #252525;
     cursor: unset;
 }
@@ -390,7 +392,7 @@ body {
 }
 
 .table-connected::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
+    background-color: white;
 }
 
 .controller {
@@ -401,7 +403,7 @@ body {
     margin-bottom: 0;
     display: flex;
     justify-content: center;
-    background-color: #252525;
+    background-color: #0E0E15;
     z-index: 10;
 }
 
@@ -424,7 +426,7 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     margin: 0;
-    background-color: #222222;
+    background-color: #0E0E15;
     z-index: 0;
 }
 
@@ -442,13 +444,13 @@ body {
 }
 
 .content::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
+    background-color: white;
 }
 
 .controller-buttons-container {
     display: flex;
     margin-top: 1px;
-    background-color: #252525;
+    background-color: #0E0E15;
     max-height: 100px;
     width: 62%;
     align-items: center;
@@ -493,6 +495,10 @@ body {
     bottom: 0;
 }
 
+.dropdown.open .dropdown-menu-dark {
+    display: block;
+}
+
 .dropdown-menu-dark {
     position: absolute;
     z-index: 1;
@@ -524,7 +530,7 @@ body {
     font-weight: bold;
     background-color: #3e78e0;
     cursor: pointer;
-    z-index: 10;
+    z-index: 20;
 }
 
 .dropdown-item:hover {
@@ -597,12 +603,12 @@ body {
 }
 
 .screenshots-slider::-webkit-scrollbar-thumb {
-    background-color: #888;
+    background-color: grey;
     border-radius: 8px;
 }
 
 .screenshots-slider::-webkit-scrollbar-thumb:hover {
-    background-color: #E6E6E6;
+    background-color: white;
 }
 
 .screenshots-slider img:hover {
@@ -612,9 +618,10 @@ body {
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
-    top: 55%;
+    z-index: 20;
+    top: 58%;
     left: 50%;
+    width: 1200px;
     transform: translate(-50%, -50%);
     background-color: rgba(0, 0, 0, 0.7);
     overflow: auto;
@@ -709,7 +716,7 @@ body {
 }
 
 .tasks-content::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
+    background-color: white;
 }
 
 .information-content {
@@ -737,7 +744,7 @@ body {
 }
 
 .information-content::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
+    background-color: white;
 }
 
 .information-header-content {
@@ -749,7 +756,7 @@ body {
 }
 
 .information-h3 {
-    margin-top: 1px;
+    margin-top: 15px;
     height: 20px;
     width: 800px;
     font-size: 24px;
@@ -762,7 +769,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #1b1b1b;
+    background-color: #0E0E15;
     padding: 3px;
 }
 
@@ -773,8 +780,8 @@ body {
     justify-content: space-between;
     font-family: 'Quicksand', sans-serif;
     font-size: 18px;
-    color: #eaeaf2;
-    background-color: #1b1b1b;
+    color: #dcdcdd;
+    background-color: #0E0E15;
     position: relative;
     top: 0;
     left: 0;
@@ -802,7 +809,7 @@ body {
   bottom: 0;
   z-index: 10;
   padding: 0;
-  background-color: #1b1b1b;
+  background-color: #0E0E15;
 }
 
 .table-history thead {
@@ -878,7 +885,7 @@ body {
 }
 
 .table-history::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
+    background-color: white;
 }
 
 #minimize-button {
@@ -940,6 +947,8 @@ body {
     width: 900px;
     flex-grow: 1;
     overflow-y: auto;
+    background-color: #222222;
+
 }
 
 .tab-content.active {
@@ -1089,7 +1098,7 @@ body {
 }
 
 .discover-table::-webkit-scrollbar-thumb:hover {
-    background-color: #565957;
+    background-color: white;
 }
 
 .discover-table::-webkit-scrollbar-track {
