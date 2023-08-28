@@ -69,7 +69,7 @@
             </div>
         </div>
 
-		<h1 class="connected-h1">Connected Stations [{{ connected_stations }}]</h1>
+<!--		<h1 class="connected-h1">Connected Stations [{{ connected_stations }}]</h1>-->
         <div class="connected-stations">
 			<div class="table-connected">
 				<div class="table-header">
@@ -532,7 +532,6 @@
 	<script>
     const topNav = document.querySelector('.top-nav');
     const serverInfo = document.querySelector('.server-info');
-    const connectedH1 = document.querySelector('.connected-h1');
     const connectedStations = document.querySelector('.connected-stations');
     const controller = document.querySelector('.controller');
     const content = document.querySelector('.content');
@@ -542,21 +541,18 @@
         // Get heights of elements
         const topNavHeight = topNav.clientHeight;
         const serverInfoHeight = serverInfo.clientHeight;
-        const connectedH1Height = connectedH1.clientHeight;
         const connectedStationsHeight = connectedStations.clientHeight;
         const controllerHeight = controller.clientHeight;
         const historyHeight = history.clientHeight; // Get the height of the history table
 
         // Calculate top positions
         const serverInfoTop = topNavHeight;
-        const connectedH1Top = serverInfoTop + serverInfoHeight;
-        const connectedStationsTop = connectedH1Top + connectedH1Height;
+        const connectedStationsTop = serverInfoTop + serverInfoHeight;
         const controllerTop = connectedStationsTop + connectedStationsHeight;
         const historyTop = controllerTop + controllerHeight;
 
         // Set positions
         serverInfo.style.top = `${serverInfoTop}px`;
-        connectedH1.style.top = `${connectedH1Top}px`;
         connectedStations.style.top = `${connectedStationsTop}px`;
         controller.style.top = `${controllerTop}px`;
         history.style.top = `${historyTop}px`;
@@ -567,12 +563,12 @@
 
         content.style.marginTop = `${historyBottom - 50}px`;
         content.style.height = `${availableHeight}px`; // Set content height to available viewport height
-
     }
 
     adjustLayout();
     window.addEventListener('scroll', adjustLayout);
     window.addEventListener('resize', adjustLayout); // Recalculate on window resize
 </script>
+
 </body>
 </html>
