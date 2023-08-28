@@ -11,6 +11,10 @@
     If not, see <https://www.gnu.org/licenses/>.
 """
 
+from Modules.logger import init_logger
+from Modules.screenshot import Screenshot
+from Modules.sysinfo import Sysinfo
+from Modules.tasks import Tasks
 from flask import request, jsonify
 from datetime import datetime
 import socket
@@ -19,63 +23,48 @@ import glob
 import json
 import os
 
-from Modules.logger import init_logger
-from Modules.screenshot import Screenshot
-from Modules.sysinfo import Sysinfo
-from Modules.tasks import Tasks
-
 
 class Commands:
-    def __init__(self, main_path, log_path, server):
+    def __init__(self, main_path, log_path, endpoint, remove_connection):
         self.main_path = main_path
         self.log_path = log_path
-        self.server = server
-        self.shell_target = []
+        self.endpoint = endpoint
+        self.remove_connection = remove_connection
+
         self.logger = init_logger(self.log_path, __name__)
 
-    def call_screenshot(self):
-        matching_endpoint = self.find_matching_endpoint()
-        if matching_endpoint:
-            self.logger.debug("Initializing Screenshot class...")
-            sc = Screenshot(self.main_path, self.log_path, matching_endpoint, self.server, self.shell_target)
-            if sc.run():
-                return True
+    def call_screenshot(self, matching_endpoint):
+        self.logger.debug("Initializing Screenshot class...")
+        sc = Screenshot(self.main_path, self.log_path, matching_endpoint,
+                        self.remove_connection, matching_endpoint.conn)
+        if sc.run():
+            return True
 
-    def ex_ip(self):
-        matching_endpoint = self.find_matching_endpoint()
-        if matching_endpoint:
-            ip = matching_endpoint.external_ip
-            return ip
+        return False
 
-    def get_nearby_wifi(self):
-        matching_endpoint = self.find_matching_endpoint()
+    def ex_ip(self, matching_endpoint):
+        ip = matching_endpoint.external_ip
+        return ip
 
-        if not matching_endpoint:
-            return None
-
+    def get_nearby_wifi(self, matching_endpoint):
         try:
-            # Send request to the matching endpoint
             matching_endpoint.conn.send('wifi'.encode())
             received_data = matching_endpoint.conn.recv(1024)
             decoded_data = received_data.decode()
 
-            # Extract SSID list from received data
             ssid_list = [line.split(":")[1].strip() for line in decoded_data.split('\n') if line.startswith("SSID")]
 
-            # Prepare file writing
             path = os.path.join('static', 'images', matching_endpoint.ident)
             os.makedirs(path, exist_ok=True)
             filename = f'network {matching_endpoint.ident}.txt'
             file_path = os.path.join(path, filename)
 
-            # Write data to the newest or create a new file
             with open(file_path, 'a') as file:
                 file.write('=' * 50 + f'\nNearby Wi-Fi networks | HOSTNAME: {matching_endpoint.ident} | '
                                       f'IP: {matching_endpoint.ip} | DATE: {self.get_date()}\n\n')
                 file.write('\n'.join(ssid_list))
                 file.write('\n' + '=' * 50 + '\n')
 
-            # Count files and return data
             file_counter = self.count_files(matching_endpoint)
             return ssid_list, file_counter
 
@@ -83,15 +72,14 @@ class Commands:
             self.logger.error(f"Socket error: {soc_error}")
             return None
 
-    def call_discover(self):
-        matching_endpoint = self.find_matching_endpoint()
-
+    def call_discover(self, matching_endpoint):
         if matching_endpoint:
             self.logger.debug(f"Sending 'discover' to {matching_endpoint.ip}...")
             matching_endpoint.conn.send('discover'.encode())
             msg = matching_endpoint.conn.recv(2048)
             self.logger.debug(f"{matching_endpoint.ip}: {msg}")
             active_hosts = json.loads(msg)
+
         else:
             active_hosts = {}
 
@@ -113,153 +101,121 @@ class Commands:
 
         return active_hosts
 
-    def call_anydesk(self) -> bool:
+    def call_anydesk(self, matching_endpoint) -> bool:
         self.logger.info(f'Running anydesk_command...')
-        matching_endpoint = self.find_matching_endpoint()
-        if matching_endpoint:
-            try:
-                self.logger.debug(f'Sending anydesk command to {matching_endpoint.conn}...')
-                matching_endpoint.conn.send('anydesk'.encode())
+        try:
+            self.logger.debug(f'Sending anydesk command to {matching_endpoint.conn}...')
+            matching_endpoint.conn.send('anydesk'.encode())
 
-                self.logger.debug(f'Waiting for response from {matching_endpoint.ip}......')
-                msg = matching_endpoint.conn.recv(1024).decode()
-                self.logger.debug(f'Client response: {msg}.')
+            self.logger.debug(f'Waiting for response from {matching_endpoint.ip}......')
+            msg = matching_endpoint.conn.recv(1024).decode()
+            self.logger.debug(f'Client response: {msg}.')
 
-                if "OK" not in msg:
-                    while "OK" not in msg:
-                        self.logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
-                        msg = matching_endpoint.conn.recv(1024).decode()
-                        self.logger.debug(f'{matching_endpoint.ip}: {msg}...')
+            if "OK" not in msg:
+                while "OK" not in msg:
+                    self.logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
+                    msg = matching_endpoint.conn.recv(1024).decode()
+                    self.logger.debug(f'{matching_endpoint.ip}: {msg}...')
 
-                    self.logger.debug(f'End of OK in msg loop.')
-                    self.logger.info(f'anydesk_command completed.')
-                    return True
+                self.logger.debug(f'End of OK in msg loop.')
+                self.logger.info(f'anydesk_command completed.')
+                return True
 
-                else:
-                    return True
+            else:
+                return True
 
-            except (WindowsError, ConnectionError, socket.error, RuntimeError) as e:
-                self.logger.error(f'Connection Error: {e}.')
-                self.logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
-                self.server.remove_lost_connection(matching_endpoint)
-                return False
-
-        else:
+        except (WindowsError, ConnectionError, socket.error, RuntimeError) as e:
+            self.logger.error(f'Connection Error: {e}.')
+            self.logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
+            self.server.remove_lost_connection(matching_endpoint)
             return False
 
-    def call_teamviewer(self) -> bool:
+    def call_teamviewer(self, matching_endpoint) -> bool:
         self.logger.info(f'Running anydesk_command...')
-        matching_endpoint = self.find_matching_endpoint()
-        if matching_endpoint:
-            try:
-                self.logger.debug(f'Sending teamviewer command to {matching_endpoint.conn}...')
-                matching_endpoint.conn.send('teamviewer'.encode())
+        try:
+            self.logger.debug(f'Sending teamviewer command to {matching_endpoint.conn}...')
+            matching_endpoint.conn.send('teamviewer'.encode())
 
-                self.logger.debug(f'Waiting for response from {matching_endpoint.ip}......')
-                msg = matching_endpoint.conn.recv(1024).decode()
-                self.logger.debug(f'Client response: {msg}.')
+            self.logger.debug(f'Waiting for response from {matching_endpoint.ip}......')
+            msg = matching_endpoint.conn.recv(1024).decode()
+            self.logger.debug(f'Client response: {msg}.')
 
-                if "OK" not in msg:
-                    while "OK" not in msg:
-                        self.logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
-                        msg = matching_endpoint.conn.recv(1024).decode()
-                        self.logger.debug(f'{matching_endpoint.ip}: {msg}...')
+            if "OK" not in msg:
+                while "OK" not in msg:
+                    self.logger.debug(f'Waiting for response from {matching_endpoint.ip}...')
+                    msg = matching_endpoint.conn.recv(1024).decode()
+                    self.logger.debug(f'{matching_endpoint.ip}: {msg}...')
 
-                    self.logger.debug(f'End of OK in msg loop.')
-                    self.logger.info(f'teamviewer completed.')
-                    return True
+                self.logger.debug(f'End of OK in msg loop.')
+                self.logger.info(f'teamviewer completed.')
+                return True
 
-                else:
-                    return True
+            else:
+                return True
 
-            except (WindowsError, ConnectionError, socket.error, RuntimeError) as e:
-                self.logger.error(f'Connection Error: {e}.')
-                self.logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
-                self.server.remove_lost_connection(matching_endpoint)
-                return False
-
-        else:
+        except (WindowsError, ConnectionError, socket.error, RuntimeError) as e:
+            self.logger.error(f'Connection Error: {e}.')
+            self.logger.debug(f'Calling server.remove_lost_connection({matching_endpoint})...')
+            self.server.remove_lost_connection(matching_endpoint)
             return False
 
-    def call_sysinfo(self):
-        matching_endpoint = self.find_matching_endpoint()
-        if matching_endpoint:
-            sysinfo = Sysinfo(self.main_path, self.log_path, matching_endpoint, self.server, self.shell_target)
-            if sysinfo.run():
-                latest_file = max(glob.glob(os.path.join(sysinfo.local_dir, 'systeminfo*.txt')), key=os.path.getmtime)
-                return str(latest_file)
+    def call_sysinfo(self, matching_endpoint):
+        sysinfo = Sysinfo(self.main_path, self.log_path, matching_endpoint,
+                          self.remove_connection)
+        if sysinfo.run():
+            latest_file = max(glob.glob(os.path.join(sysinfo.local_dir, 'systeminfo*.txt')), key=os.path.getmtime)
+            return str(latest_file)
 
-        else:
-            self.logger.info("No target")
-            return False
+        self.logger.info("No target")
+        return False
 
-    def call_tasks(self):
-        matching_endpoint = self.find_matching_endpoint()
-        if matching_endpoint:
-            tasks = Tasks(self.main_path, self.log_path, matching_endpoint, self.server, self.shell_target)
-            if tasks.run():
-                latest_file = max(glob.glob(os.path.join(tasks.local_dir, 'tasks*.txt')), key=os.path.getmtime)
-                return str(latest_file)
+    def call_tasks(self, matching_endpoint):
+        tasks = Tasks(self.main_path, self.log_path,
+                      matching_endpoint, self.remove_connection)
+        if tasks.run():
+            latest_file = max(glob.glob(os.path.join(tasks.local_dir, 'tasks*.txt')), key=os.path.getmtime)
+            return str(latest_file)
 
-        else:
-            self.logger.info("No target")
-            return False
+        return False
 
-    def tasks_post_run(self):
+    def tasks_post_run(self, matching_endpoint):
         data = request.json.get('data')
         task_name = data['taskName']
         if task_name:
             if not str(task_name).endswith('.exe'):
                 task_name = f"{task_name}.exe"
 
-            matching_endpoint = self.find_matching_endpoint()
-            if matching_endpoint:
-                matching_endpoint.conn.send('kill'.encode())
-                time.sleep(0.5)
-                matching_endpoint.conn.send(str(task_name).encode())
-                msg = matching_endpoint.conn.recv(1024).decode()
-                self.logger.info(f'{msg}')
-                return jsonify({'message': f'Killed task {task_name}'}), 200
+            matching_endpoint.conn.send('kill'.encode())
+            time.sleep(0.5)
+            matching_endpoint.conn.send(str(task_name).encode())
+            msg = matching_endpoint.conn.recv(1024).decode()
+            self.logger.info(f'{msg}')
+            return True, msg
+            # return jsonify({'message': f'Killed task {task_name}'}), 200
 
-        else:
-            return jsonify({'message': f'Error killing {task_name}'}), 400
+        return False, f'Error killing {task_name}', 400
 
     def call_restart(self, target):
-        target_data = json.loads(target)
-        endpoint = next((endpoint for endpoint in self.server.endpoints if endpoint.client_mac == target_data['id']), None)
         try:
-            endpoint.conn.send('restart'.encode())
+            self.logger.debug(f'Sending restart to {target}...')
+            target.send('restart'.encode())
             time.sleep(1.2)
-            self.server.remove_lost_connection(endpoint)
             return True
 
         except (AttributeError, RuntimeError, WindowsError, socket.error) as e:
-            self.logger.error(f'Connection Error: {e}.')
-            self.logger.debug(f'Calling server.remove_lost_connection({endpoint})...')
-            self.server.remove_lost_connection(endpoint)
-            self.logger.info(f'restart_command failed.')
+            self.logger.error(f'{e}')
             return False
 
-    def call_update_selected_endpoint(self, target) -> bool:
-        self.logger.info(f'Running update_selected_endpoint...')
-        target_data = json.loads(target)
-        endpoint = next((endpoint for endpoint in self.server.endpoints if endpoint.client_mac == target_data['id']),
-                        None)
+    def call_update(self, target) -> bool:
         try:
-            endpoint.conn.send('update'.encode())
+            self.logger.debug(f'Sending update to {target}...')
+            target.send('update'.encode())
             time.sleep(1.2)
-            self.server.remove_lost_connection(endpoint)
             return True
 
         except (RuntimeError, WindowsError, socket.error) as e:
-            self.logger.error(f'Connection Error: {e}.')
-            self.logger.debug(f'Calling server.remove_lost_connection({endpoint})...')
-            self.server.remove_lost_connection(endpoint)
-            self.logger.error(f'Update failed.')
+            self.logger.error(f'Update failed: {e}.')
             return False
-
-    def find_matching_endpoint(self):
-        return next((endpoint for endpoint in self.server.endpoints if endpoint.conn == self.shell_target), None)
 
     def get_date(self) -> str:
         d = datetime.now().replace(microsecond=0)

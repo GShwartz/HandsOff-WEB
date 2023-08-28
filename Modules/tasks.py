@@ -11,28 +11,27 @@
     If not, see <https://www.gnu.org/licenses/>.
 """
 
+from Modules.logger import init_logger
+from Modules.utils import Handlers
 import socket
 import shutil
 import sys
 import os
-from Modules.logger import init_logger
-from Modules.utils import Handlers
 
 
 class Tasks:
-    def __init__(self, path, log_path, endpoint, server, shell_target):
+    def __init__(self, path, log_path, endpoint, remove_connection):
         self.endpoint = endpoint
         self.path = path
         self.log_path = log_path
-        self.server = server
-        self.shell_target = shell_target
+        self.remove_connection = remove_connection
         self.tasks_file_path = os.path.join(self.path, self.endpoint.ident)
         if not os.path.exists(self.tasks_file_path):
             os.makedirs(self.tasks_file_path, exist_ok=True)
 
         self.logger = init_logger(self.log_path, __name__)
-        self.handlers = Handlers(self.log_path, self.path, self.endpoint)
-        self.local_dir = self.handlers.handle_local_dir()
+        self.handlers = Handlers(self.log_path, self.path)
+        self.local_dir = self.handlers.handle_local_dir(self.endpoint)
 
     def bytes_to_number(self, b: int) -> int:
         res = 0
@@ -133,8 +132,8 @@ class Tasks:
 
     def handle_error(self, error):
         self.logger.debug(f"Error: {error}")
-        self.logger.debug(f"Calling server.remove_lost_connection({self.endpoint})...")
-        self.server.remove_lost_connection(self.endpoint)
+        self.logger.debug(f"Calling self.remove_connection({self.endpoint})...")
+        self.remove_connection(self.endpoint)
         return False
 
     def run(self):
@@ -144,10 +143,9 @@ class Tasks:
             self.endpoint.conn.send('tasks'.encode())
 
         except (Exception, socket.error) as e:
-            self.logger.debug(f"Error: {e}")
-            self.logger.debug(f"Calling server.remove_lost_connection({self.endpoint})")
-            self.server.remove_lost_connection(self.endpoint)
+            self.handle_error(e)
             return False
+
         self.logger.debug(f"Calling get_file_name...")
         self.get_file_name()
         self.logger.debug(f"Calling get_file_size...")
@@ -158,13 +156,12 @@ class Tasks:
         self.confirm()
 
         src = os.path.join(self.tasks_file_path, self.filenameRecv)
-        if self.endpoint.conn == self.shell_target:
-            try:
-                shutil.move(src, self.local_dir)
+        try:
+            shutil.move(src, self.local_dir)
 
-            except shutil.Error as e:
-                self.logger.error(e)
-                pass
+        except shutil.Error as file_error:
+            self.logger.error(file_error)
+            return False, file_error
 
-        self.logger.info(f"run completed.")
-        return True
+        self.logger.info(f"Tasks run completed.")
+        return True, 'Tasks run completed.'

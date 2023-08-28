@@ -5,15 +5,14 @@ import os
 
 
 class Handlers:
-    def __init__(self,  log_path, app_path, endpoint):
+    def __init__(self,  log_path, app_path):
         self.log_path = log_path
         self.app_path = app_path
-        self.endpoint = endpoint
         self.logger = init_logger(self.log_path, __name__)
 
-    def handle_local_dir(self):
-        self.ident_path = os.path.join(self.app_path, self.endpoint.ident)
-        self.local_dir = os.path.join('static', 'images', self.endpoint.ident)
+    def handle_local_dir(self, matching_endpoint):
+        self.ident_path = os.path.join(self.app_path, matching_endpoint.ident)
+        self.local_dir = os.path.join('static', 'images', matching_endpoint.ident)
         if not os.path.isdir(self.ident_path):
             try:
                 os.makedirs(str(self.ident_path), exist_ok=True)
@@ -32,19 +31,20 @@ class Handlers:
 
         return self.local_dir
 
-    def clear_local(self):
-        path = os.path.join('static', 'images', self.endpoint.ident)
-        if os.path.isdir(path):
-            files = os.listdir(path)
-            for file_name in files:
-                file_path = os.path.join(path, file_name)
+    def clear_local(self, matching_endpoint):
+        def remove_files_from_path(path):
+            if os.path.isdir(path):
+                for file_name in os.listdir(path):
+                    file_path = os.path.join(path, file_name)
+                    self.remove_file(file_path)
+                return True
+            return False
 
-                # Use platform-specific file removal
-                self.remove_file(file_path)
+        path = os.path.join('static', 'images', matching_endpoint.ident)
+        if remove_files_from_path(path):
             return True
 
-        else:
-            return False
+        return False
 
     def remove_file(self, file_path):
         if platform.system() == 'Windows':

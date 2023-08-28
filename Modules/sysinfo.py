@@ -6,9 +6,8 @@ import os
 
 
 class Sysinfo:
-    def __init__(self, path, log_path, endpoint, server, shell_target):
-        self.server = server
-        self.shell_target = shell_target
+    def __init__(self, path, log_path, endpoint, remove_connection):
+        self.remove_connection = remove_connection
         self.endpoint = endpoint
         self.app_path = path
         self.log_path = log_path
@@ -17,8 +16,8 @@ class Sysinfo:
             os.makedirs(self.ident_path, exist_ok=True)
 
         self.logger = init_logger(self.log_path, __name__)
-        self.handlers = Handlers(self.log_path, self.app_path, self.endpoint)
-        self.local_dir = self.handlers.handle_local_dir()
+        self.handlers = Handlers(self.log_path, self.app_path)
+        self.local_dir = self.handlers.handle_local_dir(self.endpoint)
 
     def bytes_to_number(self, b: int) -> int:
         res = 0
@@ -41,7 +40,7 @@ class Sysinfo:
         except (WindowsError, socket.error) as e:
             self.logger.debug(f"Connection error: {e}")
             self.logger.debug(f"server.remove_lost_connection({self.endpoint})...")
-            self.server.remove_lost_connection(self.endpoint)
+            self.remove_connection(self.endpoint)
             return False
 
     def get_file_size(self):
@@ -56,7 +55,7 @@ class Sysinfo:
         except (WindowsError, socket.error) as e:
             self.logger.debug(f"Connection error: {e}")
             self.logger.debug(f"server.remove_lost_connection({self.endpoint})...")
-            self.server.remove_lost_connection(self.endpoint)
+            self.remove_connection(self.endpoint)
             return False
 
     def get_file_content(self):
@@ -80,7 +79,7 @@ class Sysinfo:
         except (WindowsError, socket.error) as e:
             self.logger.debug(f"Connection error: {e}")
             self.logger.debug(f"server.remove_lost_connection({self.endpoint})...")
-            self.server.remove_lost_connection(self.endpoint)
+            self.remove_connection(self.endpoint)
             return False
 
     def confirm(self):
@@ -91,7 +90,7 @@ class Sysinfo:
         except (WindowsError, socket.error) as e:
             self.logger.debug(f"Connection error: {e}")
             self.logger.debug(f"server.remove_lost_connection({self.endpoint})...")
-            self.server.remove_lost_connection(self.endpoint)
+            self.remove_connection(self.endpoint)
             return False
 
     def file_validation(self):
@@ -106,10 +105,6 @@ class Sysinfo:
             self.logger.debug(f"File validation Error: {e}")
             return False
 
-    def display_text(self):
-        self.logger.info(f"Running display_text...")
-        os.startfile(self.file_path)
-
     def run(self):
         self.logger.info(f"Running Sysinfo...")
         self.logger.debug(f"Calling get_file_name...")
@@ -123,12 +118,7 @@ class Sysinfo:
         self.logger.debug(f"Calling file_validation...")
         self.file_validation()
 
-        for endpoint in self.server.endpoints:
-            if endpoint.conn == self.shell_target:
-                shutil.move(self.file_path, self.local_dir)
+        shutil.move(self.file_path, self.local_dir)
 
-        # self.logger.debug(f"Calling display_text...")
-        # self.display_text()
         self.logger.info(f"Sysinfo completed.")
-
         return True

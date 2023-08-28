@@ -8,21 +8,20 @@ from Modules.utils import Handlers
 
 
 class Screenshot:
-    def __init__(self, path, log_path, endpoint, server, shell_target):
+    def __init__(self, path, log_path, endpoint, remove_connection, shell_target):
         self.images = []
         self.endpoint = endpoint
         self.path = path
         self.log_path = log_path
-        self.server = server
-        self.server_port = self.server.port
+        self.remove_connection = remove_connection
         self.shell_target = shell_target
         self.screenshot_path = os.path.join(self.path, self.endpoint.ident)
         if not os.path.exists(self.screenshot_path):
             os.makedirs(self.screenshot_path, exist_ok=True)
 
         self.logger = init_logger(self.log_path, __name__)
-        self.handlers = Handlers(self.log_path, self.path, self.endpoint)
-        self.local_dir = self.handlers.handle_local_dir()
+        self.handlers = Handlers(self.log_path, self.path)
+        self.local_dir = self.handlers.handle_local_dir(self.endpoint)
 
     def bytes_to_number(self, b: int) -> int:
         res = 0
@@ -125,7 +124,7 @@ class Screenshot:
         except (ConnectionError, socket.error) as e:
             self.logger.debug(f"Error: {e}.")
             self.logger.debug(f"Calling remove_lost_connection({self.endpoint}...")
-            self.server.remove_lost_connection(self.endpoint)
+            self.remove_connection(self.endpoint)
             return False
 
         self.logger.debug(f"Calling get_file_name...")
